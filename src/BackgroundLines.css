@@ -1,0 +1,15 @@
+.bg-lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bg-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0.5px;
+  background-color: #666666;
+  opacity: 1;
+}
