@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import BackgroundLines from './BackgroundLines'
-import { FloatingPaths } from './BackgroundPaths'
+import { BackgroundPathsDemo } from './BackgroundPathsDemo'
 import './App.css'
 
 function App() {
@@ -25,8 +25,7 @@ function App() {
       <div className="reading-progress" ref={progressRef}></div>
       <section className="blog-hero">
         <div className="hero-bg"></div>
-        <FloatingPaths position={1} />
-        <FloatingPaths position={-1} />
+        <BackgroundPathsDemo />
         <div className="hero-name">
           <span className="hero-title">HYPERSPACE</span>
           <span className="hero-subtitle">XR SIG</span>
