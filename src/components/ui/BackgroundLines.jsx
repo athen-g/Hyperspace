@@ -1,5 +1,3 @@
-import './BackgroundLines.css'
-
 /**
  * 5 full-height vertical guide lines.
  * Positions are proportional to a 1440px Figma reference viewport:
