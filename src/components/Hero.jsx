@@ -1,7 +1,6 @@
 import { BackgroundPathsDemo } from './ui/BackgroundPaths'
 import BackgroundLines from './ui/BackgroundLines'
 import Header from './Header'
-import Navbar from './Navbar'
 
 export default function Hero() {
   return (
