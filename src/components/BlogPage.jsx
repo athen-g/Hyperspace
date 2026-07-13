@@ -1,13 +1,8 @@
 import React, { useEffect } from 'react';
+import Header from './Header';
 import '../blog.css';
 
 const BlogPage = () => {
-  const handleNavClick = (e, path) => {
-    e.preventDefault();
-    window.history.pushState(null, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-
   useEffect(() => {
     // Scroll to top when page is rendered
     window.scrollTo(0, 0);
@@ -44,35 +39,12 @@ const BlogPage = () => {
   }, []);
 
   return (
-    <div className="blog-page-wrapper">
+    <>
+      <Header />
 
 
-  {/* ============================================================
-     SITE NAVIGATION
-     FIGMA NOTE: Fixed, height 64px, glass blur backdrop.
-     Logo: 34px pink-violet circle mark + HYPERSPACE text (Syne 700).
-     Nav links: Syne 600, 0.8rem, 0.12em tracking.
-     Active item "BLOG": white + 2px gradient underline.
-============================================================ */}
-  <nav className="site-nav">
-    <a href="/" className="nav-logo" onClick={(e) => handleNavClick(e, "/")}>
-      <div className="nav-logo-mark">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-          <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" stroke="white" stroke-width="1.5"
-            fill="none" />
-          <polygon points="12,7 16,10.5 17,14.5 14,18 10,18 7,14.5 8,10.5" fill="white" opacity="0.85" />
-        </svg>
-      </div>
-      <span className="nav-logo-text">Hyperspace</span>
-    </a>
-    <ul className="nav-links">
-      <li><a href="/" onClick={(e) => handleNavClick(e, '/')}>Home</a></li>
-      <li><a href="/events" onClick={(e) => handleNavClick(e, '/')}>Events</a></li>
-      <li><a href="/blog" className="active" onClick={(e) => handleNavClick(e, '/blog')}>Blog</a></li>
-      <li><a href="/team" onClick={(e) => handleNavClick(e, '/team')}>Team</a></li>
-      <li><a href="/about" onClick={(e) => handleNavClick(e, '/')}>About</a></li>
-    </ul>
-  </nav>
+
+  
 
   {/* ============================================================
      BLOG HERO SECTION
@@ -560,7 +532,7 @@ const BlogPage = () => {
   <footer className="site-footer">
     <div className="footer-grid">
       <div>
-        <a className="footer-logo" href="/" onClick={(e) => handleNavClick(e, "/")}>
+        <a className="footer-logo" href="#">
           <div className="footer-logo-mark">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
               <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" stroke="white" stroke-width="1.5"
@@ -576,11 +548,11 @@ const BlogPage = () => {
       <div>
         <div className="footer-col-title">Navigate</div>
         <ul className="footer-links">
-          <li><a href="/" onClick={(e) => handleNavClick(e, '/')}>Home</a></li>
-          <li><a href="/about" onClick={(e) => handleNavClick(e, '/')}>About</a></li>
-          <li><a href="/works" onClick={(e) => handleNavClick(e, '/')}>Works</a></li>
-          <li><a href="/blog" onClick={(e) => handleNavClick(e, '/blog')}>Blogs</a></li>
-          <li><a href="/contact" onClick={(e) => handleNavClick(e, '/')}>Contact</a></li>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Works</a></li>
+          <li><a href="#">Blogs</a></li>
+          <li><a href="#">Contact</a></li>
         </ul>
       </div>
 
@@ -614,7 +586,9 @@ const BlogPage = () => {
       <span>Department of Computer Engineering</span>
     </div>
   </footer>
-</div>
+
+  
+    </>
   );
 };
 
