@@ -1,9 +1,15 @@
-import { useEffect, useRef } from 'react'
-import BackgroundLines from './BackgroundLines'
-import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import Hero from './components/Hero'
+
+const routes = {
+  '/': <Hero />,
+  '/about': <section className="blog-hero"><div className="hero-name"><span className="hero-title">ABOUT</span></div></section>,
+  '/events': <section className="blog-hero"><div className="hero-name"><span className="hero-title">EVENTS</span></div></section>,
+}
 
 function App() {
   const progressRef = useRef(null)
+  const [path, setPath] = useState(window.location.pathname)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,24 +20,24 @@ function App() {
         progressRef.current.style.width = progress + '%'
       }
     }
+
+    const handlePopState = () => setPath(window.location.pathname)
+
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('popstate', handlePopState)
+    }
   }, [])
+
+  const currentView = routes[path] ?? routes['/']
 
   return (
     <>
-      <BackgroundLines />
       <div className="reading-progress" ref={progressRef}></div>
-      <section className="blog-hero">
-        <div className="hero-bg"></div>
-        <div className="hero-orb hero-orb-1"></div>
-        <div className="hero-orb hero-orb-2"></div>
-        <div className="hero-orb hero-orb-3"></div>
-        <div className="hero-name">
-          <span className="hero-title">HYPERSPACE</span>
-          <span className="hero-subtitle">XR SIG</span>
-        </div>
-      </section>
+      {currentView}
     </>
   )
 }
