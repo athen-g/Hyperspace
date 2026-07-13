@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import Hero from './components/Hero'
-
-const routes = {
-  '/': <Hero />,
-  '/about': <section className="blog-hero"><div className="hero-name"><span className="hero-title">ABOUT</span></div></section>,
-  '/events': <section className="blog-hero"><div className="hero-name"><span className="hero-title">EVENTS</span></div></section>,
-}
+import LandingPage from './components/LandingPage'
 
 function App() {
   const progressRef = useRef(null)
@@ -32,12 +26,27 @@ function App() {
     }
   }, [])
 
-  const currentView = routes[path] ?? routes['/']
+  // Route handling
+  const renderPage = () => {
+    switch (path) {
+      case '/':
+      case '/home':
+        return <LandingPage />
+      case '/team':
+        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">TEAM</span></div></div>
+      case '/news':
+        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">NEWS</span></div></div>
+      case '/blog':
+        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">BLOG</span></div></div>
+      default:
+        return <LandingPage />
+    }
+  }
 
   return (
     <>
       <div className="reading-progress" ref={progressRef}></div>
-      {currentView}
+      {renderPage()}
     </>
   )
 }
