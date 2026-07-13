@@ -6,8 +6,8 @@ export default function Hero() {
   return (
     <>
       <Header />
-        <BackgroundLines />
-      <section className="blog-hero">
+      <BackgroundLines />
+      <section id="home" className="blog-hero">
         <div className="hero-bg"></div>
         <BackgroundPathsDemo />
         <div className="hero-name">
