@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './components/LandingPage'
+import BlogPage from './components/BlogPage'
 
 function App() {
   const progressRef = useRef(null)
@@ -37,7 +38,7 @@ function App() {
       case '/news':
         return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">NEWS</span></div></div>
       case '/blog':
-        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">BLOG</span></div></div>
+        return <BlogPage />
       default:
         return <LandingPage />
     }
