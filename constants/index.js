@@ -1,5 +1,5 @@
-import homeIcon from '../src/assets/photos/Home.svg'
-import aboutIcon from '../src/assets/photos/About.svg'
+import homeIcon from '../src/assets/photos/home.svg'
+import aboutIcon from '../src/assets/photos/about.svg'
 import eventsIcon from '../src/assets/photos/events.svg'
 import contactIcon from '../src/assets/photos/contact.svg'
 const NAV_ITEMS = [
