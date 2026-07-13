@@ -1,6 +1,9 @@
+import { useMediaQuery } from 'react-responsive'
 import logo from '../assets/photos/Logo.svg'
 
 export default function Header() {
+
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const handleNavClick = (e, href) => {
     e.preventDefault()
     window.history.pushState(null, '', href)
@@ -8,7 +11,9 @@ export default function Header() {
   }
 
   return (
-    <header className="site-header">
+    <header className="site-header" style={{
+      boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.04)",
+    }}>
       <div className="site-header__inner">
         <div className="site-header__title">
           <a href="/" onClick={(e) => handleNavClick(e, '/')} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
