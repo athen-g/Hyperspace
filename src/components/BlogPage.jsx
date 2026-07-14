@@ -66,41 +66,39 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 
         <div className="blog-hero-content">
           <div className="blog-hero-eyebrow">
-            <span className="eyebrow-left">Design Journal</span>
-            <span className="eyebrow-right">Hyperspace XR SIG</span>
+            <span>—— Design Journal</span>
+            <span className="bullet">·</span>
+            <span>HYPERSPACE XR SIG</span>
           </div>
 
-          <div className="blog-hero-main-layout">
-            <div className="blog-hero-left">
-              <h1 className="blog-hero-title">
-                <span className="title-highlight">Crafting Visual Identity:</span>
-                <span className="title-normal"> From Blank Canvas to Brand Universe</span>
-              </h1>
-              
-              <div className="blog-hero-meta">
-                <div className="author-avatar">AG</div>
-                <div>
-                  <div className="author-name">Atharva Ghule</div>
-                  <div className="author-role-date">
-                    Design Head, Hyperspace SIG
-                    <span className="mx-2 text-[var(--text-faint)]">·</span>
-                    May 30, 2026
-                    <span className="mx-2 text-[var(--text-faint)]">·</span>
-                    12 min read
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h1 className="blog-hero-title">
+            <span className="pink-text">CRAFTING VISUAL<br />IDENTITY: </span>
+            <span className="white-text">FROM<br />BLANK CANVAS TO<br />BRAND UNIVERSE</span>
+          </h1>
 
-            <div className="blog-hero-right">
-              <p className="blog-hero-subtitle">
-                A behind-the-scenes look at how our design team translates the language of extended reality into a cohesive,
-                immersive visual world — one poster, backdrop, and banner at a time.
-              </p>
+          <p className="blog-hero-subtitle">
+            A behind-the-scenes look at how our design team translates the language
+            of extended reality into a cohesive, immersive visual world — one poster,
+            backdrop, and banner at a time.
+          </p>
+
+          <div className="blog-hero-author-meta">
+            <div className="author-avatar-img-wrapper">
+              <img src="/favicon.svg" alt="Avatar" className="author-avatar-img" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            <div className="author-text-info">
+              <span className="author-name">Atharva Ghule</span>
+              <span className="meta-sep">·</span>
+              <span className="author-role-date">Design Head, Hyperspace SIG</span>
+              <span className="meta-sep">·</span>
+              <span className="author-date">May 30, 2026</span>
+              <span className="meta-sep">·</span>
+              <span className="read-time">12 min read</span>
             </div>
           </div>
         </div>
-        <div className="blog-hero-fade-bottom"></div>
+
+        <div className="hero-fade-bottom"></div>
       </section>
 
       {/* ============================================================

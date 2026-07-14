@@ -502,8 +502,13 @@ body::before {
 .blog-page-wrapper .hero-content {
   position: relative;
   z-index: 2;
-  padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 8vw, 8rem) clamp(4rem, 8vw, 6rem);
+  padding: 112px 115.2px 96px;
   animation: heroFadeIn 0.8s ease-out both;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 @keyframes heroFadeIn {
@@ -511,110 +516,92 @@ body::before {
     opacity: 0;
     transform: translateY(30px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* FIGMA NOTE: Eyebrow — JetBrains Mono 0.75rem, 0.2em tracking, accent-pink.
-       Flex row with 32px line before text. */
 .blog-page-wrapper .hero-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent-pink);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   display: flex;
-  height: 36px;
-  padding-bottom: 20px;
   align-items: center;
-  align-content: space-between;
-  column-gap: 3px;
-  flex-wrap: wrap;
+  gap: 0.5rem;
   animation: heroFadeIn 0.8s ease-out 0.1s both;
 }
 
-.blog-page-wrapper .hero-eyebrow::before {
-  content: '';
-  width: 32px;
-  height: 1px;
-  background: var(--accent-pink);
+.blog-page-wrapper .hero-eyebrow .bullet {
+  color: var(--text-faint);
 }
 
-/* FIGMA NOTE: Hero title — Syne 800, clamp(2.4rem,5.5vw,4.5rem),
-       line-height 1.05, letter-spacing -0.02em, max-width 900px.
-       Gradient: #8B5CF6 → #00D4FF, 135deg. */
 .blog-page-wrapper .hero-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  max-width: 900px;
-  margin-bottom: 1.5rem;
+  font-family: Mokoto, sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.2vw, 4.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 2rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
-  background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-cyan) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.blog-page-wrapper .hero-title .pink-text {
+  color: var(--accent-pink);
+}
+
+.blog-page-wrapper .hero-title .white-text {
+  color: #ffffff;
 }
 
 .blog-page-wrapper .hero-subtitle {
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
   color: var(--text-muted);
-  max-width: 560px;
+  max-width: 720px;
   line-height: 1.65;
   margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.3s both;
 }
 
-/* FIGMA NOTE: Author row — flex, gap 1rem.
-       Avatar: 44px circle, gradient pink→violet, Syne 800 1rem initials.
-       Name: Syne 700 0.95rem. Role+date: DM Sans 0.8rem text-muted. */
-.blog-page-wrapper .blog-hero-meta {
+.blog-page-wrapper .blog-hero-author-meta {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
   animation: heroFadeIn 0.8s ease-out 0.4s both;
 }
 
-.blog-page-wrapper .blog-hero-meta .author-avatar {
+.blog-page-wrapper .blog-hero-author-meta .author-avatar-img-wrapper {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-violet), var(--accent-pink));
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+  background-color: var(--bg-surface);
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-text-info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1rem;
-  color: white;
-  flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  box-shadow: var(--glow-violet);
-}
-
-.blog-page-wrapper .blog-hero-meta .author-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-}
-
-.blog-page-wrapper .blog-hero-meta .author-role-date {
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
   color: var(--text-muted);
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
   flex-wrap: wrap;
 }
 
-.blog-page-wrapper .blog-hero-meta .author-role-date span {
+.blog-page-wrapper .blog-hero-author-meta .author-name {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-body);
+}
+
+.blog-page-wrapper .blog-hero-author-meta .meta-sep {
   color: var(--text-faint);
 }
 
