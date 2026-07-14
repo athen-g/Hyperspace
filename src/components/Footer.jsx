@@ -39,20 +39,19 @@ export default function Footer() {
 
           {/* Col 2: Sitemap */}
           <div className="footer-sitemap-col">
-            <div className="footer-col-header">Sitemap</div>
             <ul className="footer-links-list">
-              <li><a href="#home">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#events">Works</a></li>
-              <li><a href="/blog">Blogs</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li><a href="#home" className="footer-nav-link"><span>Home</span><span className="arrow">→</span></a></li>
+              <li><a href="#about" className="footer-nav-link"><span>About</span><span className="arrow">→</span></a></li>
+              <li><a href="#events" className="footer-nav-link"><span>Works</span><span className="arrow">→</span></a></li>
+              <li><a href="/blog" className="footer-nav-link"><span>Blogs</span><span className="arrow">→</span></a></li>
+              <li><a href="#contact" className="footer-nav-link"><span>Contact</span><span className="arrow">→</span></a></li>
             </ul>
           </div>
 
           {/* Col 3: Socials */}
           <div className="footer-socials-col">
-            <div className="footer-col-header">Follow on</div>
-            <ul className="footer-links-list">
+            <div className="footer-col-header footer-col-header--pink">Follow on</div>
+            <ul className="footer-social-list">
               <li><a href="#" target="_blank" rel="noopener noreferrer">YOUTUBE</a></li>
               <li><a href="#" target="_blank" rel="noopener noreferrer">INSTAGRAM</a></li>
               <li><a href="#" target="_blank" rel="noopener noreferrer">WHATSAPP</a></li>

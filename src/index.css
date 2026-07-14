@@ -1228,7 +1228,7 @@ body::before {
 /* Horizontal rule lines with endpoint dot circles */
 .footer-rule {
   position: relative;
-  margin: 0 3.472%;
+  margin: 0 3.35%;
   height: 1px;
   background-color: #666666;
   display: flex;
@@ -1243,7 +1243,6 @@ body::before {
   border-radius: 50%;
   background-color: #666666;
   flex-shrink: 0;
-  /* Pull dots to sit centred on the line */
   margin-top: 0;
 }
 
@@ -1327,37 +1326,95 @@ body::before {
   color: #ffffff;
 }
 
-/* Sitemap / Links Headers */
+/* Sitemap / Links column header */
 .footer-col-header {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* "FOLLOW ON" header is pink */
+.footer-col-header--pink {
+  color: var(--accent-pink);
+  border-bottom: none;
+  margin-bottom: 1.25rem;
+}
+
+/* Sitemap nav links — full-width rows with separator lines and arrow */
 .footer-links-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 }
 
-.footer-links-list a {
+.footer-links-list li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-links-list li:last-child {
+  border-bottom: none;
+}
+
+.footer-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 0;
   color: #ffffff;
   text-decoration: none;
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
   transition: color 0.2s ease;
 }
 
-.footer-links-list a:hover {
+.footer-nav-link:hover {
+  color: var(--accent-pink);
+}
+
+.footer-nav-link .arrow {
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-nav-link:hover .arrow {
+  color: var(--accent-pink);
+  transform: translateX(4px);
+}
+
+/* Socials plain list — no separators, no arrows */
+.footer-social-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-social-list a {
+  color: #ffffff;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.footer-social-list a:hover {
   color: var(--accent-pink);
 }
 
