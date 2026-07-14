@@ -57,7 +57,7 @@ export default function Footer() {
           {/* Col 4: Tagline & Credits */}
           <div className="footer-tagline-col">
             <p className="footer-statement">
-              Creating experiences that balance aesthetics, usability, and intent.
+              <span className="pink-text">CREATING EXPERIENCES THAT MATTER</span> <span className="white-text">AESTHETICS, USABILITY, AND INTENT.</span>
             </p>
             <div className="footer-created-by">
               <span className="created-text">Created by</span>
