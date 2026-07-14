@@ -5,6 +5,9 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-main-container">
         <div className="footer-grid">
+          {/* Col 0: Left Spacer to align brand with Line 1 */}
+          <div className="footer-spacer-col"></div>
+
           {/* Col 1: Brand Info */}
           <div className="footer-brand-col">
             <a className="footer-logo" href="#home">
@@ -55,12 +58,25 @@ export default function Footer() {
               <span className="created-brand">HYPERSPACE</span>
             </div>
           </div>
+
+          {/* Col 5: Right Spacer to align tagline with Line 5 */}
+          <div className="footer-spacer-col"></div>
         </div>
       </div>
 
-      {/* Giant Bottom Heading */}
-      <div className="footer-bottom-heading">
-        <h2>HYPERSPACE</h2>
+      {/* Dotted separator line */}
+      <div className="footer-divider-container">
+        <div className="footer-divider-dot left-dot"></div>
+        <hr className="footer-divider-line" />
+        <div className="footer-divider-dot right-dot"></div>
+      </div>
+
+      {/* Giant Wordmark Section */}
+      <div className="footer-wordmark-container">
+        <h2 className="footer-wordmark-main">HYPERSPACE</h2>
+        <div className="footer-wordmark-sub-container">
+          <span className="footer-wordmark-sub-text">XR SIG</span>
+        </div>
       </div>
     </footer>
   );
