@@ -1218,13 +1218,33 @@ body::before {
   left: 96.528%;
 }
 
-/* Main container with solid top & bottom border */
+/* Main container — borders replaced by explicit rule elements */
 .footer-main-container {
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   z-index: 1;
   width: 100%;
+}
+
+/* Horizontal rule lines with endpoint dot circles */
+.footer-rule {
+  position: relative;
+  margin: 0 3.472%;
+  height: 1px;
+  background-color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-rule-dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #666666;
+  flex-shrink: 0;
+  /* Pull dots to sit centred on the line */
+  margin-top: 0;
 }
 
 .footer-grid {
@@ -1444,25 +1464,21 @@ body::before {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  max-width: 1340px;
-  margin: -1rem auto 0;
+  margin: -80px 0 36px 0;
 }
 
 .footer-wordmark-sub-text {
   display: flex;
-  width: 320px;
-  height: 108px;
+  width: 426.66px;
   flex-direction: column;
   justify-content: center;
-  color: #FFF;
+  color: var(--white);
   text-align: center;
-  font-family: Mokoto;
-  font-size: 72px;
+  font-family: var(--font-mokoto);
+  font-size: 136px;
   font-style: normal;
   font-weight: 400;
   line-height: 90px;
-  /* 125% */
-  letter-spacing: -7.2px;
   text-transform: uppercase;
 }
 

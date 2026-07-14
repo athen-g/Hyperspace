@@ -13,6 +13,12 @@ export default function Footer() {
       </div>
 
       <div className="footer-main-container">
+        {/* Top rule line with endpoint circles */}
+        <div className="footer-rule">
+          <span className="footer-rule-dot"></span>
+          <span className="footer-rule-dot"></span>
+        </div>
+
         <div className="footer-grid">
           {/* Col 0: Left Spacer */}
           <div className="footer-spacer-col"></div>
@@ -70,6 +76,12 @@ export default function Footer() {
 
           {/* Col 5: Right Spacer */}
           <div className="footer-spacer-col"></div>
+        </div>
+
+        {/* Bottom rule line with endpoint circles */}
+        <div className="footer-rule">
+          <span className="footer-rule-dot"></span>
+          <span className="footer-rule-dot"></span>
         </div>
       </div>
 
