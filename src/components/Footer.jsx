@@ -3,79 +3,74 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="site-footer">
-      {/* Figma background vertical grid lines */}
-      <div className="footer-background-lines">
-        <div className="line l1"></div>
-        <div className="line l2"></div>
-        <div className="line l3"></div>
-        <div className="line l4"></div>
-        <div className="line l5"></div>
+      {/* Background border pattern (5 columns grid) */}
+      <div className="footer-bg-grid">
+        <div className="bg-col"></div>
+        <div className="bg-col"></div>
+        <div className="bg-col"></div>
+        <div className="bg-col"></div>
+        <div className="bg-col"></div>
       </div>
 
-      <div className="footer-grid">
-        {/* Col 1: Logo & Brand Info */}
-        <div className="footer-brand-col">
-          <a className="footer-logo" href="#home">
-            <img src="/favicon.svg" alt="Hyperspace Logo" className="footer-logo-img" style={{ width: "38px", height: "38px", objectFit: "contain" }} />
-            <span className="footer-logo-text">Hyperspace</span>
-          </a>
-          <p className="footer-brand-subtitle">
-            <span className="pink-highlight">HVVVVV</span> CLARITY, PURPOSE, AND PRECISION.
-          </p>
-        </div>
+      <div className="footer-main-container">
+        <div className="footer-grid">
+          {/* Col 1: Brand Info */}
+          <div className="footer-brand-col">
+            <a className="footer-logo" href="#home">
+              <img src="/favicon.svg" alt="Hyperspace Logo" className="footer-logo-img" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
+              <span className="footer-logo-text">Hyperspace</span>
+            </a>
+            <p className="footer-brand-tagline">
+              Crafting thoughtful digital experiences built on clarity, purpose, and precision.
+            </p>
+            <a className="footer-cta-btn" href="#contact">
+              <span>Book a Call</span>
+              <span className="arrow">→</span>
+            </a>
+          </div>
 
-        {/* Col 2: Navigate List */}
-        <div className="footer-nav-col">
-          <ul className="footer-links-list">
-            <li><a href="#home">HOME <span className="arrow">→</span></a></li>
-            <li><a href="#about">ABOUT <span className="arrow">→</span></a></li>
-            <li><a href="#events">WORKS <span className="arrow">→</span></a></li>
-            <li><a href="/blog">BLOGS <span className="arrow">→</span></a></li>
-            <li><a href="#contact">CONTACT <span className="arrow">→</span></a></li>
-          </ul>
-        </div>
+          {/* Col 2: Sitemap */}
+          <div className="footer-sitemap-col">
+            <div className="footer-col-header">Sitemap</div>
+            <ul className="footer-links-list">
+              <li><a href="#home">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#events">Works</a></li>
+              <li><a href="/blog">Blogs</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
 
-        {/* Col 3: Follow On List */}
-        <div className="footer-follow-col">
-          <div className="footer-title-pink">FOLLOW ON</div>
-          <ul className="footer-social-links">
-            <li><a href="#" target="_blank" rel="noopener noreferrer">YOUTUBE</a></li>
-            <li><a href="#" target="_blank" rel="noopener noreferrer">INSTAGRAM</a></li>
-            <li><a href="#" target="_blank" rel="noopener noreferrer">WHATSAPP</a></li>
-            <li><a href="#" target="_blank" rel="noopener noreferrer">LINKEDIN</a></li>
-          </ul>
-        </div>
+          {/* Col 3: Socials */}
+          <div className="footer-socials-col">
+            <div className="footer-col-header">Follow on</div>
+            <ul className="footer-links-list">
+              <li><a href="#" target="_blank" rel="noopener noreferrer">YOUTUBE</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">INSTAGRAM</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">WHATSAPP</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">LINKEDIN</a></li>
+            </ul>
+          </div>
 
-        {/* Col 4: Tagline & Credits */}
-        <div className="footer-tagline-col">
-          <p className="footer-statement">
-            <span className="pink-text">CREATING EXPERIENCES THAT BALANCE</span> AESTHETICS, USABILITY, AND INTENT.
-          </p>
-          <div className="footer-created-by">
-            <span>CREATED BY</span>
-            <span className="logo-spark">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="spark-svg" style={{ width: "14px", height: "14px" }}>
-                <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" fill="#E91E63" />
-              </svg>
-            </span>
-            <span className="created-brand">HYPERSPACE</span>
+          {/* Col 4: Tagline & Credits */}
+          <div className="footer-tagline-col">
+            <p className="footer-statement">
+              Creating experiences that balance aesthetics, usability, and intent.
+            </p>
+            <div className="footer-created-by">
+              <span className="created-text">Created by</span>
+              <div className="avatar-wrapper">
+                <img src="/favicon.svg" alt="Hyperspace Avatar" className="avatar-img" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <span className="created-brand">HYPERSPACE</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Dotted separator line */}
-      <div className="footer-divider-container">
-        <div className="footer-divider-dot left-dot"></div>
-        <hr className="footer-divider-line" />
-        <div className="footer-divider-dot right-dot"></div>
-      </div>
-
-      {/* Giant Wordmark Section */}
-      <div className="footer-wordmark-container">
-        <h2 className="footer-wordmark-main">HYPERSPACE</h2>
-        <div className="footer-wordmark-sub-container">
-          <span className="footer-wordmark-sub-text">XR SIG</span>
-        </div>
+      {/* Giant Bottom Heading */}
+      <div className="footer-bottom-heading">
+        <h2>HYPERSPACE</h2>
       </div>
     </footer>
   );
