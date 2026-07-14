@@ -3,6 +3,15 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="site-footer">
+      {/* Figma background vertical grid lines */}
+      <div className="footer-background-lines">
+        <div className="line l1"></div>
+        <div className="line l2"></div>
+        <div className="line l3"></div>
+        <div className="line l4"></div>
+        <div className="line l5"></div>
+      </div>
+
       <div className="footer-grid">
         {/* Col 1: Logo & Brand Info */}
         <div className="footer-brand-col">
