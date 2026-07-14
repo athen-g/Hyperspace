@@ -3,30 +3,20 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="site-footer">
-      {/* Background border pattern (5 columns grid) */}
-      <div className="footer-bg-grid">
-        <div className="bg-col"></div>
-        <div className="bg-col"></div>
-        <div className="bg-col"></div>
-        <div className="bg-col"></div>
-        <div className="bg-col"></div>
-      </div>
-
       <div className="footer-main-container">
         <div className="footer-grid">
           {/* Col 1: Brand Info */}
           <div className="footer-brand-col">
             <a className="footer-logo" href="#home">
-              <img src="/favicon.svg" alt="Hyperspace Logo" className="footer-logo-img" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
-              <span className="footer-logo-text">Hyperspace</span>
+              <img src="/favicon.svg" alt="Hyperspace Logo" className="footer-logo-img" />
+              <span className="footer-logo-text">
+                <span>HYPER</span>
+                <span>SPACE</span>
+              </span>
             </a>
-            <p className="footer-brand-tagline">
-              Crafting thoughtful digital experiences built on clarity, purpose, and precision.
+            <p className="footer-brand-subtitle">
+              <span className="pink-text">HVVVVV</span> <span className="white-text">CLARITY, PURPOSE, AND PRECISION.</span>
             </p>
-            <a className="footer-cta-btn" href="#contact">
-              <span>Book a Call</span>
-              <span className="arrow">→</span>
-            </a>
           </div>
 
           {/* Col 2: Sitemap */}
