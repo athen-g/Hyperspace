@@ -8,6 +8,7 @@ import accessGrantedImg from '../assets/photos/access-granted.jpg';
 
 import Header from './Header';
 import BackgroundLines from './ui/BackgroundLines';
+import Footer from './Footer';
 
 
 const BlogPage = () => {
@@ -47,8 +48,9 @@ const BlogPage = () => {
   }, []);
 
   return (
-    <div className="blog-page-wrapper">
-      <Header />
+    <>
+      <div className="blog-page-wrapper">
+        <Header />
       <BackgroundLines />
       {/* ============================================================
 BLOG HERO SECTION
@@ -532,6 +534,8 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 
       </div>
     </div>
+      <Footer />
+    </>
   );
 };
 
