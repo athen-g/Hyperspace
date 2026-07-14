@@ -3,9 +3,18 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="site-footer">
+      {/* Absolute positioned background lines stretching from top to bottom */}
+      <div className="footer-background-lines">
+        <span className="line l1"></span>
+        <span className="line l2"></span>
+        <span className="line l3"></span>
+        <span className="line l4"></span>
+        <span className="line l5"></span>
+      </div>
+
       <div className="footer-main-container">
         <div className="footer-grid">
-          {/* Col 0: Left Spacer to align brand with Line 1 */}
+          {/* Col 0: Left Spacer */}
           <div className="footer-spacer-col"></div>
 
           {/* Col 1: Brand Info */}
@@ -59,16 +68,9 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Col 5: Right Spacer to align tagline with Line 5 */}
+          {/* Col 5: Right Spacer */}
           <div className="footer-spacer-col"></div>
         </div>
-      </div>
-
-      {/* Dotted separator line */}
-      <div className="footer-divider-container">
-        <div className="footer-divider-dot left-dot"></div>
-        <hr className="footer-divider-line" />
-        <div className="footer-divider-dot right-dot"></div>
       </div>
 
       {/* Giant Wordmark Section */}
