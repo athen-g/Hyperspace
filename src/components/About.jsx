@@ -12,8 +12,24 @@ const About = () => {
 
     const isMobile = useMediaQuery({ query: ('max-width: 414px') });
     useGSAP(() => {
-        const aboutSplit = new SplitText('.about-title', { type: 'chars, words' });
-        const lineSplit = new SplitText('.about-us-content', { type: 'lines' });
+        const lineSplit = new SplitText('.impact-title', { type: 'lines' });
+
+        const aboutTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: '#about',
+                start: '30% center'
+            }
+        })
+
+        aboutTimeline
+            .from(lineSplit.lines, {
+                opacity: 0,
+                yPercent: 100,
+                duration: 1.8,
+                ease: 'expo.out',
+                delay: 1,
+                stagger: 0.05
+            });
 
         const scrollTimeline = gsap.timeline({
             scrollTrigger: {
@@ -28,10 +44,8 @@ const About = () => {
             .to('.butterfly', { y: -100 }, 0)
             .to('.face', { y: -200 }, 0);
 
-        // Rolling number animation for impact cards
         document.querySelectorAll('.card-number').forEach((el) => {
             const raw = el.textContent.trim();
-            // Split numeric part from suffix (e.g. "94%" → ["94", "%"], "3+" → ["3", "+"])
             const match = raw.match(/^(\d+)(.*)$/);
             if (!match) return;
 
@@ -47,7 +61,6 @@ const About = () => {
                 }
             });
 
-            // Phase 1: roll linearly from 01 → 99
             tl.to(obj, {
                 val: 99,
                 duration: 1.5,
@@ -56,19 +69,17 @@ const About = () => {
                     el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
                 }
             })
-            // Phase 2: decelerate and land on real value
-            .to(obj, {
-                val: target,
-                duration: 0.6,
-                ease: 'power4.out',
-                onUpdate() {
-                    el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
-                },
-                onComplete() {
-                    // Remove zero-padding on the final settled number
-                    el.textContent = target + suffix;
-                }
-            });
+                .to(obj, {
+                    val: target,
+                    duration: 0.6,
+                    ease: 'power4.out',
+                    onUpdate() {
+                        el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
+                    },
+                    onComplete() {
+                        el.textContent = target + suffix;
+                    }
+                });
         });
 
     })
