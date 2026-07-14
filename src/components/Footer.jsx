@@ -7,12 +7,7 @@ export default function Footer() {
         {/* Col 1: Logo & Brand Info */}
         <div className="footer-brand-col">
           <a className="footer-logo" href="#home">
-            <div className="footer-logo-mark">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-                <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" stroke="white" stroke-width="1.5" fill="none" />
-                <polygon points="12,7 16,10.5 17,14.5 14,18 10,18 7,14.5 8,10.5" fill="white" opacity="0.85" />
-              </svg>
-            </div>
+            <img src="/favicon.svg" alt="Hyperspace Logo" className="footer-logo-img" style={{ width: "38px", height: "38px", objectFit: "contain" }} />
             <span className="footer-logo-text">Hyperspace</span>
           </a>
           <p className="footer-brand-subtitle">
