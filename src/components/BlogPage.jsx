@@ -7,6 +7,7 @@ import recruitmentImg from '../assets/photos/recruitment 2026.jpg';
 import accessGrantedImg from '../assets/photos/access-granted.jpg';
 
 import Header from './Header';
+import BackgroundLines from './ui/BackgroundLines';
 import '../blog.css';
 
 const BlogPage = () => {
@@ -48,16 +49,12 @@ const BlogPage = () => {
   return (
     <>
       <Header />
-
-
-
-
-
+      <BackgroundLines />
       {/* ============================================================
-     BLOG HERO SECTION
-     FIGMA NOTE: min-height 90vh. Dark gradient bg + animated glow orbs.
-     Three orbs: 520px violet (top-right), 380px cyan (bottom-left), 250px pink (mid).
-     Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
+BLOG HERO SECTION
+FIGMA NOTE: min-height 90vh. Dark gradient bg + animated glow orbs.
+Three orbs: 520px violet (top-right), 380px cyan (bottom-left), 250px pink (mid).
+Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 ============================================================ */}
       <section className="blog-hero">
         <div className="hero-bg"></div>
