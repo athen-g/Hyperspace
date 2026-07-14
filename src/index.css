@@ -1403,29 +1403,48 @@ body::before {
 }
 
 .footer-wordmark-main {
-  font-family: var(--font-mokoto);
-  font-size: clamp(3.5rem, 12vw, 12rem);
-  line-height: 0.8;
-  letter-spacing: -0.05em;
-  color: #ffffff;
-  margin: 0;
-  text-align: left;
+  display: flex;
+  width: 100%;
+  max-width: 1340px;
+  height: 327px;
+  flex-direction: column;
+  justify-content: center;
+  color: #E91E63;
+  text-align: center;
+  font-family: Mokoto;
+  font-size: 168px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 90px; /* 53.571% */
+  letter-spacing: -16.8px;
+  text-transform: uppercase;
   user-select: none;
+  margin: 0 auto;
 }
 
 .footer-wordmark-sub-container {
   display: flex;
   justify-content: flex-end;
-  margin-top: -1rem;
+  width: 100%;
+  max-width: 1340px;
+  margin: -1rem auto 0;
 }
 
 .footer-wordmark-sub-text {
-  font-family: var(--font-mokoto);
-  font-size: clamp(1.5rem, 3.5vw, 3.2rem);
-  color: var(--white);
-  letter-spacing: 0.1em;
-  text-align: right;
-  line-height: 1;
+  display: flex;
+  width: 320px;
+  height: 108px;
+  flex-direction: column;
+  justify-content: center;
+  color: #FFF;
+  text-align: center;
+  font-family: Mokoto;
+  font-size: 72px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 90px; /* 125% */
+  letter-spacing: -7.2px;
+  text-transform: uppercase;
 }
 
 /* Bottom Heading */
