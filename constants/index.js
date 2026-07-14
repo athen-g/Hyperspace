@@ -10,5 +10,5 @@ const NAV_ITEMS = [
 ];
 
 export {
-    NAV_ITEMS,
+  NAV_ITEMS,
 };

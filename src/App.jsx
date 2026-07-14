@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './components/LandingPage'
+import gsap from 'gsap'
+import { ScrollTrigger, SplitText } from 'gsap/all';
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
   const progressRef = useRef(null)
