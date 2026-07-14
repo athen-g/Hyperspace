@@ -569,14 +569,14 @@ body::before {
 /* FIGMA NOTE: Author row — flex, gap 1rem.
        Avatar: 44px circle, gradient pink→violet, Syne 800 1rem initials.
        Name: Syne 700 0.95rem. Role+date: DM Sans 0.8rem text-muted. */
-.blog-page-wrapper .hero-meta {
+.blog-page-wrapper .blog-hero-meta {
   display: flex;
   align-items: center;
   gap: 1rem;
   animation: heroFadeIn 0.8s ease-out 0.4s both;
 }
 
-.blog-page-wrapper .author-avatar {
+.blog-page-wrapper .blog-hero-meta .author-avatar {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -593,14 +593,14 @@ body::before {
   box-shadow: var(--glow-violet);
 }
 
-.blog-page-wrapper .author-name {
+.blog-page-wrapper .blog-hero-meta .author-name {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--text-primary);
 }
 
-.blog-page-wrapper .author-role-date {
+.blog-page-wrapper .blog-hero-meta .author-role-date {
   font-size: 0.8rem;
   color: var(--text-muted);
   display: flex;
@@ -609,7 +609,7 @@ body::before {
   flex-wrap: wrap;
 }
 
-.blog-page-wrapper .author-role-date span {
+.blog-page-wrapper .blog-hero-meta .author-role-date span {
   color: var(--text-faint);
 }
 

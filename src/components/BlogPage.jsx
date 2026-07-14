@@ -57,38 +57,48 @@ Three orbs: 520px violet (top-right), 380px cyan (bottom-left), 250px pink (mid)
 Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 ============================================================ */}
       <section className="blog-hero">
-        <div className="hero-bg"></div>
-        <div className="hero-orb hero-orb-1"></div>
-        <div className="hero-orb hero-orb-2"></div>
-        <div className="hero-orb hero-orb-3"></div>
+        <div className="blog-hero-bg"></div>
+        <div className="blog-hero-orb blog-hero-orb-1"></div>
+        <div className="blog-hero-orb blog-hero-orb-2"></div>
+        <div className="blog-hero-orb blog-hero-orb-3"></div>
 
-        <div className="hero-content">
-          <div className="hero-eyebrow">Design Journal &nbsp;·&nbsp; Hyperspace XR SIG</div>
+        <div className="blog-hero-content">
+          <div className="blog-hero-eyebrow">
+            <span className="eyebrow-left">Design Journal</span>
+            <span className="eyebrow-right">Hyperspace XR SIG</span>
+          </div>
 
-          <h1 className="hero-title">
-            Crafting the Visual Identity of Hyperspace XR — From Blank Canvas to Brand Universe
-          </h1>
-
-          <p className="hero-subtitle">
-            A behind-the-scenes look at how our design team translates the language of extended reality into a cohesive,
-            immersive visual world — one poster, backdrop, and banner at a time.
-          </p>
-
-          <div className="hero-meta">
-            <div className="author-avatar">DK</div>
-            <div>
-              <div className="author-name">Durgesh Khadke</div>
-              <div className="author-role-date">
-                Design Head, Hyperspace XR
-                <span>·</span>
-                May 30, 2026
-                <span>·</span>
-                12 min read
+          <div className="blog-hero-main-layout">
+            <div className="blog-hero-left">
+              <h1 className="blog-hero-title">
+                <span className="title-highlight">Crafting Visual Identity:</span>
+                <span className="title-normal"> From Blank Canvas to Brand Universe</span>
+              </h1>
+              
+              <div className="blog-hero-meta">
+                <div className="author-avatar">AG</div>
+                <div>
+                  <div className="author-name">Atharva Ghule</div>
+                  <div className="author-role-date">
+                    Design Head, Hyperspace SIG
+                    <span className="mx-2 text-[var(--text-faint)]">·</span>
+                    May 30, 2026
+                    <span className="mx-2 text-[var(--text-faint)]">·</span>
+                    12 min read
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div className="blog-hero-right">
+              <p className="blog-hero-subtitle">
+                A behind-the-scenes look at how our design team translates the language of extended reality into a cohesive,
+                immersive visual world — one poster, backdrop, and banner at a time.
+              </p>
             </div>
           </div>
         </div>
-        <div className="hero-fade-bottom"></div>
+        <div className="blog-hero-fade-bottom"></div>
       </section>
 
       {/* ============================================================
