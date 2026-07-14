@@ -279,7 +279,6 @@ body::before {
   max-width: 76.12%;
 }
 
-/* zig-zag grid: 4 equal columns, 2 rows */
 .impact-grid {
   display: grid;
   grid-template-columns: 23.88% 26.12% 26.12% 23.88%;
@@ -287,19 +286,16 @@ body::before {
   align-items: end;
 }
 
-/* odd cards (1, 3) sit on the TOP row */
 .impact-card:nth-child(odd) {
   grid-row: 1;
   @apply border-b border-[#666666] flex flex-col gap-3 pb-8 pt-6 px-8;
 }
 
-/* even cards (2, 4) sit on the BOTTOM row */
 .impact-card:nth-child(even) {
   grid-row: 2;
   @apply border-b border-[#666666] flex flex-col gap-3 pb-8 pt-6 px-8;
 }
 
-/* explicitly place each card in the correct column */
 .impact-card:nth-child(1) {
   grid-column: 1;
 }
@@ -316,12 +312,10 @@ body::before {
   grid-column: 4;
 }
 
-/* dots indicator — span is a flex row, ::before renders all 4 dots via box-shadow */
 .impact-dot {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-  /* no background, no border-radius — it's just a layout container */
 }
 
 .impact-dot::before {
@@ -330,32 +324,26 @@ body::before {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  /* default: dot1=grey, dots 2-4=grey */
   background-color: #E91E63;
   box-shadow: 13px 0 0 0 #E91E63, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
-  /* extra space so box-shadow dots aren't clipped */
   margin-right: 39px;
 }
 
-/* card 1: 1 white dot, 3 grey */
 .impact-card:nth-child(1) .impact-dot::before {
   background-color: #fff;
   box-shadow: 13px 0 0 0 #E91E63, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
 }
 
-/* card 2: 2 white dots, 2 grey */
 .impact-card:nth-child(2) .impact-dot::before {
   background-color: #fff;
   box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
 }
 
-/* card 3: 3 white dots, 1 grey */
 .impact-card:nth-child(3) .impact-dot::before {
   background-color: #fff;
   box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #fff, 39px 0 0 0 #E91E63;
 }
 
-/* card 4: 4 white dots */
 .impact-card:nth-child(4) .impact-dot::before {
   background-color: #fff;
   box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #fff, 39px 0 0 0 #fff;
@@ -372,4 +360,101 @@ body::before {
 
 .card-content {
   @apply text-[#888888] font-mono font-medium text-[13px] tracking-[0px] uppercase leading-[1.5];
+}
+
+.brand-title {
+  @apply flex justify-center items-end gap-[375px] m-22;
+}
+
+.title {
+  @apply text-white font-host text-[80px] font-extrabold tracking-[0px] uppercase leading-[1] relative z-10;
+}
+
+.subtitle {
+  @apply text-white/60 font-mono font-medium text-[13px] tracking-[0px] uppercase leading-[1.4em] relative z-10;
+}
+
+.brand-content {
+  margin-left: 3.472%;
+  width: 93.056%;
+  display: grid;
+  grid-template-columns: 23.88% 26.12% 26.12% 23.88%;
+}
+
+.brand-content-head-col {
+  grid-column: 1;
+  grid-row: 1;
+  @apply flex items-start pt-8 px-8 pr-6;
+}
+
+.brand-content-head {
+  @apply text-white/60 font-host font-[400] text-[26px] leading-[24px];
+}
+
+.brand-list-area {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  position: relative;
+}
+
+.brand-list-photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34.31%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.brand-list-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.brand-rows {
+  margin-left: 34.31%;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-list-content {
+  display: grid;
+  grid-template-columns: 26.12fr 23.88fr;
+  align-items: center;
+  cursor: default;
+}
+
+.brand-list-title {
+  @apply text-white font-host font-[30px] font-medium uppercase tracking-[0.02em] py-5 px-8;
+  font-size: clamp(1.4rem, 2.2vw, 2.2rem);
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.brand-list-date {
+  @apply font-host text-[16px] tracking-[0.04em] uppercase text-right pr-10;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: default;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.brand-list-area.has-hover .brand-list-title {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.brand-list-area.has-hover .brand-list-date {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.brand-list-area.has-hover .brand-list-content.is-hovered .brand-list-title {
+  color: #ffffff;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.35);
+}
+
+.brand-list-area.has-hover .brand-list-content.is-hovered .brand-list-date {
+  color: #ffffff;
 }

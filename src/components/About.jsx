@@ -45,13 +45,15 @@ const About = () => {
             .to('.face', { y: -200 }, 0);
 
         document.querySelectorAll('.card-number').forEach((el) => {
-            const raw = el.textContent.trim();
+            const raw = (el.dataset.value || '').trim();
             const match = raw.match(/^(\d+)(.*)$/);
             if (!match) return;
 
             const target = parseInt(match[1], 10);
             const suffix = match[2];
             const obj = { val: 1 };
+
+            el.textContent = raw;
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -77,7 +79,7 @@ const About = () => {
                         el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
                     },
                     onComplete() {
-                        el.textContent = target + suffix;
+                        el.textContent = raw;
                     }
                 });
         });
@@ -137,26 +139,26 @@ const About = () => {
                 <div className="impact-title">OUR GROUP DOESN’T JUST LOOK GOOD - IT <span className='text-accent-pink'>PERFORMS.</span> HERE’S THE <span className='text-accent-pink'>IMPACT</span> BEHIND EVERY <span className="text-accent-pink">EVENT.</span></div>
                 <div className="impact-grid">
                     <div className="impact-card">
-                        <span className="impact-dot" ></span>
-                        <span className="card-number">3+</span>
+                        <span className="impact-dot"></span>
+                        <span className="card-number" data-value="3+">3+</span>
                         <span className="card-subtitle">EVENTS</span>
                         <span className="card-content">lectures, workshops conducted to fulfill our mission.</span>
                     </div>
                     <div className="impact-card">
-                        <span className="impact-dot " ></span>
-                        <span className="card-number">94%</span>
+                        <span className="impact-dot"></span>
+                        <span className="card-number" data-value="94%">94%</span>
                         <span className="card-subtitle">PARTICIPANT SATISFACTION</span>
-                        <span className="card-content">our event participants say that they are now confident in xr’s future.</span>
+                        <span className="card-content">our event participants say that they are now confident in xr's future.</span>
                     </div>
                     <div className="impact-card">
-                        <span className="impact-dot" ></span>
-                        <span className="card-number">1+</span>
+                        <span className="impact-dot"></span>
+                        <span className="card-number" data-value="1+">1+</span>
                         <span className="card-subtitle">YEARS EXPERIENCE</span>
                         <span className="card-content">defining various experiences and building various technologies.</span>
                     </div>
                     <div className="impact-card">
-                        <span className="impact-dot" ></span>
-                        <span className="card-number">5+</span>
+                        <span className="impact-dot"></span>
+                        <span className="card-number" data-value="5+">5+</span>
                         <span className="card-subtitle">AVG RATING</span>
                         <span className="card-content">EVENT PARTICIPANTS RATE SATISFACTORY ALMOST EVERY TIME.</span>
                     </div>
