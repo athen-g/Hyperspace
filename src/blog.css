@@ -103,7 +103,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--accent-pink);
+  color: var(--white);
   margin-bottom: 1.25rem;
   display: flex;
   height: 36px;
@@ -119,25 +119,28 @@
   content: '';
   width: 32px;
   height: 1px;
-  background: var(--accent-pink);
+  background: var(--white);
 }
 
 /* FIGMA NOTE: Hero title — Syne 800, clamp(2.4rem,5.5vw,4.5rem),
        line-height 1.05, letter-spacing -0.02em, max-width 900px.
        Gradient: #8B5CF6 → #00D4FF, 135deg. */
 .hero-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  max-width: 900px;
+  width: 900px;
+  flex-shrink: 0;
+  font-family: 'Mokoto', sans-serif;
+  font-size: 64px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 94px;
+  letter-spacing: -2.56px;
+  color: var(--white);
   margin-bottom: 1.5rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
-  background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-cyan) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+}
+
+.hero-title .title-highlight {
+  color: var(--accent-pink);
 }
 
 .hero-subtitle {

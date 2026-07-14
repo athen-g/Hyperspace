@@ -66,7 +66,8 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
           <div className="hero-eyebrow">Design Journal &nbsp;·&nbsp; Hyperspace XR SIG</div>
 
           <h1 className="hero-title">
-            Crafting the Visual Identity of Hyperspace XR — From Blank Canvas to Brand Universe
+            <span className="title-highlight">Crafting the Visual Identity of Hyperspace XR</span>
+            <span className="title-normal"> — From Blank Canvas to Brand Universe</span>
           </h1>
 
           <p className="hero-subtitle">
