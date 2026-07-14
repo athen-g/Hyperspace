@@ -1243,11 +1243,11 @@ body::before {
   color: #FFF;
   leading-trim: both;
   text-edge: cap;
-  font-family: var(--font-display); /* Using project Mokoto font-family mapping */
+  font-family: Mokoto;
   font-size: 36px;
   font-style: normal;
   font-weight: 400;
-  line-height: 36px;
+  line-height: 36px; /* 100% */
   letter-spacing: -3.6px;
   text-transform: uppercase;
 }
