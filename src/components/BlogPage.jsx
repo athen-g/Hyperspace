@@ -47,7 +47,7 @@ const BlogPage = () => {
   }, []);
 
   return (
-    <>
+    <div className="blog-page-wrapper">
       <Header />
       <BackgroundLines />
       {/* ============================================================
@@ -474,25 +474,23 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             <div className="author-card-role">Design Head · Hyperspace XR</div>
             <div className="author-card-bio">
               Crafting the visual universe of Hyperspace XR — event backdrops, posters, brand identity, and everything in
-              between. TE Mechanical, Wadia College of Engineering.
+              Dhairya is a visual designer and 3D generalist interested in the intersections of spatial user experiences,
+              creative coding, and brand strategy in emerging tech.
             </div>
           </div>
 
-          {/* Related Posts Card */}
-          {/* FIGMA NOTE: Base glass card. Three post rows: flex, 58x58px thumb, category+title+date.
-         Category: JetBrains Mono 0.65rem accent-cyan. Title: Syne 600 0.8rem 2-line clamp.
-         Thumb placeholders: gradient fills. Border-bottom on each row except last. */}
+          {/* RELATED READS */}
           <div className="glass-card">
-            <div className="sidebar-label">Related Posts</div>
+            <div className="sidebar-label">Related Reads</div>
 
             <a className="related-post" href="#">
               <div className="related-thumb">
                 <div className="related-thumb-1"></div>
               </div>
               <div className="related-info">
-                <div className="related-category">XR Development</div>
-                <div className="related-title">Inside Initiate Calibration — What Our First Event Taught Us About XR</div>
-                <div className="related-date">February 16, 2026</div>
+                <div className="related-category">Tech Development</div>
+                <div className="related-title">Building Spatial Webs: Transitioning from React DOM to Unity 3D WebGL Spaces</div>
+                <div className="related-date">May 12, 2026</div>
               </div>
             </a>
 
@@ -501,9 +499,9 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
                 <div className="related-thumb-2"></div>
               </div>
               <div className="related-info">
-                <div className="related-category">Game Development</div>
-                <div className="related-title">Developing Games with Unity Hub: A Beginner's Guide</div>
-                <div className="related-date">May 22, 2026</div>
+                <div className="related-category">Design Systems</div>
+                <div className="related-title">Designing for Refraction — Visual Physics of Frosted Glass and Chrome Surfaces</div>
+                <div className="related-date">April 29, 2026</div>
               </div>
             </a>
 
@@ -512,9 +510,9 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
                 <div className="related-thumb-3"></div>
               </div>
               <div className="related-info">
-                <div className="related-category">Event Recap</div>
-                <div className="related-title">Render Creation Workshop — 3D Development in Unity, Hands-On</div>
-                <div className="related-date">April 17, 2026</div>
+                <div className="related-category">Creative Coding</div>
+                <div className="related-title">Procedural Aesthetics — Using Geometry Nodes to Generate Our Brand Assets</div>
+                <div className="related-date">April 22, 2026</div>
               </div>
             </a>
 
@@ -523,74 +521,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
         </aside>
 
       </div>
-
-      {/* ============================================================
-     FOOTER
-     FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
-     Grid: 1fr auto auto auto, gap 3rem 4rem. Padding 4rem horizontal 0 bottom.
-     Footer wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055), right-aligned.
-     Sub-wordmark "XR SIG": 0.3em tracking, slightly smaller, same low opacity.
-============================================================ */}
-      <footer className="site-footer">
-        <div className="footer-grid">
-          <div>
-            <a className="footer-logo" href="#">
-              <div className="footer-logo-mark">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-                  <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" stroke="white" stroke-width="1.5"
-                    fill="none" />
-                  <polygon points="12,7 16,10.5 17,14.5 14,18 10,18 7,14.5 8,10.5" fill="white" opacity="0.85" />
-                </svg>
-              </div>
-              <span className="footer-logo-text">Hyperspace</span>
-            </a>
-            <p className="footer-tagline">Crafting thoughtful digital experiences built on clarity, purpose, and precision.</p>
-          </div>
-
-          <div>
-            <div className="footer-col-title">Navigate</div>
-            <ul className="footer-links">
-              <li><a href="#">Home</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Works</a></li>
-              <li><a href="#">Blogs</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="footer-col-title">Follow On</div>
-            <ul className="footer-social-list">
-              <li><a href="#">YouTube</a></li>
-              <li><a href="#">Instagram</a></li>
-              <li><a href="#">WhatsApp</a></li>
-              <li><a href="#">LinkedIn</a></li>
-            </ul>
-          </div>
-
-          <div style={{ maxWidth: "200px" }}>
-            <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "1.5rem" }}>Creating experiences
-              that balance aesthetics, usability, and intent.</p>
-            <div style={{ fontSize: "0.75rem", color: "var(--text-faint)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              Created by &nbsp;<span style={{ color: "var(--accent-pink)", fontFamily: "var(--font-display)", fontWeight: "700" }}>✦
-                Hyperspace</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="footer-wordmark">
-          <div className="footer-wordmark-text">Hyperspace</div>
-          <div className="footer-wordmark-sub">XR SIG</div>
-        </div>
-
-        <div className="footer-bottom">
-          <span>© 2026 Hyperspace XR SIG · Wadia College of Engineering</span>
-          <span>Department of Computer Engineering</span>
-        </div>
-      </footer>
-
-
-    </>
+    </div>
   );
 };
 

@@ -422,7 +422,7 @@ body::before {
        Title: Syne 800, clamp(2.4rem, 5.5vw, 4.5rem), gradient.
        Hero content animates in: fade + translateY(30px), 0.8s ease-out.
     ============================================================ */
-.blog-hero {
+.blog-page-wrapper .blog-hero {
   position: relative;
   min-height: 90vh;
   display: flex;
@@ -432,7 +432,7 @@ body::before {
   overflow: hidden;
 }
 
-.hero-bg {
+.blog-page-wrapper .hero-bg {
   position: absolute;
   inset: 0;
   background:
@@ -442,7 +442,7 @@ body::before {
   z-index: 0;
 }
 
-.hero-orb {
+.blog-page-wrapper .hero-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
@@ -450,7 +450,7 @@ body::before {
   animation: floatOrb 9s ease-in-out infinite;
 }
 
-.hero-orb-1 {
+.blog-page-wrapper .hero-orb-1 {
   width: 520px;
   height: 520px;
   background: var(--accent-pink);
@@ -459,7 +459,7 @@ body::before {
   animation-delay: 0s;
 }
 
-.hero-orb-2 {
+.blog-page-wrapper .hero-orb-2 {
   width: 380px;
   height: 380px;
   background: var(--accent-cyan);
@@ -468,7 +468,7 @@ body::before {
   animation-delay: -4.5s;
 }
 
-.hero-orb-3 {
+.blog-page-wrapper .hero-orb-3 {
   width: 250px;
   height: 250px;
   background: var(--accent-violet);
@@ -494,7 +494,7 @@ body::before {
   }
 }
 
-.hero-content {
+.blog-page-wrapper .hero-content {
   position: relative;
   z-index: 2;
   padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 8vw, 8rem) clamp(4rem, 8vw, 6rem);
@@ -515,7 +515,7 @@ body::before {
 
 /* FIGMA NOTE: Eyebrow — JetBrains Mono 0.75rem, 0.2em tracking, accent-pink.
        Flex row with 32px line before text. */
-.hero-eyebrow {
+.blog-page-wrapper .hero-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.2em;
@@ -532,7 +532,7 @@ body::before {
   animation: heroFadeIn 0.8s ease-out 0.1s both;
 }
 
-.hero-eyebrow::before {
+.blog-page-wrapper .hero-eyebrow::before {
   content: '';
   width: 32px;
   height: 1px;
@@ -542,7 +542,7 @@ body::before {
 /* FIGMA NOTE: Hero title — Syne 800, clamp(2.4rem,5.5vw,4.5rem),
        line-height 1.05, letter-spacing -0.02em, max-width 900px.
        Gradient: #8B5CF6 → #00D4FF, 135deg. */
-.hero-title {
+.blog-page-wrapper .hero-title {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: clamp(2.4rem, 5.5vw, 4.5rem);
@@ -557,7 +557,7 @@ body::before {
   background-clip: text;
 }
 
-.hero-subtitle {
+.blog-page-wrapper .hero-subtitle {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
   color: var(--text-muted);
   max-width: 560px;
@@ -569,14 +569,14 @@ body::before {
 /* FIGMA NOTE: Author row — flex, gap 1rem.
        Avatar: 44px circle, gradient pink→violet, Syne 800 1rem initials.
        Name: Syne 700 0.95rem. Role+date: DM Sans 0.8rem text-muted. */
-.hero-meta {
+.blog-page-wrapper .hero-meta {
   display: flex;
   align-items: center;
   gap: 1rem;
   animation: heroFadeIn 0.8s ease-out 0.4s both;
 }
 
-.author-avatar {
+.blog-page-wrapper .author-avatar {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -593,14 +593,14 @@ body::before {
   box-shadow: var(--glow-violet);
 }
 
-.author-name {
+.blog-page-wrapper .author-name {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--text-primary);
 }
 
-.author-role-date {
+.blog-page-wrapper .author-role-date {
   font-size: 0.8rem;
   color: var(--text-muted);
   display: flex;
@@ -609,11 +609,11 @@ body::before {
   flex-wrap: wrap;
 }
 
-.author-role-date span {
+.blog-page-wrapper .author-role-date span {
   color: var(--text-faint);
 }
 
-.hero-fade-bottom {
+.blog-page-wrapper .hero-fade-bottom {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -628,7 +628,7 @@ body::before {
        FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap clamp(3rem,5vw,5rem).
        Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
     ============================================================ */
-.blog-body {
+.blog-page-wrapper .blog-body {
   max-width: 1320px;
   margin: 0 auto;
   padding: 4rem clamp(1.5rem, 5vw, 4rem) 6rem;
@@ -641,14 +641,14 @@ body::before {
 /* ============================================================
        MAIN ARTICLE COLUMN
     ============================================================ */
-.blog-main {
+.blog-page-wrapper .blog-main {
   min-width: 0;
 }
 
 /* FIGMA NOTE: H2 — Syne 700, clamp(1.5rem,2.8vw,2.1rem), line-height 1.2,
        letter-spacing -0.01em, margin-top 3.5rem, margin-bottom 1.25rem.
        Gradient: violet→cyan, 135deg. */
-.blog-main h2 {
+.blog-page-wrapper .blog-main h2 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.5rem, 2.8vw, 2.1rem);
@@ -662,7 +662,7 @@ body::before {
   background-clip: text;
 }
 
-.blog-main p {
+.blog-page-wrapper .blog-main p {
   color: var(--text-primary);
   max-width: 68ch;
   margin-bottom: 1.5rem;
@@ -672,7 +672,7 @@ body::before {
 /* FIGMA NOTE: Pull quote — glass card elevated, border-left 3px violet,
        DM Sans italic clamp(1.1rem,1.5vw,1.3rem), line-height 1.65.
        Quotation mark: Syne 800 4rem, gradient text, top: -10px left: 24px. */
-.pull-quote {
+.blog-page-wrapper .pull-quote {
   position: relative;
   margin: 3rem 0;
   padding: 1.75rem 2rem 1.75rem 2.25rem;
@@ -683,7 +683,7 @@ body::before {
   max-width: 68ch;
 }
 
-.pull-quote p {
+.blog-page-wrapper .pull-quote p {
   font-size: clamp(1.1rem, 1.5vw, 1.3rem);
   font-style: italic;
   font-weight: 400;
@@ -692,7 +692,7 @@ body::before {
   margin: 0;
 }
 
-.pull-quote::before {
+.blog-page-wrapper .pull-quote::before {
   content: '"';
   position: absolute;
   top: -12px;
@@ -714,12 +714,12 @@ body::before {
        border 1px rgba(255,255,255,0.08), width 100%.
        Hover: slight scale 1.01, box-shadow violet glow.
     ============================================================ */
-.media-block {
+.blog-page-wrapper .media-block {
   margin: 3rem 0;
   max-width: 100%;
 }
 
-.media-block img {
+.blog-page-wrapper .media-block img {
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
@@ -729,21 +729,21 @@ body::before {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.media-block img:hover {
+.blog-page-wrapper .media-block img:hover {
   transform: scale(1.006);
   box-shadow: 0 16px 48px rgba(139, 92, 246, 0.15);
 }
 
 /* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
        Each item: aspect-ratio 3/4, same border treatment. */
-.poster-grid {
+.blog-page-wrapper .poster-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
   margin: 3rem 0;
 }
 
-.poster-grid img {
+.blog-page-wrapper .poster-grid img {
   width: 100%;
   aspect-ratio: 3/4;
   object-fit: cover;
@@ -753,13 +753,13 @@ body::before {
   transition: transform 0.3s ease;
 }
 
-.poster-grid img:hover {
+.blog-page-wrapper .poster-grid img:hover {
   transform: scale(1.01);
 }
 
 /* FIGMA NOTE: Caption — JetBrains Mono 0.75rem, text-muted,
        margin-top 0.75rem, letter-spacing 0.05em. Accent color on strong. */
-.media-caption {
+.blog-page-wrapper .media-caption {
   margin-top: 0.75rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -769,12 +769,12 @@ body::before {
   line-height: 1.5;
 }
 
-.media-caption strong {
+.blog-page-wrapper .media-caption strong {
   color: var(--accent-pink);
 }
 
 /* Section rule — gradient divider line */
-.section-rule {
+.blog-page-wrapper .section-rule {
   margin: 3rem 0;
   border: none;
   height: 1px;
@@ -782,7 +782,7 @@ body::before {
 }
 
 /* Tag pills */
-.tag-pill {
+.blog-page-wrapper .tag-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   background: rgba(139, 92, 246, 0.1);
@@ -802,7 +802,7 @@ body::before {
        FIGMA NOTE: sticky top: 88px, width 320px,
        flex-col gap 1.5rem.
     ============================================================ */
-.blog-sidebar {
+.blog-page-wrapper .blog-sidebar {
   position: sticky;
   top: 88px;
   display: flex;
@@ -813,7 +813,7 @@ body::before {
 /* FIGMA NOTE: Base glass card —
        background rgba(255,255,255,0.04), backdrop-filter blur(12px),
        border 1px rgba(255,255,255,0.08), border-radius 16px, padding 1.5rem. */
-.glass-card {
+.blog-page-wrapper .glass-card {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -823,14 +823,14 @@ body::before {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.glass-card:hover {
+.blog-page-wrapper .glass-card:hover {
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.07);
 }
 
 /* FIGMA NOTE: Elevated glass card —
        background rgba(139,92,246,0.06), border rgba(139,92,246,0.2). */
-.glass-card-elevated {
+.blog-page-wrapper .glass-card-elevated {
   background: rgba(139, 92, 246, 0.06);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -841,7 +841,7 @@ body::before {
 
 /* FIGMA NOTE: Sidebar section label — JetBrains Mono 0.7rem,
        0.15em tracking, uppercase, accent-pink. 16px line before. */
-.sidebar-label {
+.blog-page-wrapper .sidebar-label {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.15em;
@@ -853,7 +853,7 @@ body::before {
   gap: 0.5rem;
 }
 
-.sidebar-label::before {
+.blog-page-wrapper .sidebar-label::before {
   content: '';
   width: 16px;
   height: 1px;
@@ -864,14 +864,14 @@ body::before {
        padding 0.5rem 0.75rem, border-left 2px transparent, border-radius 0 6px 6px 0.
        Hover: text-primary, border violet 40%, bg violet 4%.
        Active: text-primary, border violet, bg violet 8%. Transition 0.2s. */
-.toc-list {
+.blog-page-wrapper .toc-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
 }
 
-.toc-list a {
+.blog-page-wrapper .toc-list a {
   display: block;
   font-size: 0.875rem;
   color: var(--text-muted);
@@ -883,13 +883,13 @@ body::before {
   line-height: 1.4;
 }
 
-.toc-list a:hover {
+.blog-page-wrapper .toc-list a:hover {
   color: var(--text-primary);
   border-left-color: rgba(139, 92, 246, 0.4);
   background: rgba(139, 92, 246, 0.04);
 }
 
-.toc-list a.toc-active {
+.blog-page-wrapper .toc-list a.toc-active {
   color: var(--text-primary);
   border-left-color: var(--accent-pink);
   background: rgba(139, 92, 246, 0.08);
@@ -898,7 +898,7 @@ body::before {
 /* FIGMA NOTE: Author card avatar — 52px circle, gradient pink→violet,
        Syne 800 1.2rem initials, border rgba(255,255,255,0.1),
        box-shadow 0 0 20px rgba(139,92,246,0.3). margin-bottom 1rem. */
-.author-card-avatar {
+.blog-page-wrapper .author-card-avatar {
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -915,7 +915,7 @@ body::before {
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
-.author-card-name {
+.blog-page-wrapper .author-card-name {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
@@ -923,14 +923,14 @@ body::before {
   margin-bottom: 0.25rem;
 }
 
-.author-card-role {
+.blog-page-wrapper .author-card-role {
   font-size: 0.8rem;
   color: var(--accent-pink);
   font-family: var(--font-mono);
   margin-bottom: 0.75rem;
 }
 
-.author-card-bio {
+.blog-page-wrapper .author-card-bio {
   font-size: 0.85rem;
   color: var(--text-muted);
   line-height: 1.6;
@@ -941,7 +941,7 @@ body::before {
        Thumb: 58x58px, border-radius 8px, gradient placeholder.
        Category: JetBrains Mono 0.65rem cyan. Title: Syne 600 0.8rem 2-line clamp.
        Date: 0.7rem text-faint. */
-.related-post {
+.blog-page-wrapper .related-post {
   display: flex;
   gap: 0.875rem;
   padding: 0.75rem 0;
@@ -950,16 +950,16 @@ body::before {
   transition: opacity 0.2s ease;
 }
 
-.related-post:last-child {
+.blog-page-wrapper .related-post:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
 
-.related-post:hover {
+.blog-page-wrapper .related-post:hover {
   opacity: 0.75;
 }
 
-.related-thumb {
+.blog-page-wrapper .related-thumb {
   width: 58px;
   height: 58px;
   border-radius: 8px;
@@ -968,30 +968,30 @@ body::before {
   border: 1px solid var(--border-subtle);
 }
 
-.related-thumb-1 {
+.blog-page-wrapper .related-thumb-1 {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(0, 212, 255, 0.2));
   width: 100%;
   height: 100%;
 }
 
-.related-thumb-2 {
+.blog-page-wrapper .related-thumb-2 {
   background: linear-gradient(135deg, rgba(224, 64, 251, 0.35), rgba(139, 92, 246, 0.2));
   width: 100%;
   height: 100%;
 }
 
-.related-thumb-3 {
+.blog-page-wrapper .related-thumb-3 {
   background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(139, 92, 246, 0.25));
   width: 100%;
   height: 100%;
 }
 
-.related-info {
+.blog-page-wrapper .related-info {
   flex: 1;
   min-width: 0;
 }
 
-.related-category {
+.blog-page-wrapper .related-category {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.1em;
@@ -1000,7 +1000,7 @@ body::before {
   margin-bottom: 0.2rem;
 }
 
-.related-title {
+.blog-page-wrapper .related-title {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.8rem;
@@ -1012,7 +1012,7 @@ body::before {
   overflow: hidden;
 }
 
-.related-date {
+.blog-page-wrapper .related-date {
   font-size: 0.7rem;
   color: var(--text-faint);
   margin-top: 0.25rem;
@@ -1025,32 +1025,13 @@ body::before {
        Wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055).
        Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
     ============================================================ */
-.site-footer {
-  background: #080810;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 4rem clamp(1.5rem, 5vw, 4rem) 0;
-  margin-top: 6rem;
-}
 
-.footer-grid {
-  max-width: 1320px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
-  gap: 3rem 4rem;
-  padding-bottom: 3rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
 
-.footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  margin-bottom: 1rem;
-}
 
-.footer-logo-mark {
+
+
+
+.blog-page-wrapper .footer-logo-mark {
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -1061,12 +1042,12 @@ body::before {
   box-shadow: 0 0 20px rgba(224, 64, 251, 0.4);
 }
 
-.footer-logo-mark svg {
+.blog-page-wrapper .footer-logo-mark svg {
   width: 20px;
   height: 20px;
 }
 
-.footer-logo-text {
+.blog-page-wrapper .footer-logo-text {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.1rem;
@@ -1075,14 +1056,9 @@ body::before {
   text-transform: uppercase;
 }
 
-.footer-tagline {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  max-width: 240px;
-}
 
-.footer-col-title {
+
+.blog-page-wrapper .footer-col-title {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.875rem;
@@ -1092,64 +1068,37 @@ body::before {
   margin-bottom: 1.25rem;
 }
 
-.footer-links {
+
+
+
+
+
+
+
+
+.blog-page-wrapper .footer-social-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
 
-.footer-links a {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 0.5rem;
-  transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-  color: var(--text-primary);
-}
-
-.footer-links a::after {
-  content: '→';
-  opacity: 0.4;
-  font-size: 0.75rem;
-}
-
-.footer-social-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.footer-social-list a {
+.blog-page-wrapper .footer-social-list a {
   font-size: 0.875rem;
   color: var(--text-muted);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-.footer-social-list a:hover {
+.blog-page-wrapper .footer-social-list a:hover {
   color: var(--accent-cyan);
 }
 
-.footer-wordmark {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 1.5rem 0 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
+
 
 /* FIGMA NOTE: Wordmark text — Syne 800, clamp(4.5rem,11vw,10rem),
        rgba(255,255,255,0.055), line-height 0.9, letter-spacing -0.02em. */
-.footer-wordmark-text {
+.blog-page-wrapper .footer-wordmark-text {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: clamp(4.5rem, 11vw, 10rem);
@@ -1161,7 +1110,7 @@ body::before {
   user-select: none;
 }
 
-.footer-wordmark-sub {
+.blog-page-wrapper .footer-wordmark-sub {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(1.5rem, 3.5vw, 3.5rem);
@@ -1171,20 +1120,10 @@ body::before {
   text-align: right;
 }
 
-.footer-bottom {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 1.25rem 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-  color: var(--text-faint);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-}
+
 
 /* Reading progress bar */
-.reading-progress {
+.blog-page-wrapper .reading-progress {
   position: fixed;
   top: 64px;
   left: 0;
@@ -1199,12 +1138,12 @@ body::before {
        RESPONSIVE
     ============================================================ */
 @media (max-width: 960px) {
-  .blog-body {
+  .blog-page-wrapper .blog-body {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
 
-  .blog-sidebar {
+  .blog-page-wrapper .blog-sidebar {
     position: static;
     order: -1;
     display: grid;
@@ -1212,32 +1151,23 @@ body::before {
     gap: 1rem;
   }
 
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
+  
 }
 
 @media (max-width: 620px) {
-  .blog-sidebar {
+  .blog-page-wrapper .blog-sidebar {
     grid-template-columns: 1fr;
   }
 
-  .footer-grid {
+  
+
+  .blog-page-wrapper .poster-grid {
     grid-template-columns: 1fr;
   }
 
-  .poster-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-orb {
+  .blog-page-wrapper .hero-orb {
     display: none;
   }
 
-  .nav-links li:nth-child(1),
-  .nav-links li:nth-child(2),
-  .nav-links li:nth-child(4) {
-    display: none;
-  }
+  
 }
