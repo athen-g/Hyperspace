@@ -8,7 +8,7 @@ import accessGrantedImg from '../assets/photos/access-granted.jpg';
 
 import Header from './Header';
 import BackgroundLines from './ui/BackgroundLines';
-import '../blog.css';
+
 
 const BlogPage = () => {
   useEffect(() => {
@@ -56,30 +56,30 @@ FIGMA NOTE: min-height 90vh. Dark gradient bg + animated glow orbs.
 Three orbs: 520px violet (top-right), 380px cyan (bottom-left), 250px pink (mid).
 Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 ============================================================ */}
-      <section className="blog-hero">
-        <div className="hero-bg"></div>
-        <div className="hero-orb hero-orb-1"></div>
-        <div className="hero-orb hero-orb-2"></div>
-        <div className="hero-orb hero-orb-3"></div>
+      <section className="relative min-h-[90vh] flex flex-col justify-end pt-16 overflow-hidden">
+        <div className="absolute inset-0 bg-blog-hero-radial z-0"></div>
+        <div className="absolute rounded-full blur-[80px] opacity-22 animate-float-orb w-[520px] h-[520px] bg-[var(--accent-pink)] top-[8%] right-[8%] [animation-delay:0s] z-0"></div>
+        <div className="absolute rounded-full blur-[80px] opacity-22 animate-float-orb w-[380px] h-[380px] bg-[var(--accent-cyan)] bottom-[22%] left-[3%] [animation-delay:-4.5s] z-0"></div>
+        <div className="absolute rounded-full blur-[80px] opacity-12 animate-float-orb w-[250px] h-[250px] bg-[var(--accent-violet)] top-[50%] right-[35%] [animation-delay:-2s] z-0"></div>
 
-        <div className="hero-content">
-          <div className="hero-eyebrow">Design Journal &nbsp;·&nbsp; Hyperspace XR SIG</div>
+        <div className="relative z-[2] py-[clamp(3rem,8vw,7rem)] px-[clamp(1.5rem,8vw,8rem)] pb-[clamp(4rem,8vw,6rem)] animate-hero-fade-in">
+          <div className="font-mono text-[0.75rem] tracking-[0.2em] uppercase text-[var(--white)] mb-5 flex h-9 pb-5 items-center justify-start content-between gap-[3px] flex-wrap before:content-[''] before:w-8 before:h-[1px] before:bg-[var(--white)] before:mr-3">Design Journal &nbsp;·&nbsp; Hyperspace XR SIG</div>
 
-          <h1 className="hero-title">
-            <span className="title-highlight">Crafting the Visual Identity of Hyperspace XR</span>
+          <h1 className="w-[900px] shrink-0 font-mokoto text-[64px] font-normal leading-[94px] tracking-[-2.56px] text-[var(--white)] mb-6 animate-hero-fade-in [animation-delay:0.2s]">
+            <span className="text-[var(--accent-pink)]">Crafting the Visual Identity of Hyperspace XR</span>
             <span className="title-normal"> — From Blank Canvas to Brand Universe</span>
           </h1>
 
-          <p className="hero-subtitle">
+          <p className="text-[clamp(1rem,1.5vw,1.15rem)] text-[var(--text-muted)] max-w-[560px] leading-[1.65] mb-10 animate-hero-fade-in [animation-delay:0.3s]">
             A behind-the-scenes look at how our design team translates the language of extended reality into a cohesive,
             immersive visual world — one poster, backdrop, and banner at a time.
           </p>
 
-          <div className="hero-meta">
-            <div className="author-avatar">DK</div>
+          <div className="flex items-center gap-4 animate-hero-fade-in [animation-delay:0.4s]">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[var(--accent-violet)] to-[var(--accent-pink)] flex items-center justify-center font-display font-extrabold text-[1rem] text-white shrink-0 border-2 border-white/12 shadow-[0_0_32px_rgba(139,92,246,0.35)]">DK</div>
             <div>
-              <div className="author-name">Durgesh Khadke</div>
-              <div className="author-role-date">
+              <div className="font-display font-bold text-[0.95rem] text-[var(--text-primary)]">Durgesh Khadke</div>
+              <div className="text-[0.8rem] text-[var(--text-muted)] flex gap-2 items-center flex-wrap">
                 Design Head, Hyperspace XR
                 <span>·</span>
                 May 30, 2026
@@ -89,7 +89,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             </div>
           </div>
         </div>
-        <div className="hero-fade-bottom"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[140px] bg-gradient-to-b from-transparent to-[var(--bg-base)] z-[1]"></div>
       </section>
 
       {/* ============================================================
@@ -97,47 +97,47 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
      FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap 5rem.
      Mobile: single column. Sidebar sticky at top: 88px.
 ============================================================ */}
-      <div className="blog-body">
+      <div className="max-w-[1320px] mx-auto py-16 px-[clamp(1.5rem,5vw,4rem)] grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-[clamp(3rem,5vw,5rem)] items-start">
 
         {/* ── MAIN ARTICLE COLUMN ── */}
-        <article className="blog-main">
+        <article className="min-w-0">
 
-          <span className="tag-pill">Design</span>
-          <span className="tag-pill">Visual Identity</span>
-          <span className="tag-pill">XR</span>
+          <span className="inline-block py-1 px-3 bg-[var(--accent-violet)]/10 border border-[var(--accent-violet)]/25 rounded-full font-mono text-[0.7rem] tracking-[0.08em] uppercase text-[var(--accent-pink)] mr-2 mb-7">Design</span>
+          <span className="inline-block py-1 px-3 bg-[var(--accent-violet)]/10 border border-[var(--accent-violet)]/25 rounded-full font-mono text-[0.7rem] tracking-[0.08em] uppercase text-[var(--accent-pink)] mr-2 mb-7">Visual Identity</span>
+          <span className="inline-block py-1 px-3 bg-[var(--accent-violet)]/10 border border-[var(--accent-violet)]/25 rounded-full font-mono text-[0.7rem] tracking-[0.08em] uppercase text-[var(--accent-pink)] mr-2 mb-7">XR</span>
 
           {/* ============================================================
          SECTION 1 — INTRODUCTION
          FIGMA NOTE: First section. ID used for ToC. H2 gradient violet→cyan.
     ============================================================ */}
-          <h2 id="intro">The Weight of a Blank Canvas</h2>
+          <h2 id="intro" className="font-display font-bold text-[clamp(1.5rem,2.8vw,2.1rem)] leading-1.2 tracking-[-0.01em] mt-14 mb-5 bg-gradient-to-r from-[var(--accent-pink)] to-[var(--accent-cyan)] bg-clip-text text-transparent">The Weight of a Blank Canvas</h2>
 
-          <p>There is a particular kind of pressure that comes with being the design team for a SIG called Hyperspace XR.
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">There is a particular kind of pressure that comes with being the design team for a SIG called Hyperspace XR.
             The name alone sets expectations — it evokes the infinite, the dimensional, the boundary-dissolving world of
             extended reality. And before we can build any of that in Unity, before our developers write a single line of
             code, our team has to build it visually. Every poster someone stops to read, every backdrop that fills a lecture
             hall screen, every banner hanging at an event entrance — these are the first impressions of Hyperspace XR. They
             are the brand before the experience.</p>
 
-          <p>I joined Hyperspace XR as Design Head with one clear mandate: make people feel something before they even step
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">I joined Hyperspace XR as Design Head with one clear mandate: make people feel something before they even step
             into the room. Not just excitement — that's easy. I wanted the feeling of standing at the threshold of another
             world. That's what XR is, after all. Augmented reality asks you to see your world differently. Virtual reality
             asks you to leave it entirely. Mixed reality blurs the border. So our design language had to do the same thing —
             blur the border between the familiar and the extraordinary.</p>
 
-          <p>This is the story of how we built that visual universe, piece by deliberate piece.</p>
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">This is the story of how we built that visual universe, piece by deliberate piece.</p>
 
           {/* ============================================================
          SECTION 2 — PHILOSOPHY
     ============================================================ */}
-          <h2 id="philosophy">The Philosophy: Futuristic, Grounded, Immersive</h2>
+          <h2 id="philosophy" className="font-display font-bold text-[clamp(1.5rem,2.8vw,2.1rem)] leading-1.2 tracking-[-0.01em] mt-14 mb-5 bg-gradient-to-r from-[var(--accent-pink)] to-[var(--accent-cyan)] bg-clip-text text-transparent">The Philosophy: Futuristic, Grounded, Immersive</h2>
 
-          <p>The first thing I told our design team when we sat down to define our visual identity was this: we are not
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The first thing I told our design team when we sat down to define our visual identity was this: we are not
             making "tech posters". Tech posters have gradients, sans-serifs, and the word "innovative" somewhere. We were
             making world-building artifacts. Every visual we produce is a fragment of a larger universe — the Hyperspace XR
             universe — and it needs to feel cohesive, cinematic, and lived-in.</p>
 
-          <p>Our philosophy settled into a few core principles fairly quickly. Dark and immersive — almost everything sits
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Our philosophy settled into a few core principles fairly quickly. Dark and immersive — almost everything sits
             on near-black backgrounds. Not pure black, which reads as a void and kills any sense of depth, but a deep
             blue-black that feels like the moment before a headset boots up. Glowing accents — violets, electric cyans, and
             the occasional hot pink of our logo — punctuate the darkness the way LEDs punctuate a server room or distant
@@ -145,12 +145,12 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             before we design for phone screens, which means compositions are bold, typography is massive, and every element
             earns its place in the frame.</p>
 
-          <div className="pull-quote">
-            <p>Every visual we produce is a fragment of a larger universe — and it needs to feel cohesive, cinematic, and
+          <div className="relative my-12 py-7 px-8 pl-9 bg-[var(--accent-violet)]/6 border border-[var(--accent-violet)]/20 border-l-3 border-l-[var(--accent-pink)] rounded-r-xl max-w-[68ch] before:content-['\0022'] before:absolute before:top-[-12px] before:left-5 before:font-display before:text-[4.5rem] before:font-extrabold before:leading-none before:bg-gradient-to-br before:from-[var(--accent-pink)] before:to-[var(--accent-cyan)] before:bg-clip-text before:text-transparent before:opacity-55">
+            <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Every visual we produce is a fragment of a larger universe — and it needs to feel cohesive, cinematic, and
               lived-in. We are not making tech posters. We are making world-building artifacts.</p>
           </div>
 
-          <p>We drew our conceptual inspiration from the feeling of entering another world — which is, quite literally, the
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">We drew our conceptual inspiration from the feeling of entering another world — which is, quite literally, the
             premise of XR. That liminal moment when a headset goes from the real world to the virtual one. That breath-held
             second before a new environment loads. We wanted our design language to live permanently in that moment: the
             threshold, the in-between, the place where one reality ends and another begins.</p>
@@ -161,35 +161,36 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
          Container: border-radius 12px, border 1px rgba(255,255,255,0.08).
          Hover: scale 1.006, box-shadow violet glow.
     ============================================================ */}
-          <h2 id="backdrops">Event Backdrops — The First Slide Is Everything</h2>
+          <h2 id="backdrops" className="font-display font-bold text-[clamp(1.5rem,2.8vw,2.1rem)] leading-1.2 tracking-[-0.01em] mt-14 mb-5 bg-gradient-to-r from-[var(--accent-pink)] to-[var(--accent-cyan)] bg-clip-text text-transparent">Event Backdrops — The First Slide Is Everything</h2>
 
-          <p>The first slide of an event is a statement. It is what the audience stares at for ten minutes while people find
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The first slide of an event is a statement. It is what the audience stares at for ten minutes while people find
             their seats, while microphones get adjusted, while the room fills with the ambient noise of anticipation. It has
             to carry that weight. It cannot be an afterthought — and for Hyperspace XR, it never is.</p>
 
-          <p>Our very first flagship event gave us our first real test: the <strong
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Our very first flagship event gave us our first real test: the <strong
             style={{ color: "var(--text-primary)", fontWeight: "600" }}>Initiate Calibration</strong> induction. The name alone
             told us everything we needed to know about the visual direction. "Calibration" is a technical word — the process
             of adjusting a system before it can be trusted to operate correctly. To "initiate" it is to begin that
             adjustment. It's the moment before you can trust what you're seeing. That felt perfect for an induction event:
             new members, new systems, everything initializing.</p>
 
-          <div className="media-block">
+          <div className="my-12 max-w-full">
             {/* FIGMA NOTE: IMAGE SLOT — "Initiate Calibration" event backdrop.
            Replace src with actual image in Figma. Aspect ratio: 16:9.
            Container: border-radius 12px, border 1px rgba(255,255,255,0.08).
            Design: jet black bg, massive white condensed type, holographic prism cube centre. */}
             <img
               src={initiateCalibrationImg}
-              alt="Initiate Calibration — Event Backdrop and First Slide" />
-            <div className="media-caption">
+              alt="Initiate Calibration — Event Backdrop and First Slide"
+              className="w-full aspect-video object-cover rounded-xl border border-[var(--border-subtle)] block transition-all duration-300 hover:scale-[1.006] hover:shadow-[0_16px_48px_rgba(139,92,246,0.15)]" />
+            <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal">
               <strong>↑ Initiate Calibration</strong> — Induction event backdrop. Pure black ground, massive white condensed
               type bisected by a prismatic holographic cube. The visual tension of a system mid-initialization. Presented by
               Hyperspace SIG, with special guests Team Virtuverse.
             </div>
           </div>
 
-          <p>The design I arrived at was almost brutally simple in its concept and complex in its execution. Jet black —
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The design I arrived at was almost brutally simple in its concept and complex in its execution. Jet black —
             nearly void-black — as the full-bleed background. The event title rendered in the largest possible white type,
             bold and condensed, spanning the full width of the frame. And cutting through that title, displacing it,
             refracting it: a holographic, prism-like 3D cube rendered in iridescent green, red, and gold — the kind of
@@ -197,7 +198,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             composition not because it is decorative, but because it is the protagonist. It is the thing being calibrated.
             It is the new reality trying to insert itself into the familiar one.</p>
 
-          <p>The tension in that design is deliberate. The text is interrupted — literally broken by the intrusion of the 3D
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The tension in that design is deliberate. The text is interrupted — literally broken by the intrusion of the 3D
             object — because the XR world interrupts the real one. The system is initializing. Something is about to change.
             When that image went up on the projector screen as the first slide of the event, the room felt different. I
             heard people quietly say "wait, what is this?" as they took their seats. That's exactly what we wanted.</p>
@@ -210,40 +211,41 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
     ============================================================ */}
           <h2 id="immersion">Activate Immersion — Crossing the Threshold</h2>
 
-          <p>If Initiate Calibration was the tension before entry, <strong
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">If Initiate Calibration was the tension before entry, <strong
             style={{ color: "var(--text-primary)", fontWeight: "600" }}>Activate Immersion</strong> was the act of crossing
             through. Our second major event backdrop had to communicate something fundamentally different — not
             anticipation, but arrival. Full immersion, activated.</p>
 
-          <div className="media-block">
+          <div className="my-12 max-w-full">
             {/* FIGMA NOTE: IMAGE SLOT — "Activate Immersion" event backdrop.
            Aspect ratio: 16:9. 
            Design: light blue-grey environment, bold black ACTIVATE IMMERSION type,
            floating 3D objects (chrome sphere, glass panel, red torus, cream cylinder). */}
             <img
               src={activateImmersionImg}
-              alt="Activate Immersion — Event Backdrop" />
-            <div className="media-caption">
+              alt="Activate Immersion — Event Backdrop"
+              className="w-full aspect-video object-cover rounded-xl border border-[var(--border-subtle)] block transition-all duration-300 hover:scale-[1.006] hover:shadow-[0_16px_48px_rgba(139,92,246,0.15)]" />
+            <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal">
               <strong>↑ Activate Immersion</strong> — Second event backdrop. Light blue-grey ground, bold condensed black
               type, 3D sculptural objects mid-float. Where Calibration was tension and darkness, Immersion is arrival and
               light.
             </div>
           </div>
 
-          <p>The visual energy shift between Calibration and Immersion was intentional and significant. Where Calibration
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The visual energy shift between Calibration and Immersion was intentional and significant. Where Calibration
             used darkness and interruption to create tension, Immersion broke into a completely different register. A light,
             almost clinical blue-grey environment — the interior of a digital world, already booted up and waiting. Bold
             black condensed type: ACTIVATE IMMERSION, set at the kind of scale that looks almost aggressive on a projection
             screen. And floating through the composition: 3D sculptural objects in various materials and forms — a mirrored
             glass distortion panel, a chrome sphere, a matte cream cylinder, a translucent red torus.</p>
 
-          <p>Each object came from a different material language, yet all shared the same physical space — because that is
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Each object came from a different material language, yet all shared the same physical space — because that is
             what the XR world does. It is a space where different realities coexist. Where a chrome sphere and a clay torus
             can exist side by side with the same physical weight. The typography is huge and confident because at this
             point, you are no longer hesitating at the threshold. You are in.</p>
 
-          <div className="pull-quote">
-            <p>The XR world is a space where different realities coexist — where a chrome sphere and a clay torus can share
+          <div className="relative my-12 py-7 px-8 pl-9 bg-[var(--accent-violet)]/6 border border-[var(--accent-violet)]/20 border-l-3 border-l-[var(--accent-pink)] rounded-r-xl max-w-[68ch] before:content-['\0022'] before:absolute before:top-[-12px] before:left-5 before:font-display before:text-[4.5rem] before:font-extrabold before:leading-none before:bg-gradient-to-br before:from-[var(--accent-pink)] before:to-[var(--accent-cyan)] before:bg-clip-text before:text-transparent before:opacity-55">
+            <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The XR world is a space where different realities coexist — where a chrome sphere and a clay torus can share
               the same frame with equal physical weight. Immersion is not a metaphor. It is the design itself.</p>
           </div>
 
@@ -255,18 +257,18 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
     ============================================================ */}
           <h2 id="render-creation">Render Creation — Glass, Unity, and the Feeling of Making</h2>
 
-          <p>Our most technically ambitious backdrop to date was designed for <strong
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Our most technically ambitious backdrop to date was designed for <strong
             style={{ color: "var(--text-primary)", fontWeight: "600" }}>Render Creation</strong>, our Unity-focused workshop
             series. This one required us to think deeply about what Unity means to us — as developers, as creators, as a SIG
             built on the premise that XR is the future of interactive experience.</p>
 
-          <p>Unity is the engine. It is the place where nothing becomes something — where a blank scene becomes a virtual
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Unity is the engine. It is the place where nothing becomes something — where a blank scene becomes a virtual
             world, where a 3D model becomes an interactive object, where physics rules and lighting systems and spatial
             audio all converge into a coherent experience. Rendering in Unity is, in the most literal sense, the act of
             creation. So when we designed the Render Creation materials, we wanted the centrepiece to feel monumental and
             somehow ethereal — like looking at creation itself in the moment it happens.</p>
 
-          <div className="media-block">
+          <div className="my-12 max-w-full">
             {/* FIGMA NOTE: IMAGE SLOT — "Render Creation" workshop backdrop.
            Aspect ratio: 16:9.
            Design: deep violet-blue environment, flowing parametric wave mesh topology,
@@ -274,28 +276,29 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
            The glass figure refracts the surrounding purple light into rainbow chromatic aberrations. */}
             <img
               src={renderCreationWorkshopBackdropImg}
-              alt="Render Creation — Workshop Backdrop with Glass 3D Figure" />
-            <div className="media-caption">
+              alt="Render Creation — Workshop Backdrop with Glass 3D Figure"
+              className="w-full aspect-video object-cover rounded-xl border border-[var(--border-subtle)] block transition-all duration-300 hover:scale-[1.006] hover:shadow-[0_16px_48px_rgba(139,92,246,0.15)]" />
+            <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal">
               <strong>↑ Render Creation Workshop Backdrop</strong> — Dark violet-purple environment, glowing wave mesh
               topology, holographic glass figure rendered in refracted prismatic light. Unity's creative engine made visible
               and monumental.
             </div>
           </div>
 
-          <p>The choice of a glass-rendered 3D sculptural figure was deliberate on every level. Glass is simultaneously
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The choice of a glass-rendered 3D sculptural figure was deliberate on every level. Glass is simultaneously
             transparent and present. It has no colour of its own, yet it transforms whatever light passes through it. It is
             the material of lenses — of the very optics that make VR headsets possible. When we render a form in glass,
             surrounded by flowing digital wave meshes and deep violet space, we communicate something that words cannot
             quite reach: that inside this workshop, inside Unity, light bends. Space is created. Reality is manufactured.
           </p>
 
-          <p>The holographic orbiting rings that surround the central figure reference planetary systems and atomic models
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The holographic orbiting rings that surround the central figure reference planetary systems and atomic models
             simultaneously — the macro and micro, the cosmic and the constructed. Everything is in motion, even when still.
             It is one of the pieces I am most proud of, because it manages to be technically specific — this is a Unity
             workshop, this is about 3D development — without losing the sense of wonder that drew us all to XR in the first
             place.</p>
 
-          <div className="poster-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-12">
             {/* FIGMA NOTE: 2-up poster grid. Aspect-ratio 3/4 each.
            Left: Render Creation portrait poster. Dark ground, serif italic "Render" script
            over bold caps "CREATION", glass figure centrepiece, QR code + date details.
@@ -306,7 +309,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
                 src={renderCreationImg}
                 alt="Render Creation — Portrait Event Poster"
                 style={{ width: "100%", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", display: "block", aspectRatio: "3/4", objectFit: "cover" }} />
-              <div className="media-caption"><strong>↑ Render Creation</strong> — Portrait poster. Dark ground, italic script
+              <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal"><strong>↑ Render Creation</strong> — Portrait poster. Dark ground, italic script
                 over bold display caps, glass crystalline centrepiece. Date: 16–17 April, Room 501.</div>
             </div>
             <div>
@@ -314,7 +317,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
                 src={recruitmentImg}
                 alt="Hyperspace XR — Recruitment Poster 2026"
                 style={{ width: "100%", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", display: "block", aspectRatio: "3/4", objectFit: "cover" }} />
-              <div className="media-caption"><strong>↑ Recruitment 2026</strong> — Liquid chrome holographic forms on white
+              <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal"><strong>↑ Recruitment 2026</strong> — Liquid chrome holographic forms on white
                 ground. Same brand, lighter register. Management, Technical, Design, and Media teams.</div>
             </div>
           </div>
@@ -324,24 +327,24 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
     ============================================================ */}
           <h2 id="poster-process">The Poster Process — Consistency as a Creative Discipline</h2>
 
-          <p>Posters are where our visual language gets stress-tested. An event backdrop is designed once, for one moment,
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Posters are where our visual language gets stress-tested. An event backdrop is designed once, for one moment,
             for one screen at one resolution. A poster travels — it lives on Instagram, on WhatsApp, on printed notice
             boards, on college screens. It has to hold together across every context while remaining unmistakably Hyperspace
             XR.</p>
 
-          <p>The consistency we aim for is not a rigid template. It is a set of values that guide every decision. Dark
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The consistency we aim for is not a rigid template. It is a set of values that guide every decision. Dark
             backgrounds — always, unless the occasion demands otherwise. Typographic hierarchy — a clear distinction between
             the event name, the type, the dates, and the supporting details, each in a different weight and size. Futuristic
             yet clean — no techno-clutter, no excessive gradients, nothing decorative that doesn't earn its place. And
             always, a hero object: something 3D, something physical, something that reminds the viewer that the world of XR
             is about objects that exist in space.</p>
 
-          <p>The challenge of poster design for technical content — workshops, game jams, development sessions — is that
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The challenge of poster design for technical content — workshops, game jams, development sessions — is that
             these are fundamentally "come learn something" events. And learning is not always glamorous. Our job is to make
             the glamorous version of learning so appealing that people want to show up and do the difficult part. We never
             dumb down the content. But we make the invitation irresistible.</p>
 
-          <div className="media-block">
+          <div className="my-12 max-w-full">
             {/* FIGMA NOTE: IMAGE SLOT — "Access Granted" membership poster.
            Aspect ratio: 16:9 (or show at full column width in portrait).
            Design: holographic fluid chrome on white, structured typographic list of new members,
@@ -350,7 +353,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
               src={accessGrantedImg}
               alt="Hyperspace XR — Access Granted Membership Announcement"
               style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", display: "block" }} />
-            <div className="media-caption">
+            <div className="mt-3 font-mono text-[0.75rem] text-[var(--text-muted)] tracking-[0.04em] pl-[2px] leading-normal">
               <strong>↑ Access Granted — Batch HS-02-B</strong> — New member announcement. Holographic fluid forms on white,
               structured team list, terminal-status aesthetic. Nine members added. Initialization complete: 100%.
             </div>
@@ -361,23 +364,23 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
     ============================================================ */}
           <h2 id="physical">Decorations & Physical Presence — Bringing the Digital Into the Room</h2>
 
-          <p>There is something deeply satisfying about a design that works in both dimensions — the screen and the physical
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">There is something deeply satisfying about a design that works in both dimensions — the screen and the physical
             world. When we design event decorations for Hyperspace XR, we are asking a simple but profound question: what
             does our digital universe feel like when it occupies physical space?</p>
 
-          <p>The answer, we discovered, is not about printing our screen designs onto paper and calling it a day. Physical
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The answer, we discovered, is not about printing our screen designs onto paper and calling it a day. Physical
             space has a different relationship with design. Lighting changes. Scale changes. The viewer moves through it
             rather than scrolling past it. So our physical design language is simultaneously faithful to the visual identity
             and adapted for three-dimensional experience.</p>
 
-          <p>Printed backdrops for event stages use the same deep near-blacks and the same bold typography as our digital
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Printed backdrops for event stages use the same deep near-blacks and the same bold typography as our digital
             materials, but at scales that would be overwhelming on a screen. A six-foot banner that says HYPERSPACE XR in
             our display font, backlit by event lighting, commands a room differently than a 1920×1080 slide. Display screens
             at registration desks loop through our event posters and motion graphics. Standees for photo opportunities carry
             our holographic 3D objects at life-scale — suddenly, that crystalline prism from the Initiate Calibration
             backdrop is standing next to you, at eye level, demanding to be photographed.</p>
 
-          <p>Our goal is to make the physical space feel like an extension of the digital brand — so that when someone walks
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Our goal is to make the physical space feel like an extension of the digital brand — so that when someone walks
             in, before they open the event app or check the schedule, they already feel like they are inside something.
             Inside the Hyperspace XR universe.</p>
 
@@ -386,51 +389,51 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
     ============================================================ */}
           <h2 id="brand-universe">Building the Brand Universe — The Cumulative Effect</h2>
 
-          <p>Individual posters are not the goal. Individual backdrops are not the goal. The goal is something harder to
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Individual posters are not the goal. Individual backdrops are not the goal. The goal is something harder to
             define and more rewarding to achieve: a visual universe that is instantly recognisable, that feels coherent
             across every touchpoint, and that communicates the values of Hyperspace XR before a single word is read.</p>
 
-          <p>We are, I think, getting there. When I see our materials shared across WhatsApp groups and Instagram stories —
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">We are, I think, getting there. When I see our materials shared across WhatsApp groups and Instagram stories —
             not always with our name attached, sometimes just forwarded from person to person — and people still know it's
             Hyperspace XR, that's when I know the visual language is working. The colour palette, the typographic choices,
             the presence of a 3D hero object, the cinematic dark environment: these have become a signature.</p>
 
-          <p>The process has been cumulative. The first poster established a tone. The second confirmed it. The event
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">The process has been cumulative. The first poster established a tone. The second confirmed it. The event
             backdrops expanded it into a larger canvas. The festival posts demonstrated its versatility — our celebration
             posters for Gudi Padwa, Eid, Ram Navami, and Maharashtra Diwas use different visual registers but remain
             unmistakably ours, because the brand language is flexible enough to breathe. Each new piece of work is both a
             standalone object and a brick in a larger wall. And the wall is becoming a building. The building is becoming a
             world.</p>
 
-          <p>There is something valuable that happens when a design language becomes familiar to your audience. They begin
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">There is something valuable that happens when a design language becomes familiar to your audience. They begin
             to anticipate it. They begin to trust it. When a new Hyperspace XR poster drops, our community knows before they
             read it that it will be bold, immersive, and slightly cinematic. That anticipation is a form of trust — and
             trust is the foundation of every brand worth building.</p>
 
-          <div className="section-rule"></div>
+          <div className="my-12 border-none h-[1px] bg-blog-divider"></div>
 
           {/* ============================================================
          SECTION 9 — CLOSING
     ============================================================ */}
           <h2 id="closing">Leading the Team — Responsibility, Joy, and What Comes Next</h2>
 
-          <p>Leading the design team of Hyperspace XR is, genuinely, one of the most rewarding things I have done. It comes
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">Leading the design team of Hyperspace XR is, genuinely, one of the most rewarding things I have done. It comes
             with real responsibility — the decisions our team makes shape how the entire SIG is perceived, and by extension,
             how seriously people take XR as a field of creative and technical practice. That is not something I take
             lightly.</p>
 
-          <p>But it is also, more often than not, pure joy. The joy of watching a design concept evolve from a rough sketch
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">But it is also, more often than not, pure joy. The joy of watching a design concept evolve from a rough sketch
             into a full-bleed backdrop that fills a lecture hall. The joy of our team pushing each other's ideas further —
             asking "what if we made the type bigger?" or "what if the holographic object was rendered in glass instead of
             metal?" The joy of seeing students stop at a notice board and photograph our poster to send to their friends,
             because they think it looks cool enough to share without any context attached.</p>
 
-          <p>We are always evolving. Our next events are pushing us into new visual territory — more liquid, fluid forms
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">We are always evolving. Our next events are pushing us into new visual territory — more liquid, fluid forms
             alongside our geometric solids; more typographic risk-taking; new ways to integrate our logo mark into
             compositions as a design element rather than just a brand stamp. The Hyperspace XR visual language is not
             finished. It is, like all good design systems, a living thing.</p>
 
-          <p>If you are reading this as a student wondering what design at a technical SIG looks like — this is it. It is
+          <p className="text-[var(--text-primary)] max-w-[68ch] mb-6 font-normal">If you are reading this as a student wondering what design at a technical SIG looks like — this is it. It is
             rigorous and it is creative in equal measure. It is collaborative and it is solitary at 2 AM when a deadline is
             tomorrow. It is systematic and it is entirely made up as we go, in the best possible way. Every blank canvas is
             a question. And every time we face it, that question is the same: what world are we building today?</p>
@@ -445,14 +448,14 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
         {/* ── SIDEBAR ── */}
         {/* FIGMA NOTE: Sticky sidebar. top: 88px. Width 320px. flex-col gap 1.5rem.
        Three cards: ToC (elevated violet glass), Author (base glass), Related (base glass). */}
-        <aside className="blog-sidebar">
+        <aside className="lg:sticky lg:top-[88px] flex flex-col gap-6 w-full lg:w-[320px] static order-first lg:order-none grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-col">
 
           {/* Table of Contents Card */}
           {/* FIGMA NOTE: Elevated glass card — bg rgba(139,92,246,0.06), border rgba(139,92,246,0.2).
          ToC links: 0.875rem, text-muted. Active: text-primary + border-left violet + bg violet 8%. */}
-          <div className="glass-card-elevated">
-            <div className="sidebar-label">Contents</div>
-            <ul className="toc-list" id="tocList">
+          <div className="bg-[var(--accent-violet)]/6 backdrop-blur-md border border-[var(--accent-violet)]/20 rounded-2xl p-6">
+            <div className="font-mono text-[0.7rem] tracking-[0.15em] uppercase text-[var(--accent-pink)] mb-4 flex items-center gap-2 before:content-[''] before:w-4 before:h-[1px] before:bg-[var(--accent-pink)]">Contents</div>
+            <ul className="list-none flex flex-col gap-[0.05rem]" id="tocList">
               <li><a href="#intro" className="toc-active">The Weight of a Blank Canvas</a></li>
               <li><a href="#philosophy">The Philosophy</a></li>
               <li><a href="#backdrops">Event Backdrops — The First Slide</a></li>
@@ -468,12 +471,12 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
           {/* About the Author Card */}
           {/* FIGMA NOTE: Base glass card. Avatar: 52px, gradient pink→violet, Syne 800 initials.
          Name: Syne 700 1rem. Role: JetBrains Mono 0.8rem accent-pink. Bio: 0.85rem text-muted. */}
-          <div className="glass-card">
-            <div className="sidebar-label">About the Author</div>
-            <div className="author-card-avatar">DK</div>
-            <div className="author-card-name">Durgesh Khadke</div>
-            <div className="author-card-role">Design Head · Hyperspace XR</div>
-            <div className="author-card-bio">
+          <div className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl p-6 transition-all duration-300 hover:border-white/12 hover:shadow-[0_8px_32px_rgba(139,92,246,0.07)]">
+            <div className="font-mono text-[0.7rem] tracking-[0.15em] uppercase text-[var(--accent-pink)] mb-4 flex items-center gap-2 before:content-[''] before:w-4 before:h-[1px] before:bg-[var(--accent-pink)]">About the Author</div>
+            <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[var(--accent-violet)] to-[var(--accent-pink)] flex items-center justify-center font-display font-extrabold text-[1.2rem] text-white mb-4 border-2 border-white/10 shadow-[0_0_20px_rgba(139,92,246,0.3)]">DK</div>
+            <div className="font-display font-bold text-[1rem] text-[var(--text-primary)] mb-1">Durgesh Khadke</div>
+            <div className="text-[0.8rem] text-[var(--accent-pink)] font-mono mb-3">Design Head · Hyperspace XR</div>
+            <div className="text-[0.85rem] text-[var(--text-muted)] leading-[1.6]">
               Crafting the visual universe of Hyperspace XR — event backdrops, posters, brand identity, and everything in
               between. TE Mechanical, Wadia College of Engineering.
             </div>
@@ -483,39 +486,39 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
           {/* FIGMA NOTE: Base glass card. Three post rows: flex, 58x58px thumb, category+title+date.
          Category: JetBrains Mono 0.65rem accent-cyan. Title: Syne 600 0.8rem 2-line clamp.
          Thumb placeholders: gradient fills. Border-bottom on each row except last. */}
-          <div className="glass-card">
-            <div className="sidebar-label">Related Posts</div>
+          <div className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl p-6 transition-all duration-300 hover:border-white/12 hover:shadow-[0_8px_32px_rgba(139,92,246,0.07)]">
+            <div className="font-mono text-[0.7rem] tracking-[0.15em] uppercase text-[var(--accent-pink)] mb-4 flex items-center gap-2 before:content-[''] before:w-4 before:h-[1px] before:bg-[var(--accent-pink)]">Related Posts</div>
 
-            <a className="related-post" href="#">
-              <div className="related-thumb">
-                <div className="related-thumb-1"></div>
+            <a className="flex gap-[0.875rem] py-3 border-b border-b-[var(--border-subtle)] no-underline transition-opacity duration-200 hover:opacity-75 last:border-b-0 last:pb-0" href="#">
+              <div className="w-[58px] h-[58px] rounded-lg shrink-0 overflow-hidden border border-[var(--border-subtle)]">
+                <div className="w-full h-full bg-gradient-to-br from-[rgba(139,92,246,0.35)] to-[rgba(0,212,255,0.2)]"></div>
               </div>
-              <div className="related-info">
-                <div className="related-category">XR Development</div>
-                <div className="related-title">Inside Initiate Calibration — What Our First Event Taught Us About XR</div>
-                <div className="related-date">February 16, 2026</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-mono text-[0.65rem] tracking-[0.1em] uppercase text-[var(--accent-cyan)] mb-1">XR Development</div>
+                <div className="font-display font-semibold text-[0.8rem] text-[var(--text-primary)] leading-[1.35] line-clamp-2">Inside Initiate Calibration — What Our First Event Taught Us About XR</div>
+                <div className="text-[0.7rem] text-[var(--text-faint)] mt-1">February 16, 2026</div>
               </div>
             </a>
 
-            <a className="related-post" href="#">
-              <div className="related-thumb">
-                <div className="related-thumb-2"></div>
+            <a className="flex gap-[0.875rem] py-3 border-b border-b-[var(--border-subtle)] no-underline transition-opacity duration-200 hover:opacity-75 last:border-b-0 last:pb-0" href="#">
+              <div className="w-[58px] h-[58px] rounded-lg shrink-0 overflow-hidden border border-[var(--border-subtle)]">
+                <div className="w-full h-full bg-gradient-to-br from-[rgba(224,64,251,0.35)] to-[rgba(139,92,246,0.2)]"></div>
               </div>
-              <div className="related-info">
-                <div className="related-category">Game Development</div>
-                <div className="related-title">Developing Games with Unity Hub: A Beginner's Guide</div>
-                <div className="related-date">May 22, 2026</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-mono text-[0.65rem] tracking-[0.1em] uppercase text-[var(--accent-cyan)] mb-1">Game Development</div>
+                <div className="font-display font-semibold text-[0.8rem] text-[var(--text-primary)] leading-[1.35] line-clamp-2">Developing Games with Unity Hub: A Beginner's Guide</div>
+                <div className="text-[0.7rem] text-[var(--text-faint)] mt-1">May 22, 2026</div>
               </div>
             </a>
 
-            <a className="related-post" href="#">
-              <div className="related-thumb">
-                <div className="related-thumb-3"></div>
+            <a className="flex gap-[0.875rem] py-3 border-b border-b-[var(--border-subtle)] no-underline transition-opacity duration-200 hover:opacity-75 last:border-b-0 last:pb-0" href="#">
+              <div className="w-[58px] h-[58px] rounded-lg shrink-0 overflow-hidden border border-[var(--border-subtle)]">
+                <div className="w-full h-full bg-gradient-to-br from-[rgba(0,212,255,0.25)] to-[rgba(139,92,246,0.25)]"></div>
               </div>
-              <div className="related-info">
-                <div className="related-category">Event Recap</div>
-                <div className="related-title">Render Creation Workshop — 3D Development in Unity, Hands-On</div>
-                <div className="related-date">April 17, 2026</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-mono text-[0.65rem] tracking-[0.1em] uppercase text-[var(--accent-cyan)] mb-1">Event Recap</div>
+                <div className="font-display font-semibold text-[0.8rem] text-[var(--text-primary)] leading-[1.35] line-clamp-2">Render Creation Workshop — 3D Development in Unity, Hands-On</div>
+                <div className="text-[0.7rem] text-[var(--text-faint)] mt-1">April 17, 2026</div>
               </div>
             </a>
 
@@ -532,36 +535,36 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
      Footer wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055), right-aligned.
      Sub-wordmark "XR SIG": 0.3em tracking, slightly smaller, same low opacity.
 ============================================================ */}
-      <footer className="site-footer">
-        <div className="footer-grid">
+      <footer className="bg-[#080810] border-t border-t-[var(--border-subtle)] py-16 px-[clamp(1.5rem,5vw,4rem)] pb-0 mt-24">
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto] gap-12 lg:gap-16 pb-12 border-b border-b-[var(--border-subtle)]">
           <div>
-            <a className="footer-logo" href="#">
-              <div className="footer-logo-mark">
+            <a className="flex items-center gap-[10px] no-underline mb-4" href="#">
+              <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#E040FB] to-[#8B5CF6] flex items-center justify-center shadow-[0_0_20px_rgba(224,64,251,0.4)]">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
                   <polygon points="12,2 20,7.5 21.5,15 16.5,21.5 7.5,21.5 2.5,15 4,7.5" stroke="white" stroke-width="1.5"
                     fill="none" />
                   <polygon points="12,7 16,10.5 17,14.5 14,18 10,18 7,14.5 8,10.5" fill="white" opacity="0.85" />
                 </svg>
               </div>
-              <span className="footer-logo-text">Hyperspace</span>
+              <span className="font-display font-extrabold text-[1.1rem] tracking-[0.08em] text-[var(--text-primary)] uppercase">Hyperspace</span>
             </a>
-            <p className="footer-tagline">Crafting thoughtful digital experiences built on clarity, purpose, and precision.</p>
+            <p className="text-[0.8rem] text-[var(--text-muted)] leading-[1.6] max-w-[240px]">Crafting thoughtful digital experiences built on clarity, purpose, and precision.</p>
           </div>
 
           <div>
-            <div className="footer-col-title">Navigate</div>
-            <ul className="footer-links">
-              <li><a href="#">Home</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Works</a></li>
-              <li><a href="#">Blogs</a></li>
-              <li><a href="#">Contact</a></li>
+            <div className="font-display font-bold text-[0.875rem] tracking-[0.05em] uppercase text-[var(--text-primary)] mb-5">Navigate</div>
+            <ul className="list-none flex flex-col gap-[0.6rem]">
+              <li><a className="text-[0.875rem] text-[var(--text-muted)] no-underline flex items-center justify-between pr-2 transition-colors duration-200 hover:text-[var(--text-primary)] after:content-['\2192'] after:opacity-40 after:text-[0.75rem]" href="#">Home</a></li>
+              <li><a className="text-[0.875rem] text-[var(--text-muted)] no-underline flex items-center justify-between pr-2 transition-colors duration-200 hover:text-[var(--text-primary)] after:content-['\2192'] after:opacity-40 after:text-[0.75rem]" href="#">About</a></li>
+              <li><a className="text-[0.875rem] text-[var(--text-muted)] no-underline flex items-center justify-between pr-2 transition-colors duration-200 hover:text-[var(--text-primary)] after:content-['\2192'] after:opacity-40 after:text-[0.75rem]" href="#">Works</a></li>
+              <li><a className="text-[0.875rem] text-[var(--text-muted)] no-underline flex items-center justify-between pr-2 transition-colors duration-200 hover:text-[var(--text-primary)] after:content-['\2192'] after:opacity-40 after:text-[0.75rem]" href="#">Blogs</a></li>
+              <li><a className="text-[0.875rem] text-[var(--text-muted)] no-underline flex items-center justify-between pr-2 transition-colors duration-200 hover:text-[var(--text-primary)] after:content-['\2192'] after:opacity-40 after:text-[0.75rem]" href="#">Contact</a></li>
             </ul>
           </div>
 
           <div>
-            <div className="footer-col-title">Follow On</div>
-            <ul className="footer-social-list">
+            <div className="font-display font-bold text-[0.875rem] tracking-[0.05em] uppercase text-[var(--text-primary)] mb-5">Follow On</div>
+            <ul className="list-none flex flex-col gap-[0.6rem]">
               <li><a href="#">YouTube</a></li>
               <li><a href="#">Instagram</a></li>
               <li><a href="#">WhatsApp</a></li>
@@ -579,12 +582,12 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
           </div>
         </div>
 
-        <div className="footer-wordmark">
-          <div className="footer-wordmark-text">Hyperspace</div>
-          <div className="footer-wordmark-sub">XR SIG</div>
+        <div className="max-w-[1320px] mx-auto py-6 pb-2 flex flex-col items-end">
+          <div className="font-display font-extrabold text-[clamp(4.5rem,11vw,10rem)] tracking-[-0.02em] uppercase text-white/5 leading-[0.9] text-right select-none">Hyperspace</div>
+          <div className="font-display font-semibold text-[clamp(1.5rem,3.5vw,3.5rem)] tracking-[0.3em] uppercase text-white/4 text-right">XR SIG</div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="max-w-[1320px] mx-auto py-5 flex justify-between items-center text-[0.75rem] text-[var(--text-faint)] border-t border-t-white/4">
           <span>© 2026 Hyperspace XR SIG · Wadia College of Engineering</span>
           <span>Department of Computer Engineering</span>
         </div>
