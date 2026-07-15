@@ -629,6 +629,8 @@ body::before {
        Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
     ============================================================ */
 .blog-page-wrapper .blog-body {
+  position: relative;
+  z-index: 1;
   max-width: 1320px;
   margin: 0 auto;
   padding: 4rem clamp(1.5rem, 5vw, 6rem) 6rem;
