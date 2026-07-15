@@ -752,6 +752,10 @@ body::before {
   @apply bg-bg-base min-h-screen text-white;
 }
 
+.blog-strong {
+  @apply text-text-primary font-semibold;
+}
+
 /* ============================================================
    BLOG HERO SECTION
    Matches Figma: dark near-black purple bg, large Mokoto title,
