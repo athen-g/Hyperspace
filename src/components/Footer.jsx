@@ -24,7 +24,7 @@ export default function Footer() {
               </span>
             </a>
             <p className="footer-brand-subtitle">
-              <span className="pink-text">HVVVVV</span> <span className="white-text">CLARITY, PURPOSE, AND PRECISION.</span>
+               <span className="white-text">CLARITY, PURPOSE, AND PRECISION.</span>
             </p>
           </div>
 

@@ -1294,7 +1294,7 @@ body::before {
 }
 
 .footer-created-by {
-  @apply flex items-center gap-10 mt-8;
+  @apply flex items-center gap-[10px];
 }
 
 .footer-created-by .created-text {
