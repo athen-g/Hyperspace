@@ -691,7 +691,7 @@ body::before {
   border-left: 3px solid rgba(233, 30, 99, 0.20);
   background: rgba(233, 30, 99, 0.06);
   backdrop-filter: blur(6px);
-  max-width: 746.36px;
+  max-width: 565.36px;
 }
 
 .blog-page-wrapper .pull-quote p {
@@ -705,6 +705,17 @@ body::before {
   color: #FFFFFF;
   margin: 0;
   flex: 1 0 0;
+}
+
+.blog-page-wrapper .pull-quote::before {
+  content: '“';
+  font-family: 'Syne', sans-serif;
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-pink);
+  margin-bottom: 8px;
+  display: block;
 }
 
 /* ============================================================
