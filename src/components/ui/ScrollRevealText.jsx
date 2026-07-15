@@ -15,10 +15,10 @@ export const ScrollRevealText = ({ text, className }) => {
 
   useGSAP(() => {
     const letters = containerRef.current.querySelectorAll('.reveal-letter');
-    
+
     // Set initial color
     gsap.set(letters, { color: 'rgba(255, 255, 255, 0.6)' });
-    
+
     // Animate to full white on scroll
     gsap.to(letters, {
       scrollTrigger: {
