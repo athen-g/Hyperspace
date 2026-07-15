@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from './Button'
-import logo from '../assets/icons/Logo.svg'
+import logo from '../assets/icons/logo.svg'
 import arrow from '../assets/icons/north_east.svg'
 
 const Blog_Home = () => {
