@@ -30,13 +30,6 @@ const Brands = () => {
                 stagger: 0.05,
                 ease: 'expo.out',
             })
-            .from(subtitleSplit.lines, {
-                opacity: 0,
-                yPercent: 100,
-                duration: 1,
-                stagger: 0.05,
-                ease: 'expo.out',
-            });
     });
 
     const hoveredBrand = BRANDS.find(b => b.id === hoveredId)

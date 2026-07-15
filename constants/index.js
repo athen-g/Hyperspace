@@ -6,6 +6,7 @@ import brandDemo from '../src/assets/photos/brand-1.webp'
 import initiateCalibration from '../src/assets/photos/initiate-calibration.png'
 import activateImmersion from '../src/assets/photos/activate-immersion.png'
 import renderCreation from '../src/assets/photos/render-creation.png'
+import maskedImage2 from '../src/assets/photos/masked-image-2.png'
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: homeIcon, sectionId: '#home' },
   { id: 'about', label: 'About', icon: aboutIcon, sectionId: '#about' },
@@ -27,6 +28,7 @@ const EVENTS_CONDUCTED = [
     id: 1,
     name: 'INITIATE CALIBRATION',
     thumbnail: initiateCalibration,
+    maskedImage: maskedImage2,
     tags: [
       'INTRODUCTORY EVENT',
       'BASIC XR EXPLANATION',
@@ -37,6 +39,7 @@ const EVENTS_CONDUCTED = [
     id: 2,
     name: 'ACTIVATE IMMERSION',
     thumbnail: activateImmersion,
+    maskedImage: maskedImage2,
     tags: [
       'EXPERT LECTURE',
       'INDUSTRY CONNECT',
@@ -106,10 +109,62 @@ const BLOGS_HOME = [
   { id: 3, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide ' },
 ]
 
+const testimonials = [
+  {
+    id: 1,
+    quote:
+      'Hyperspace does not manage events. They build experiences and their constant efforts are a testamant to that',
+    name: 'ALLEN JOSEPH',
+    position: 'PRESIDENT, HYPERSPACE XR SIG',
+    image: 'https://i.pravatar.cc/150?img=12',
+  },
+  {
+    id: 2,
+    quote:
+      'Working with this team felt less like hiring vendors and more like adding a department. They just got it, fast',
+    name: 'MARIA GONZALES',
+    position: 'HEAD OF PRODUCT, NOVA LABS',
+    image: 'https://i.pravatar.cc/150?img=32',
+  },
+  {
+    id: 3,
+    quote:
+      'Every deadline was hit, every detail was considered. This is the calibre of partner you build a roadmap around',
+    name: 'DAVID CHEN',
+    position: 'CTO, ORBITAL SYSTEMS',
+    image: 'https://i.pravatar.cc/150?img=51',
+  },
+  {
+    id: 4,
+    quote:
+      'They turned a vague brief into something our whole audience is still talking about months later',
+    name: 'PRIYA NATARAJAN',
+    position: 'CREATIVE DIRECTOR, LUMEN STUDIO',
+    image: 'https://i.pravatar.cc/150?img=47',
+  },
+  {
+    id: 5,
+    quote:
+      'Rare to find a team this senior that still sweats the small stuff. Every pixel and every millisecond mattered to them',
+    name: 'JAMES OKORO',
+    position: 'FOUNDER, ATLAS COLLECTIVE',
+    image: 'https://i.pravatar.cc/150?img=60',
+  },
+]
+
+const FAQ_C = [
+  {id: 1, question: 'What is HyperSpace?', answer: "HyperSpace is one of the only two XR Special Interest Group in Pune formed by students and XR enthusiats of the Modern Education Society's Wadia College of Engineering. It is formed by students for students"},
+  {id: 2, question: 'What is the role of HyperSpace in the college community?', answer: "HYPERSPACE IS RESPONSIBLE FOR EXPANDING THE INFLUENCE OF XR DEVELOPMENT AND HELP STUDENTS UNDERSTAND THE CONCEPT OF FUTURISTIC TECHNOLOGY BY CONDUCTION WORKSHOPS AND LECTURE EVENTS."},
+  {id: 3, question: 'How do we plan out our events?', answer: "Events are planned with rigorous decision making and continuous iteration after careful analysis and discussions within the team. The team approaches many faculty and students to get an idea of the interest and awareness of various frameworks in the community. The events are then planned and prepared after this through and systematic analysis. Hyperspace is always focused on planning events for students with them in primary focus."},
+  {id: 4, question: 'What is our policy of accepting brand sponsorships?', answer: "Hyperspace is strictly an technical group. Hence, all our events are technical and focused on knowledge sharing. Therefore, Hyperspace only accepts techincal sponsors who can provide them with resources necessary for lectures and workshops with a few exceptions. Techincal sponsors are selected based on their contribution level to our progress and the event's availability. Hyperspace primarly focues on XR startups, founders and industries, but also includes 3D developement industries in their wide catalog."},
+]
+
 export {
   NAV_ITEMS,
   BRANDS,
   EVENTS_CONDUCTED,
   EVENTS_COMING_SOON,
-  BLOGS_HOME
+  BLOGS_HOME,
+  testimonials,
+  FAQ_C
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { NAV_ITEMS } from '../../constants'
 
@@ -16,35 +16,64 @@ const Navbar = () => {
   const navRef = useRef(null)
 
   useEffect(() => {
-    const observers = NAV_ITEMS.map((item) => {
-      const section = document.querySelector(item.sectionId)
-      if (!section) return null
+    let rafId = 0
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveItem(item.id)
-            }
-          })
-        },
-        {
-          threshold: 0.5,
+    const updateActiveItem = () => {
+      if (window.scrollY <= 24) {
+        setActiveItem('home')
+        return
+      }
+
+      const triggerLine = window.innerHeight * 0.42
+
+      const nextActiveItem = NAV_ITEMS.reduce((currentActive, item) => {
+        const section = document.querySelector(item.sectionId)
+        if (!section) return currentActive
+
+        const rect = section.getBoundingClientRect()
+        const sectionTop = rect.top
+        const sectionBottom = rect.bottom
+        const currentSection = currentActive
+          ? document.querySelector(currentActive.sectionId)
+          : null
+
+        if (sectionTop <= triggerLine && sectionBottom > triggerLine) {
+          return item
         }
-      )
 
-      observer.observe(section)
-      return observer
-    })
+        if (!currentSection) {
+          return item
+        }
+
+        const currentRect = currentSection.getBoundingClientRect()
+        const currentDistance = Math.abs(currentRect.top - triggerLine)
+        const nextDistance = Math.abs(sectionTop - triggerLine)
+
+        return nextDistance < currentDistance ? item : currentActive
+      }, NAV_ITEMS[0])
+
+      if (nextActiveItem) {
+        setActiveItem(nextActiveItem.id)
+      }
+    }
+
+    const onScroll = () => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(updateActiveItem)
+    }
+
+    updateActiveItem()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
 
     return () => {
-      observers.forEach((observer) => {
-        if (observer) observer.disconnect()
-      })
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const itemIndex = NAV_ITEMS.findIndex((item) => item.id === activeItem)
     if (itemIndex !== -1) {
       const itemWidth = 100 / NAV_ITEMS.length
@@ -67,7 +96,10 @@ const Navbar = () => {
         boxShadow:
           "0 8px 32px rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.04)",
       }} ref={navRef}>
-      <div className="navbar__pill" style={{ left: `${pillPosition}%` }}></div>
+      <div
+        className="navbar__pill"
+        style={{ left: `${pillPosition}%` }}
+      />
 
       {NAV_ITEMS.map((item) => (
         <a
