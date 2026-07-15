@@ -119,7 +119,7 @@ body::before {
     right: 0;
     height: 140px;
     background: linear-gradient(180deg, transparent 0%, var(--bg-base) 100%);
-    z-index: 2;
+    z-index: 1;
     pointer-events: none;
   }
 
@@ -554,7 +554,8 @@ body::before {
   font-weight: 400;
   /* 64px at 1440 → 4.444vw; clamped so it doesn't get too small */
   font-size: clamp(3rem, 4.444vw, 6rem);
-  line-height: 1.469; /* 94px / 64px */
+  line-height: 1.469;
+  /* 94px / 64px */
   letter-spacing: -0.04em;
   margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
@@ -622,15 +623,6 @@ body::before {
   color: rgba(255, 255, 255, 0.25);
 }
 
-.blog-page-wrapper .hero-fade-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: linear-gradient(180deg, transparent 0%, #0e0e0e 100%);
-  z-index: 1;
-}
 
 /* ============================================================
        BLOG BODY LAYOUT
