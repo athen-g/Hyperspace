@@ -749,9 +749,7 @@ body::before {
 
 /* Blog page base — dark Hyperspace background throughout */
 .blog-page-wrapper {
-  background-color: var(--bg-base);
-  min-height: 100vh;
-  color: #ffffff;
+  @apply bg-bg-base min-h-screen text-white;
 }
 
 /* ============================================================
@@ -760,748 +758,409 @@ body::before {
    eyebrow label, subtitle, author meta all left-aligned.
    ============================================================ */
 .blog-page-wrapper .blog-hero {
-  position: relative;
-  min-height: 818px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
+  @apply relative min-h-[818px] flex flex-col justify-end overflow-hidden;
 }
 
 /* Dark background matching Figma — deep near-black with subtle purple */
 .blog-page-wrapper .blog-hero-bg {
-  position: absolute;
-  inset: 0;
+  @apply absolute inset-0 z-0;
   background:
     radial-gradient(ellipse 70% 80% at 75% 50%, rgba(80, 0, 60, 0.55) 0%, transparent 65%),
     radial-gradient(ellipse 50% 60% at 20% 30%, rgba(40, 0, 60, 0.35) 0%, transparent 60%),
     linear-gradient(180deg, #0A0010 0%, #060008 60%, #080010 100%);
-  z-index: 0;
 }
 
+/* Floating background ambient orbs */
 .blog-page-wrapper .blog-hero-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.35;
+  @apply absolute rounded-full blur-[100px] opacity-35;
   animation: floatOrb 9s ease-in-out infinite;
 }
 
 .blog-page-wrapper .blog-hero-orb-1 {
-  width: 600px;
-  height: 600px;
-  background: rgba(150, 0, 80, 0.8);
-  top: -10%;
-  right: -5%;
+  @apply w-[600px] h-[600px] bg-[rgba(150,0,80,0.8)] -top-[10%] -right-[5%];
   animation-delay: 0s;
 }
 
 .blog-page-wrapper .blog-hero-orb-2 {
-  width: 400px;
-  height: 400px;
-  background: rgba(80, 0, 120, 0.6);
-  bottom: 10%;
-  left: 5%;
+  @apply w-[400px] h-[400px] bg-[rgba(80,0,120,0.6)] bottom-[10%] left-[5%];
   animation-delay: -4.5s;
 }
 
 .blog-page-wrapper .blog-hero-orb-3 {
-  width: 300px;
-  height: 300px;
-  background: rgba(200, 0, 100, 0.4);
-  top: 40%;
-  right: 30%;
+  @apply w-[300px] h-[300px] bg-[rgba(200,0,100,0.4)] top-[40%] right-[30%] opacity-20;
   animation-delay: -2s;
-  opacity: 0.2;
 }
 
 @keyframes floatOrb {
-
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate(24px, -32px) scale(1.06);
-  }
-
-  66% {
-    transform: translate(-16px, 20px) scale(0.94);
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -32px) scale(1.06); }
+  66% { transform: translate(-16px, 20px) scale(0.94); }
 }
 
+/* Hero Content Area */
 .blog-page-wrapper .blog-hero-content {
-  position: relative;
-  z-index: 3;
-  /* Figma padding: 115.2px left/right, 112px top, 96px bottom */
-  padding: 112px 115.2px 96px;
+  @apply relative z-[3] pt-[112px] px-[115.2px] pb-[96px] flex flex-col items-start w-full box-border;
   animation: heroFadeIn 0.8s ease-out both;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 @keyframes heroFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .blog-page-wrapper .blog-hero-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 1.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  @apply font-mono text-[13px] font-normal tracking-[0.1em] uppercase text-white/55 mb-[1.75rem] flex items-center gap-[0.75rem];
   animation: heroFadeIn 0.8s ease-out 0.1s both;
 }
 
 .blog-page-wrapper .blog-hero-eyebrow .bullet {
-  color: rgba(255, 255, 255, 0.3);
+  @apply text-white/30;
 }
 
 /* Hero title — Figma: Mokoto 64px/400 at 1440px → 4.444vw at 1920px
    line-height 94px (146.9%), letter-spacing -2.56px → -0.04em */
 .blog-page-wrapper .blog-hero-title {
-  font-family: var(--font-mokoto);
-  font-weight: 400;
-  /* 64px at 1440 → 4.444vw; clamped so it doesn't get too small */
+  @apply font-mokoto font-normal text-white uppercase max-w-[900px] mb-[2.5rem];
   font-size: clamp(3rem, 4.444vw, 6rem);
   line-height: 1.469;
-  /* 94px / 64px */
-  margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
-  color: #ffffff;
-  text-transform: uppercase;
-  max-width: 900px;
 }
 
-/* Pink span */
+/* Accent pink text */
 .blog-page-wrapper .blog-hero-title .pink-text {
-  color: var(--color-accent-pink);
+  @apply text-accent-pink;
 }
 
-/* White span */
+/* White text */
 .blog-page-wrapper .blog-hero-title .white-text {
-  color: #ffffff;
+  @apply text-white;
 }
 
 /* Subtitle — Figma: IBM Plex Mono, 14px at 1440 → 0.972vw
    line-height ~148.8%, color rgba(255,255,255,0.55) */
 .blog-page-wrapper .blog-hero-subtitle {
-  font-family: var(--font-mono);
+  @apply font-mono font-normal text-white/55 max-w-[540px] mb-[2.5rem];
   font-size: clamp(0.8rem, 0.972vw, 1rem);
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.55);
-  max-width: 540px;
   line-height: 1.488;
-  margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.3s both;
 }
 
 /* Author meta row — avatar circle + name · role · date · read time */
 .blog-page-wrapper .blog-hero-author-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @apply flex items-center gap-3;
   animation: heroFadeIn 0.8s ease-out 0.4s both;
 }
 
 .blog-page-wrapper .blog-hero-author-meta .author-avatar-img-wrapper {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
+  @apply w-9 h-9 rounded-full overflow-hidden bg-white/10 shrink-0;
 }
 
 .blog-page-wrapper .blog-hero-author-meta .author-text-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
-  color: rgba(255, 255, 255, 0.55);
-  flex-wrap: wrap;
+  @apply flex items-center gap-[6px] text-[0.8rem] font-mono text-white/55 flex-wrap;
 }
 
 .blog-page-wrapper .blog-hero-author-meta .author-name {
-  color: #ffffff;
-  font-weight: 600;
+  @apply text-white font-semibold;
 }
 
 .blog-page-wrapper .blog-hero-author-meta .meta-sep {
-  color: rgba(255, 255, 255, 0.25);
+  @apply text-white/25;
 }
 
-
 /* ============================================================
-       BLOG BODY LAYOUT
-       FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap clamp(3rem,5vw,5rem).
-       Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
-    ============================================================ */
+   BLOG BODY LAYOUT
+   FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap clamp(3rem,5vw,5rem).
+   Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
+   ============================================================ */
 .blog-page-wrapper .blog-body {
-  position: relative;
-  z-index: 3;
-  max-width: 1320px;
-  margin: 0 auto;
+  @apply relative z-[3] max-w-[1320px] mx-auto grid grid-cols-[1fr_320px] items-start;
   padding: 4rem clamp(1.5rem, 5vw, 6rem) 6rem;
-  display: grid;
-  grid-template-columns: 1fr 320px;
   gap: clamp(3rem, 5vw, 5rem);
-  align-items: start;
 }
 
 /* ============================================================
-       MAIN ARTICLE COLUMN
-    ============================================================ */
+   MAIN ARTICLE COLUMN
+   ============================================================ */
 .blog-page-wrapper .blog-main {
-  min-width: 0;
+  @apply min-w-0;
 }
 
 /* H2 — Figma: "IBM Plex Mono" 700, 33.6px at 1440 → 2.333vw at 1920
    line-height 40.32px (120%), letter-spacing 1.344px → 0.04em
    color #E91E63 */
 .blog-page-wrapper .blog-main h2 {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  /* 33.6px / 1440 * 100 = 2.333vw; clamped */
+  @apply font-mono font-bold tracking-[0.04em] normal-case mt-[3.5rem] mb-[1.25rem] text-accent-pink;
   font-size: clamp(1.5rem, 2.333vw, 2.5rem);
   line-height: 1.2;
-  /* 120% */
-  letter-spacing: 0.04em;
-  /* 1.344px at 33.6px */
-  text-transform: none;
-  margin-top: 3.5rem;
-  margin-bottom: 1.25rem;
-  color: var(--color-accent-pink);
 }
 
 /* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
 .blog-page-wrapper .blog-main p {
-  font-family: var(--font-mono);
-  color: rgba(255, 255, 255, 0.75);
+  @apply font-mono text-white/75 max-w-[68ch] mb-6 font-normal leading-[1.75] tracking-[0.01em];
   font-size: clamp(0.8rem, 0.972vw, 0.95rem);
-  max-width: 68ch;
-  margin-bottom: 1.5rem;
-  font-weight: 400;
-  line-height: 1.75;
-  letter-spacing: 0.01em;
 }
 
 /* Pull quote — IBM Plex Mono, pink left border, dark bg */
 .blog-page-wrapper .pull-quote {
-  box-sizing: border-box;
-  margin: 3rem 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-  padding: 28px 32px 28px 36px;
-  border-radius: 0px 12px 12px 0px;
-  border: 1px solid rgba(233, 30, 99, 0.20);
-  border-left: 3px solid rgba(233, 30, 99, 0.20);
-  background: rgba(233, 30, 99, 0.06);
-  backdrop-filter: blur(6px);
-  max-width: 565.36px;
+  @apply box-border my-12 flex flex-col items-start self-stretch pt-7 px-8 pb-7 pr-9 rounded-r-xl border border-accent-pink/20 border-l-[3px] border-l-accent-pink/20 bg-accent-pink/[0.06] backdrop-blur-[6px] max-w-[565.36px];
 }
 
 .blog-page-wrapper .pull-quote p {
-  font-family: var(--font-host);
-  font-size: 16px;
-  font-weight: 700;
-  font-style: normal;
-  line-height: 28px;
-  /* 175% */
-  letter-spacing: 0.64px;
-  color: #FFFFFF;
-  margin: 0;
-  flex: 1 0 0;
+  @apply font-host text-base font-bold normal-case leading-7 tracking-[0.64px] text-white m-0 flex-1;
 }
 
 .blog-page-wrapper .pull-quote::before {
+  @apply font-display text-[72px] font-extrabold leading-none text-accent-pink block mt-[-45px] mx-0 mb-[-30px];
   content: '“';
-  font-family: var(--font-display);
-  font-size: 72px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--color-accent-pink);
-  margin: -45px 0 -30px 0;
-  display: block;
 }
 
 /* ============================================================
-       MEDIA BLOCKS — inline images
-       FIGMA NOTE: 16:9 aspect ratio, border-radius 12px,
-       border 1px rgba(255,255,255,0.08), width 100%.
-       Hover: slight scale 1.01, box-shadow violet glow.
-    ============================================================ */
+   MEDIA BLOCKS — inline images
+   FIGMA NOTE: 16:9 aspect ratio, border-radius 12px,
+   border 1px rgba(255,255,255,0.08), width 100%.
+   Hover: slight scale 1.01, box-shadow violet glow.
+   ============================================================ */
 .blog-page-wrapper .media-block {
-  margin: 3rem 0;
-  max-width: 100%;
+  @apply my-12 max-w-full;
 }
 
 .blog-page-wrapper .media-block img {
-  width: 100%;
-  aspect-ratio: 16/9;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: block;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  @apply w-full aspect-video object-cover rounded-xl border border-white/8 block transition-all duration-300 ease-out;
 }
 
 .blog-page-wrapper .media-block img:hover {
-  transform: scale(1.006);
-  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
+  @apply scale-[1.006] shadow-[0_16px_48px_rgba(233,30,99,0.12)];
 }
 
 /* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
-       Each item: aspect-ratio 3/4, same border treatment. */
+   Each item: aspect-ratio 3/4, same border treatment. */
 .blog-page-wrapper .poster-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-  margin: 3rem 0;
+  @apply grid grid-cols-2 gap-5 my-12;
 }
 
 .blog-page-wrapper .poster-grid img {
-  width: 100%;
-  aspect-ratio: 3/4;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: block;
-  transition: transform 0.3s ease;
+  @apply w-full aspect-[3/4] object-cover rounded-xl border border-white/8 block transition-transform duration-300 ease-out;
 }
 
 .blog-page-wrapper .poster-grid img:hover {
-  transform: scale(1.01);
+  @apply scale-101;
 }
 
 /* Captions — IBM Plex Mono, muted text, pink on strong */
 .blog-page-wrapper .media-caption {
-  margin-top: 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.04em;
-  padding-left: 2px;
-  line-height: 1.5;
+  @apply mt-3 font-mono text-[0.75rem] text-white/45 tracking-[0.04em] pl-[2px] leading-[1.5];
 }
 
 .blog-page-wrapper .media-caption strong {
-  color: var(--color-accent-pink);
+  @apply text-accent-pink;
 }
 
 /* Section rule — pink gradient divider line */
 .blog-page-wrapper .section-rule {
-  margin: 3rem 0;
-  border: none;
-  height: 1px;
+  @apply my-12 border-none h-[1px];
   background: linear-gradient(90deg, transparent, rgba(233, 30, 99, 0.3), rgba(233, 30, 99, 0.15), transparent);
 }
 
 /* Tag pills — pink border & text */
 .blog-page-wrapper .tag-pill {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: rgba(233, 30, 99, 0.08);
-  border: 1px solid rgba(233, 30, 99, 0.3);
-  backdrop-filter: blur(6px);
-  border-radius: 100px;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-accent-pink);
-  margin-right: 0.5rem;
-  margin-bottom: 1.75rem;
+  @apply inline-block py-1 px-3 bg-accent-pink/8 border border-accent-pink/30 backdrop-blur-[6px] rounded-full font-mono text-[0.7rem] tracking-[0.08em] uppercase text-accent-pink mr-2 mb-7;
 }
 
 /* ============================================================
-       SIDEBAR
-       FIGMA NOTE: sticky top: 88px, width 320px,
-       flex-col gap 1.5rem.
-    ============================================================ */
+   SIDEBAR
+   FIGMA NOTE: sticky top: 88px, width 320px,
+   flex-col gap 1.5rem.
+   ============================================================ */
 .blog-page-wrapper .blog-sidebar {
-  position: sticky;
-  top: 88px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  @apply sticky top-[88px] flex flex-col gap-6;
 }
 
 /* Glass card — dark surface with subtle border */
 .blog-page-wrapper .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: border-color 0.3s ease;
+  @apply bg-white/[0.03] backdrop-blur-[6px] border border-white/8 rounded-xl p-6 transition-colors duration-300 ease-out;
 }
 
 .blog-page-wrapper .glass-card:hover {
-  border-color: rgba(233, 30, 99, 0.2);
+  @apply border-accent-pink/20;
 }
 
 /* Elevated glass card — pink accent */
 .blog-page-wrapper .glass-card-elevated {
-  background: rgba(233, 30, 99, 0.04);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(233, 30, 99, 0.15);
-  border-radius: 12px;
-  padding: 1.5rem;
+  @apply bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
 }
 
 /* Sidebar section label — IBM Plex Mono, pink accent */
 .blog-page-wrapper .sidebar-label {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-accent-pink);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  @apply font-mono text-[0.7rem] tracking-[0.15em] uppercase text-accent-pink mb-4 flex items-center gap-2;
 }
 
 .blog-page-wrapper .sidebar-label::before {
+  @apply w-4 h-[1px] bg-accent-pink;
   content: '';
-  width: 16px;
-  height: 1px;
-  background: var(--color-accent-pink);
 }
 
 /* ToC links — IBM Plex Mono, pink active state */
 .blog-page-wrapper .toc-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
+  @apply list-none flex flex-col gap-[0.05rem];
 }
 
 .blog-page-wrapper .toc-list a {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  text-decoration: none;
-  padding: 0.45rem 0.75rem;
-  border-left: 2px solid transparent;
-  border-radius: 0 6px 6px 0;
-  transition: all 0.2s ease;
-  line-height: 1.4;
+  @apply block font-mono text-[0.8rem] text-white/50 no-underline py-[0.45rem] px-[0.75rem] border-l-2 border-l-transparent rounded-r-md transition-all duration-200 ease-out leading-[1.4];
 }
 
 .blog-page-wrapper .toc-list a:hover {
-  color: #ffffff;
-  border-left-color: rgba(233, 30, 99, 0.4);
-  background: rgba(233, 30, 99, 0.04);
+  @apply text-white border-l-accent-pink/40 bg-accent-pink/[0.04];
 }
 
 .blog-page-wrapper .toc-list a.toc-active {
-  color: #ffffff;
-  border-left-color: var(--color-accent-pink);
-  background: rgba(233, 30, 99, 0.08);
+  @apply text-white border-l-accent-pink bg-accent-pink/8;
 }
 
 /* Author card avatar — pink gradient circle */
 .blog-page-wrapper .author-card-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+  @apply w-[52px] h-[52px] rounded-full flex items-center justify-center font-mokoto font-normal text-[1.2rem] text-white mb-4 border-2 border-white/10 shadow-[0_0_20px_rgba(233,30,99,0.25)];
   background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-dark-pink));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mokoto);
-  font-weight: 400;
-  font-size: 1.2rem;
-  color: white;
-  margin-bottom: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(233, 30, 99, 0.25);
 }
 
 .blog-page-wrapper .author-card-name {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1rem;
-  color: #ffffff;
-  margin-bottom: 0.25rem;
+  @apply font-mono font-bold text-base text-white mb-1;
 }
 
 .blog-page-wrapper .author-card-role {
-  font-size: 0.8rem;
-  color: var(--color-accent-pink);
-  font-family: var(--font-mono);
-  margin-bottom: 0.75rem;
+  @apply text-[0.8rem] text-accent-pink font-mono mb-3;
 }
 
 .blog-page-wrapper .author-card-bio {
-  color: var(--text-muted);
-  font-family: var(--font-ubuntu-mono);
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px;
-  /* 145.455% */
-  letter-spacing: 1.68px;
+  @apply text-text-muted font-ubuntu-mono text-[11px] font-normal leading-4 tracking-[1.68px];
 }
 
-/* Related posts */
+/* Related posts list */
 .blog-page-wrapper .related-post {
-  display: flex;
-  gap: 0.875rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  text-decoration: none;
-  transition: opacity 0.2s ease;
+  @apply flex gap-[0.875rem] py-3 border-b border-b-white/8 no-underline transition-opacity duration-200 ease-out;
 }
 
 .blog-page-wrapper .related-post:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  @apply border-b-0 pb-0;
 }
 
 .blog-page-wrapper .related-post:hover {
-  opacity: 0.75;
+  @apply opacity-75;
 }
 
 .blog-page-wrapper .related-thumb {
-  width: 58px;
-  height: 58px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  @apply w-[58px] h-[58px] rounded-lg shrink-0 overflow-hidden border border-white/8;
 }
 
 .blog-page-wrapper .related-thumb-1 {
+  @apply w-full h-full;
   background: linear-gradient(135deg, rgba(233, 30, 99, 0.35), rgba(136, 14, 79, 0.2));
-  width: 100%;
-  height: 100%;
 }
 
 .blog-page-wrapper .related-thumb-2 {
+  @apply w-full h-full;
   background: linear-gradient(135deg, rgba(233, 30, 99, 0.25), rgba(200, 0, 80, 0.2));
-  width: 100%;
-  height: 100%;
 }
 
 .blog-page-wrapper .related-thumb-3 {
+  @apply w-full h-full;
   background: linear-gradient(135deg, rgba(200, 0, 80, 0.3), rgba(233, 30, 99, 0.2));
-  width: 100%;
-  height: 100%;
 }
 
 .blog-page-wrapper .related-info {
-  flex: 1;
-  min-width: 0;
+  @apply flex-1 min-w-0;
 }
 
 .blog-page-wrapper .related-category {
-  color: var(--color-accent-pink);
-  font-family: var(--font-jetbrains-mono);
-  font-size: 12.8px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 22.4px;
-  /* 175% */
-  letter-spacing: 1.68px;
+  @apply text-accent-pink font-jetbrains-mono text-[12.8px] font-normal leading-[22.4px] tracking-[1.68px];
 }
 
 .blog-page-wrapper .related-title {
-  color: var(--text-primary);
-  font-family: var(--font-display);
-  font-size: 12.8px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 17.28px;
-  /* 135% */
+  @apply text-text-primary font-display text-[12.8px] font-normal leading-[17.28px];
 }
 
 .blog-page-wrapper .related-date {
-  color: var(--text-faint);
-  font-family: var(--font-ubuntu-mono);
-  font-size: 11.2px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 22.4px;
-  /* 200% */
-  letter-spacing: 1.68px;
+  @apply text-text-faint font-ubuntu-mono text-[11.2px] font-normal leading-[22.4px] tracking-[1.68px];
 }
 
 /* ============================================================
-       FOOTER
-       FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
-       Grid: 1fr repeat(3,auto). Gap 3rem 5rem. pb 3rem + border-bottom.
-       Wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055).
-       Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
-    ============================================================ */
-
-
-
-
-
-
+   FOOTER
+   FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
+   Grid: 1fr repeat(3,auto). Gap 3rem 5rem. pb 3rem + border-bottom.
+   Wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055).
+   Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
+   ============================================================ */
 .blog-page-wrapper .footer-logo-mark {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  @apply w-[38px] h-[38px] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(224,64,251,0.4)];
   background: linear-gradient(135deg, #E040FB, #8B5CF6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px rgba(224, 64, 251, 0.4);
 }
 
 .blog-page-wrapper .footer-logo-mark svg {
-  width: 20px;
-  height: 20px;
+  @apply w-5 h-5;
 }
 
 .blog-page-wrapper .footer-logo-text {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  text-transform: uppercase;
+  @apply font-display font-extrabold text-[1.1rem] tracking-[0.08em] text-text-primary uppercase;
 }
-
-
 
 .blog-page-wrapper .footer-col-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin-bottom: 1.25rem;
+  @apply font-display font-bold text-[0.875rem] tracking-[0.05em] uppercase text-text-primary mb-5;
 }
 
-
-
-
-
-
-
-
-
 .blog-page-wrapper .footer-social-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  @apply list-none flex flex-col gap-[0.6rem];
 }
 
 .blog-page-wrapper .footer-social-list a {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.2s ease;
+  @apply text-[0.875rem] text-text-muted no-underline transition-colors duration-200 ease-out;
 }
 
 .blog-page-wrapper .footer-social-list a:hover {
-  color: var(--color-accent-cyan);
+  @apply text-accent-cyan;
 }
 
-
-
 /* FIGMA NOTE: Wordmark text — Syne 800, clamp(4.5rem,11vw,10rem),
-       rgba(255,255,255,0.055), line-height 0.9, letter-spacing -0.02em. */
+   rgba(255,255,255,0.055), line-height 0.9, letter-spacing -0.02em. */
 .blog-page-wrapper .footer-wordmark-text {
-  font-family: var(--font-display);
-  font-weight: 800;
+  @apply font-display font-extrabold tracking-[-0.02em] uppercase text-white/[0.055] leading-[0.9] text-right select-none;
   font-size: clamp(4.5rem, 11vw, 10rem);
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.055);
-  line-height: 0.9;
-  text-align: right;
-  user-select: none;
 }
 
 .blog-page-wrapper .footer-wordmark-sub {
-  font-family: var(--font-display);
-  font-weight: 600;
+  @apply font-display font-semibold tracking-[0.3em] uppercase text-white/[0.045] text-right;
   font-size: clamp(1.5rem, 3.5vw, 3.5rem);
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.045);
-  text-align: right;
 }
-
-
 
 /* Reading progress bar */
 .blog-page-wrapper .reading-progress {
-  position: fixed;
-  top: 64px;
-  left: 0;
-  height: 2px;
+  @apply fixed top-16 left-0 h-[2px] z-[999] w-0 transition-[width] duration-100 ease-linear;
   background: linear-gradient(90deg, var(--color-accent-pink), var(--color-accent-cyan));
-  z-index: 999;
-  width: 0%;
-  transition: width 0.1s linear;
 }
 
 /* ============================================================
-       RESPONSIVE
-    ============================================================ */
+   RESPONSIVE OVERRIDES
+   ============================================================ */
 @media (max-width: 960px) {
   .blog-page-wrapper .blog-body {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    @apply grid-cols-1 gap-10;
   }
 
   .blog-page-wrapper .blog-sidebar {
-    position: static;
-    order: -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    @apply static order-[-1] grid grid-cols-2 gap-4;
   }
-
-
 }
 
 @media (max-width: 620px) {
   .blog-page-wrapper .blog-sidebar {
-    grid-template-columns: 1fr;
+    @apply grid-cols-1;
   }
 
-
-
   .blog-page-wrapper .poster-grid {
-    grid-template-columns: 1fr;
+    @apply grid-cols-1;
   }
 
   .blog-page-wrapper .hero-orb {
-    display: none;
+    @apply hidden;
   }
-
-
 }
 
 /* ============================================================
