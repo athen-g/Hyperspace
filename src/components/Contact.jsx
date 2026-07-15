@@ -17,12 +17,18 @@ const Contact = () => {
           </h2>
 
           <div className="contact-connect-box">
+            <div className="rule-line">
+              <span className="rule-dot"></span>
+              <span className="rule-dot"></span>
+            </div>
             <span className="contact-connect-label">LET'S CONNECT</span>
-            <div className="contact-divider"></div>
             <a href="mailto:hyperspace.wcoe@gmail.com" className="contact-email">
               Contact Us
             </a>
-            <div className="contact-divider"></div>
+            <div className="rule-line">
+              <span className="rule-dot"></span>
+              <span className="rule-dot"></span>
+            </div>
           </div>
         </div>
 
