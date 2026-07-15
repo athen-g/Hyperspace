@@ -4,6 +4,7 @@ import Events from './Events'
 import About from './About'
 import Contact from './Contact'
 import Navbar from './Navbar'
+import Footer from './Footer'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import Brands from './Brands'
@@ -21,6 +22,7 @@ const LandingPage = () => {
       <Events />
       <Blog_Home />
       <Contact />
+      <Footer />
       <Navbar />
     </>
   )

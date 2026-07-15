@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Sans+Condensed:ital,wght@0,100..700;1,100..700&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
@@ -14,32 +14,44 @@
 }
 
 @theme {
-  --color-bg-base: #0A0A0F;
+  /* Colors */
+  --color-bg-base: #0E0E0E;
   --color-bg-surface: #0F0F1A;
   --color-bg-card: rgba(255, 255, 255, 0.04);
+  --color-bg-light-grey: #666666;
+
+  --color-white: #FFFFFF;
+
   --color-accent-pink: #E91E63;
   --color-accent-cyan: #00D4FF;
   --color-accent-violet: #885CF6;
+  --color-accent-dark-pink: #880E4F;
+
   --color-text-primary: #F0EFFF;
   --color-text-muted: #9B9BAA;
   --color-text-faint: #4A4A5A;
-  --color-bg-light-grey: #666666;
+
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-accent: rgba(139, 92, 246, 0.25);
+
   --color-header-background: rgba(8, 8, 15, 0.45);
   --color-navbar-bg: rgba(10, 10, 15, 0.45);
   --color-navbar-border: rgba(102, 102, 102, 0.4);
 
+  /* Shadows */
   --shadow-glow-violet: 0 0 32px rgba(139, 92, 246, 0.35);
   --shadow-glow-cyan: 0 0 32px rgba(0, 212, 255, 0.25);
 
+  /* Fonts */
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
-  --font-jetbrains-mono: 'JetBrains Mono', monospace;
   --font-mokoto: 'Mokoto', sans-serif;
+  --font-host: 'Host Grotesk', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-ubuntu-mono: 'Ubuntu Mono', monospace;
   --font-mono: 'IBM Plex Mono', monospace;
   --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-host: 'Host Grotesk', sans-serif;
+  --font-sans-condensed: 'IBM Plex Sans Condensed', sans-serif;
 }
 
 html {
@@ -83,6 +95,17 @@ body::before {
   @apply relative min-h-[90vh] flex flex-col justify-end pt-16 overflow-hidden bg-[#08080F];
 }
 
+.hero-fade-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-base) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+  
 .hero-bg {
   @apply absolute inset-0 z-0 bg-gradient-to-b from-[#0D0818] via-[#08080F] to-[#0A0A0F];
 }
@@ -126,7 +149,7 @@ body::before {
 }
 
 .bg-lines {
-  @apply fixed inset-0 pointer-events-none z-[1];
+  @apply fixed inset-0 pointer-events-none z-[2];
 }
 
 .bg-line {
@@ -217,6 +240,75 @@ body::before {
   @apply flex items-start justify-center flex-col;
 }
 
+@keyframes floatOrb {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(24px, -32px) scale(1.06);
+  }
+
+  66% {
+    transform: translate(-16px, 20px) scale(0.94);
+  }
+}
+
+@utility animate-float-orb {
+  animation: floatOrb 9s ease-in-out infinite;
+}
+
+@utility bg-blog-hero-radial {
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 70%, rgba(0, 212, 255, 0.07) 0%, transparent 50%),
+    linear-gradient(180deg, #0D0818 0%, #08080F 50%, #0A0A0F 100%);
+}
+
+@utility bg-blog-divider {
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), rgba(0, 212, 255, 0.2), transparent);
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-hero-fade-in {
+  animation: heroFadeIn 0.8s ease-out both;
+}
+
+/* Horizontal rule lines with endpoint dot circles */
+.rule-line {
+  position: relative;
+  margin: 0 3.35%;
+  height: 1px;
+  background-color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rule-dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #666666;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+  
+  /*=============About Section=============*/
 .about-main-content:nth-child(1) {
   width: 23.88%;
   @apply pl-[35px];
@@ -649,3 +741,1359 @@ body::before {
 .blog-desc {
   @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2]
 }
+  
+  
+/* ============================================================ 
+   BLOG PAGE STYLES
+   ============================================================ */
+
+/* Blog page base — dark Hyperspace background throughout */
+.blog-page-wrapper {
+  background-color: var(--bg-base);
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+/* ============================================================
+   BLOG HERO SECTION
+   Matches Figma: dark near-black purple bg, large Mokoto title,
+   eyebrow label, subtitle, author meta all left-aligned.
+   ============================================================ */
+.blog-page-wrapper .blog-hero {
+  position: relative;
+  min-height: 818px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+/* Dark background matching Figma — deep near-black with subtle purple */
+.blog-page-wrapper .blog-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 80% at 75% 50%, rgba(80, 0, 60, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 60% at 20% 30%, rgba(40, 0, 60, 0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #0A0010 0%, #060008 60%, #080010 100%);
+  z-index: 0;
+}
+
+.blog-page-wrapper .blog-hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.35;
+  animation: floatOrb 9s ease-in-out infinite;
+}
+
+.blog-page-wrapper .blog-hero-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: rgba(150, 0, 80, 0.8);
+  top: -10%;
+  right: -5%;
+  animation-delay: 0s;
+}
+
+.blog-page-wrapper .blog-hero-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: rgba(80, 0, 120, 0.6);
+  bottom: 10%;
+  left: 5%;
+  animation-delay: -4.5s;
+}
+
+.blog-page-wrapper .blog-hero-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: rgba(200, 0, 100, 0.4);
+  top: 40%;
+  right: 30%;
+  animation-delay: -2s;
+  opacity: 0.2;
+}
+
+@keyframes floatOrb {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(24px, -32px) scale(1.06);
+  }
+
+  66% {
+    transform: translate(-16px, 20px) scale(0.94);
+  }
+}
+
+.blog-page-wrapper .blog-hero-content {
+  position: relative;
+  z-index: 3;
+  /* Figma padding: 115.2px left/right, 112px top, 96px bottom */
+  padding: 112px 115.2px 96px;
+  animation: heroFadeIn 0.8s ease-out both;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.blog-page-wrapper .blog-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: heroFadeIn 0.8s ease-out 0.1s both;
+}
+
+.blog-page-wrapper .blog-hero-eyebrow .bullet {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Hero title — Figma: Mokoto 64px/400 at 1440px → 4.444vw at 1920px
+   line-height 94px (146.9%), letter-spacing -2.56px → -0.04em */
+.blog-page-wrapper .blog-hero-title {
+  font-family: var(--font-mokoto);
+  font-weight: 400;
+  /* 64px at 1440 → 4.444vw; clamped so it doesn't get too small */
+  font-size: clamp(3rem, 4.444vw, 6rem);
+  line-height: 1.469;
+  /* 94px / 64px */
+  margin-bottom: 2.5rem;
+  animation: heroFadeIn 0.8s ease-out 0.2s both;
+  color: #ffffff;
+  text-transform: uppercase;
+  max-width: 900px;
+}
+
+/* Pink span */
+.blog-page-wrapper .blog-hero-title .pink-text {
+  color: var(--accent-pink);
+}
+
+/* White span */
+.blog-page-wrapper .blog-hero-title .white-text {
+  color: #ffffff;
+}
+
+/* Subtitle — Figma: IBM Plex Mono, 14px at 1440 → 0.972vw
+   line-height ~148.8%, color rgba(255,255,255,0.55) */
+.blog-page-wrapper .blog-hero-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 0.972vw, 1rem);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 540px;
+  line-height: 1.488;
+  margin-bottom: 2.5rem;
+  animation: heroFadeIn 0.8s ease-out 0.3s both;
+}
+
+/* Author meta row — avatar circle + name · role · date · read time */
+.blog-page-wrapper .blog-hero-author-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: heroFadeIn 0.8s ease-out 0.4s both;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-avatar-img-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-text-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.55);
+  flex-wrap: wrap;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-name {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .meta-sep {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+
+/* ============================================================
+       BLOG BODY LAYOUT
+       FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap clamp(3rem,5vw,5rem).
+       Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
+    ============================================================ */
+.blog-page-wrapper .blog-body {
+  position: relative;
+  z-index: 3;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4rem clamp(1.5rem, 5vw, 6rem) 6rem;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: clamp(3rem, 5vw, 5rem);
+  align-items: start;
+}
+
+/* ============================================================
+       MAIN ARTICLE COLUMN
+    ============================================================ */
+.blog-page-wrapper .blog-main {
+  min-width: 0;
+}
+
+/* H2 — Figma: "IBM Plex Mono" 700, 33.6px at 1440 → 2.333vw at 1920
+   line-height 40.32px (120%), letter-spacing 1.344px → 0.04em
+   color #E91E63 */
+.blog-page-wrapper .blog-main h2 {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  /* 33.6px / 1440 * 100 = 2.333vw; clamped */
+  font-size: clamp(1.5rem, 2.333vw, 2.5rem);
+  line-height: 1.2;
+  /* 120% */
+  letter-spacing: 0.04em;
+  /* 1.344px at 33.6px */
+  text-transform: none;
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--accent-pink);
+}
+
+/* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
+.blog-page-wrapper .blog-main p {
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: clamp(0.8rem, 0.972vw, 0.95rem);
+  max-width: 68ch;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+/* Pull quote — IBM Plex Mono, pink left border, dark bg */
+.blog-page-wrapper .pull-quote {
+  box-sizing: border-box;
+  margin: 3rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  padding: 28px 32px 28px 36px;
+  border-radius: 0px 12px 12px 0px;
+  border: 1px solid rgba(233, 30, 99, 0.20);
+  border-left: 3px solid rgba(233, 30, 99, 0.20);
+  background: rgba(233, 30, 99, 0.06);
+  backdrop-filter: blur(6px);
+  max-width: 565.36px;
+}
+
+.blog-page-wrapper .pull-quote p {
+  font-family: var(--font-host);
+  font-size: 16px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 28px;
+  /* 175% */
+  letter-spacing: 0.64px;
+  color: #FFFFFF;
+  margin: 0;
+  flex: 1 0 0;
+}
+
+.blog-page-wrapper .pull-quote::before {
+  content: '“';
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-pink);
+  margin: -45px 0 -30px 0;
+  display: block;
+}
+
+/* ============================================================
+       MEDIA BLOCKS — inline images
+       FIGMA NOTE: 16:9 aspect ratio, border-radius 12px,
+       border 1px rgba(255,255,255,0.08), width 100%.
+       Hover: slight scale 1.01, box-shadow violet glow.
+    ============================================================ */
+.blog-page-wrapper .media-block {
+  margin: 3rem 0;
+  max-width: 100%;
+}
+
+.blog-page-wrapper .media-block img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blog-page-wrapper .media-block img:hover {
+  transform: scale(1.006);
+  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
+}
+
+/* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
+       Each item: aspect-ratio 3/4, same border treatment. */
+.blog-page-wrapper .poster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 3rem 0;
+}
+
+.blog-page-wrapper .poster-grid img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.blog-page-wrapper .poster-grid img:hover {
+  transform: scale(1.01);
+}
+
+/* Captions — IBM Plex Mono, muted text, pink on strong */
+.blog-page-wrapper .media-caption {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.04em;
+  padding-left: 2px;
+  line-height: 1.5;
+}
+
+.blog-page-wrapper .media-caption strong {
+  color: var(--accent-pink);
+}
+
+/* Section rule — pink gradient divider line */
+.blog-page-wrapper .section-rule {
+  margin: 3rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(233, 30, 99, 0.3), rgba(233, 30, 99, 0.15), transparent);
+}
+
+/* Tag pills — pink border & text */
+.blog-page-wrapper .tag-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(233, 30, 99, 0.08);
+  border: 1px solid rgba(233, 30, 99, 0.3);
+  backdrop-filter: blur(6px);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  margin-right: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+/* ============================================================
+       SIDEBAR
+       FIGMA NOTE: sticky top: 88px, width 320px,
+       flex-col gap 1.5rem.
+    ============================================================ */
+.blog-page-wrapper .blog-sidebar {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Glass card — dark surface with subtle border */
+.blog-page-wrapper .glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.blog-page-wrapper .glass-card:hover {
+  border-color: rgba(233, 30, 99, 0.2);
+}
+
+/* Elevated glass card — pink accent */
+.blog-page-wrapper .glass-card-elevated {
+  background: rgba(233, 30, 99, 0.04);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(233, 30, 99, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* Sidebar section label — IBM Plex Mono, pink accent */
+.blog-page-wrapper .sidebar-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blog-page-wrapper .sidebar-label::before {
+  content: '';
+  width: 16px;
+  height: 1px;
+  background: var(--accent-pink);
+}
+
+/* ToC links — IBM Plex Mono, pink active state */
+.blog-page-wrapper .toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.blog-page-wrapper .toc-list a {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  padding: 0.45rem 0.75rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 6px 6px 0;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.blog-page-wrapper .toc-list a:hover {
+  color: #ffffff;
+  border-left-color: rgba(233, 30, 99, 0.4);
+  background: rgba(233, 30, 99, 0.04);
+}
+
+.blog-page-wrapper .toc-list a.toc-active {
+  color: #ffffff;
+  border-left-color: var(--accent-pink);
+  background: rgba(233, 30, 99, 0.08);
+}
+
+/* Author card avatar — pink gradient circle */
+.blog-page-wrapper .author-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-dark-pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mokoto);
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(233, 30, 99, 0.25);
+}
+
+.blog-page-wrapper .author-card-name {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.blog-page-wrapper .author-card-role {
+  font-size: 0.8rem;
+  color: var(--accent-pink);
+  font-family: var(--font-mono);
+  margin-bottom: 0.75rem;
+}
+
+.blog-page-wrapper .author-card-bio {
+  color: var(--text-muted);
+  font-family: var(--font-ubuntu-mono);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  /* 145.455% */
+  letter-spacing: 1.68px;
+}
+
+/* Related posts */
+.blog-page-wrapper .related-post {
+  display: flex;
+  gap: 0.875rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.blog-page-wrapper .related-post:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.blog-page-wrapper .related-post:hover {
+  opacity: 0.75;
+}
+
+.blog-page-wrapper .related-thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.blog-page-wrapper .related-thumb-1 {
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.35), rgba(136, 14, 79, 0.2));
+  width: 100%;
+  height: 100%;
+}
+
+.blog-page-wrapper .related-thumb-2 {
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.25), rgba(200, 0, 80, 0.2));
+  width: 100%;
+  height: 100%;
+}
+
+.blog-page-wrapper .related-thumb-3 {
+  background: linear-gradient(135deg, rgba(200, 0, 80, 0.3), rgba(233, 30, 99, 0.2));
+  width: 100%;
+  height: 100%;
+}
+
+.blog-page-wrapper .related-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.blog-page-wrapper .related-category {
+  color: var(--accent-pink);
+  font-family: var(--font-jetbrains-mono);
+  font-size: 12.8px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22.4px;
+  /* 175% */
+  letter-spacing: 1.68px;
+}
+
+.blog-page-wrapper .related-title {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 12.8px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17.28px;
+  /* 135% */
+}
+
+.blog-page-wrapper .related-date {
+  color: var(--text-faint);
+  font-family: var(--font-ubuntu-mono);
+  font-size: 11.2px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22.4px;
+  /* 200% */
+  letter-spacing: 1.68px;
+}
+
+/* ============================================================
+       FOOTER
+       FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
+       Grid: 1fr repeat(3,auto). Gap 3rem 5rem. pb 3rem + border-bottom.
+       Wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055).
+       Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
+    ============================================================ */
+
+
+
+
+
+
+.blog-page-wrapper .footer-logo-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E040FB, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(224, 64, 251, 0.4);
+}
+
+.blog-page-wrapper .footer-logo-mark svg {
+  width: 20px;
+  height: 20px;
+}
+
+.blog-page-wrapper .footer-logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+
+
+.blog-page-wrapper .footer-col-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+}
+
+
+
+
+
+
+
+
+
+.blog-page-wrapper .footer-social-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.blog-page-wrapper .footer-social-list a {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.blog-page-wrapper .footer-social-list a:hover {
+  color: var(--accent-cyan);
+}
+
+
+
+/* FIGMA NOTE: Wordmark text — Syne 800, clamp(4.5rem,11vw,10rem),
+       rgba(255,255,255,0.055), line-height 0.9, letter-spacing -0.02em. */
+.blog-page-wrapper .footer-wordmark-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4.5rem, 11vw, 10rem);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.055);
+  line-height: 0.9;
+  text-align: right;
+  user-select: none;
+}
+
+.blog-page-wrapper .footer-wordmark-sub {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.5vw, 3.5rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.045);
+  text-align: right;
+}
+
+
+
+/* Reading progress bar */
+.blog-page-wrapper .reading-progress {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
+  z-index: 999;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ============================================================
+       RESPONSIVE
+    ============================================================ */
+@media (max-width: 960px) {
+  .blog-page-wrapper .blog-body {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .blog-page-wrapper .blog-sidebar {
+    position: static;
+    order: -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+
+}
+
+@media (max-width: 620px) {
+  .blog-page-wrapper .blog-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+
+
+  .blog-page-wrapper .poster-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-page-wrapper .hero-orb {
+    display: none;
+  }
+
+
+}
+
+/* ============================================================
+       GLOBAL FOOTER STYLING (FIGMA NODE 1-1970 COMPONENT SPEC)
+    ============================================================ */
+.site-footer {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  width: 100%;
+  padding: 100px 0 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Main container — borders replaced by explicit rule elements */
+.footer-main-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.footer-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3.472% 22.222% 24.306% 24.306% 22.222% 3.472%;
+  align-items: stretch;
+}
+
+.footer-spacer-col {
+  pointer-events: none;
+}
+
+.footer-brand-col,
+.footer-tagline-col,
+.footer-socials-col {
+  padding: 30px 22.25px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sitemap column: no horizontal padding so row borders span full width */
+.footer-sitemap-col {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Col 1 Brand elements */
+.footer-logo {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+
+.footer-logo-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.footer-logo-text {
+  display: flex;
+  width: 189px;
+  height: 72px;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #FFF;
+  font-family: var(--font-mokoto);
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 36px;
+  text-transform: uppercase;
+}
+
+.footer-logo-text span {
+  display: block;
+}
+
+.footer-brand-subtitle {
+  width: 230px;
+  height: 40px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 104.392%;
+  letter-spacing: -0.26px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.footer-brand-subtitle .pink-text {
+  color: var(--accent-pink);
+}
+
+.footer-brand-subtitle .white-text {
+  color: #ffffff;
+}
+
+/* Sitemap / Links column header */
+.footer-col-header {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* "FOLLOW ON" header is pink */
+.footer-col-header--pink {
+  color: var(--accent-pink);
+  border-bottom: none;
+  margin-bottom: 1.25rem;
+}
+
+/* Sitemap nav links — full-width rows with separator lines and arrow */
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-links-list li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-links-list li:last-child {
+  border-bottom: none;
+}
+
+.footer-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  /* 25px top/bottom matches Figma row padding annotation */
+  padding: 20px 22.25px;
+  color: #ffffff;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 19px;
+  /* 95% */
+  letter-spacing: -0.8px;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.footer-nav-link:hover {
+  color: var(--accent-pink);
+}
+
+/* Arrow icon — 11.7x11.7 with 4.17px padding matching Figma component */
+.footer-nav-link .arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 30px;
+  flex-shrink: 0;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-nav-link:hover .arrow {
+  color: var(--accent-pink);
+  transform: translateX(4px);
+}
+
+/* Socials plain list — no separators, no arrows */
+.footer-social-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-social-list a {
+  color: #ffffff;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.footer-social-list a:hover {
+  color: var(--accent-pink);
+}
+
+/* Tagline Statement */
+.footer-statement {
+  width: 230px;
+  height: 38px;
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 104.392%;
+  letter-spacing: -0.26px;
+  text-transform: uppercase;
+  margin-bottom: auto;
+}
+
+.footer-statement .pink-text {
+  color: var(--accent-pink);
+}
+
+.footer-statement .white-text {
+  color: #ffffff;
+}
+
+.footer-created-by {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2rem;
+}
+
+.footer-created-by .created-text {
+  display: flex;
+  width: 94px;
+  height: 30px;
+  flex-direction: column;
+  justify-content: center;
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 104.392%;
+  letter-spacing: -0.26px;
+  text-transform: uppercase;
+}
+
+.footer-created-by .avatar-wrapper {
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.footer-created-by .created-brand {
+  display: flex;
+  width: 105px;
+  height: 30px;
+  flex-direction: column;
+  justify-content: center;
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 104.392%;
+  letter-spacing: -0.26px;
+  text-transform: uppercase;
+}
+
+/* Wordmark aligned with Line 1 (3.472%) and Line 5 (96.528%) */
+.footer-wordmark-container {
+  position: relative;
+  z-index: 1;
+  margin: 0 3.472%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  aspect-ratio: 4.098 / 1;
+}
+
+.footer-wordmark-main {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--accent-pink);
+  text-align: center;
+  font-family: var(--font-mokoto);
+  font-size: 296px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 436px;
+  text-transform: uppercase;
+  user-select: none;
+  margin: 0 auto;
+}
+
+.footer-wordmark-sub-container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin: -80px 0 36px 0;
+}
+
+.footer-wordmark-sub-text {
+  display: flex;
+  width: 426.66px;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--white);
+  text-align: center;
+  font-family: var(--font-mokoto);
+  font-size: 136px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 90px;
+  text-transform: uppercase;
+}
+
+/* Bottom Heading */
+.footer-bottom-heading {
+  display: none;
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-spacer-col {
+    display: none;
+  }
+
+  .footer-brand-col,
+  .footer-sitemap-col,
+  .footer-socials-col,
+  .footer-tagline-col {
+    padding: 3rem 1.5rem;
+  }
+
+  .footer-socials-col,
+  .footer-tagline-col {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .footer-socials-col {
+    border-left: none;
+  }
+
+  .footer-divider-container,
+  .footer-wordmark-container {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .footer-background-lines {
+    display: none;
+    /* Hide background lines on grid wrap */
+  }
+}
+
+@media (max-width: 620px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-sitemap-col,
+  .footer-socials-col,
+  .footer-tagline-col {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* ============================================================
+   CONTACT SECTION (FIGMA COMPONENT SPECIFICATION - NODE 1-354)
+   ============================================================ */
+.contact-section {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 3.45% 90px 3.45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+}
+
+.contact-section .rule-line {
+  width: 100%;
+  margin-bottom: 90px;
+}
+
+.contact-container {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0;
+  align-items: start;
+}
+
+.contact-info {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.contact-form-wrapper {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Left side styling */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.contact-eyebrow {
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 40px;
+  margin-left: 20px;
+}
+
+.contact-title {
+  display: flex;
+  width: 482px;
+  height: 316px;
+  flex-direction: column;
+  justify-content: center;
+  font-family: var(--font-sans-condensed);
+  font-size: clamp(38px, 5.926vw, 96px);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: 50px 0 clamp(24px, 3.333vw, 48px) 20px;
+  display: flex;
+  flex-direction: column;
+  font-style: normal;
+}
+
+.contact-title .pink-text {
+  color: var(--accent-pink);
+}
+
+.contact-title .white-text {
+  color: var(--white);
+}
+
+.contact-connect-box {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.contact-connect-box .rule-line {
+  width: 100%;
+  margin: 0;
+}
+
+.contact-connect-label {
+  color: var(--accent-pink);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  margin: 20px 0 0 30px;
+  text-transform: uppercase;
+
+}
+
+.contact-email {
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  margin: 15px 0 30px 30px;
+}
+
+.contact-email:hover {
+  color: var(--accent-pink);
+}
+
+/* Right side form styling */
+.contact-form-wrapper {
+  width: 100%;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-form .form-row {
+  display: grid;
+  grid-template-columns: 465px 1fr;
+  gap: 5px;
+}
+
+.contact-form label {
+  font-family: var(--font-mono);
+  letter-spacing: 1.68px;
+  color: var(--white);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 500;
+  margin-left: 20px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #D9D9D9;
+  border: none;
+  border-radius: 0px;
+  padding: 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: #000000;
+  transition: opacity 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  background: #EAEAEA;
+}
+
+.contact-submit-btn {
+  display: flex;
+  width: 425px;
+  height: 72px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  align-self: flex-end;
+  background: #1A1A1A;
+  border: none;
+  border-radius: 0px;
+  margin-top: 40px;
+  padding: 16px 36px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.contact-submit-btn:hover {
+  background: #2D2D2D;
+}
+
+.contact-submit-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 960px) {
+  .contact-container {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
