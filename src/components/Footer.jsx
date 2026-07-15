@@ -3,20 +3,11 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="site-footer">
-      {/* Absolute positioned background lines stretching from top to bottom */}
-      <div className="footer-background-lines">
-        <span className="line l1"></span>
-        <span className="line l2"></span>
-        <span className="line l3"></span>
-        <span className="line l4"></span>
-        <span className="line l5"></span>
-      </div>
-
       <div className="footer-main-container">
         {/* Top rule line with endpoint circles */}
-        <div className="footer-rule">
-          <span className="footer-rule-dot"></span>
-          <span className="footer-rule-dot"></span>
+        <div className="rule-line">
+          <span className="rule-dot"></span>
+          <span className="rule-dot"></span>
         </div>
 
         <div className="footer-grid">
@@ -78,9 +69,9 @@ export default function Footer() {
         </div>
 
         {/* Bottom rule line with endpoint circles */}
-        <div className="footer-rule">
-          <span className="footer-rule-dot"></span>
-          <span className="footer-rule-dot"></span>
+        <div className="rule-line">
+          <span className="rule-dot"></span>
+          <span className="rule-dot"></span>
         </div>
       </div>
 

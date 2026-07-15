@@ -3,6 +3,10 @@ import React from 'react';
 const Contact = () => {
   return (
     <section id="contact" className="contact-section">
+      <div className="rule-line">
+        <span className="rule-dot"></span>
+        <span className="rule-dot"></span>
+      </div>
       <div className="contact-container">
         {/* Left Side Info */}
         <div className="contact-info">
@@ -11,7 +15,7 @@ const Contact = () => {
             <span className="pink-text">HAVE A</span>
             <span className="white-text">QUESTION IN MIND?</span>
           </h2>
-          
+
           <div className="contact-connect-box">
             <span className="contact-connect-label">LET'S CONNECT</span>
             <div className="contact-divider"></div>

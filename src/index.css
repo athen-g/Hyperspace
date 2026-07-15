@@ -417,6 +417,27 @@ body::before {
   animation: heroFadeIn 0.8s ease-out both;
 }
 
+/* Horizontal rule lines with endpoint dot circles */
+.rule-line {
+  position: relative;
+  margin: 0 3.35%;
+  height: 1px;
+  background-color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rule-dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #666666;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
 /* ============================================================ 
    BLOG PAGE STYLES
    ============================================================ */
@@ -1193,70 +1214,11 @@ body::before {
   box-sizing: border-box;
 }
 
-/* Absolute positioned background lines stretching from top to bottom */
-.footer-background-lines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.footer-background-lines .line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.15);
-  /* Solid borders matching Figma spec */
-}
-
-/* Position percentages derived mathematically from Figma reference layout */
-.footer-background-lines .l1 {
-  left: 3.472%;
-}
-
-.footer-background-lines .l2 {
-  left: 25.694%;
-}
-
-.footer-background-lines .l3 {
-  left: 50%;
-}
-
-.footer-background-lines .l4 {
-  left: 74.306%;
-}
-
-.footer-background-lines .l5 {
-  left: 96.528%;
-}
-
 /* Main container — borders replaced by explicit rule elements */
 .footer-main-container {
   position: relative;
   z-index: 1;
   width: 100%;
-}
-
-/* Horizontal rule lines with endpoint dot circles */
-.footer-rule {
-  position: relative;
-  margin: 0 3.35%;
-  height: 1px;
-  background-color: #666666;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.footer-rule-dot {
-  display: block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: #666666;
-  flex-shrink: 0;
-  margin-top: 0;
 }
 
 .footer-grid {
@@ -1627,17 +1589,25 @@ body::before {
 .contact-section {
   width: 100%;
   box-sizing: border-box;
-  padding: clamp(60px, 6.944vw, 120px) 3.472% clamp(60px, 6.944vw, 120px) 3.472%;
+  padding: 75px 0 90px 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   position: relative;
   z-index: 3;
 }
 
+.contact-section .rule-line {
+  width: 100%;
+  margin-bottom: 75px;
+  box-sizing: border-box;
+}
+
 .contact-container {
-  width: 1340px;
   max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 3.472%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(40px, 5.556vw, 100px);
@@ -1736,7 +1706,7 @@ body::before {
 .contact-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 4px;
 }
 
 .contact-form label {
