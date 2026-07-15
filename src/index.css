@@ -34,6 +34,7 @@
   --font-jetbrains-mono: 'JetBrains Mono', monospace;
   --font-mokoto: 'Mokoto', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+  --font-sans: 'IBM Plex Sans Condensed', sans-serif;
 }
 
 html {
@@ -1625,9 +1626,8 @@ body::before {
    ============================================================ */
 .contact-section {
   width: 100%;
-  background: var(--bg-base);
   box-sizing: border-box;
-  padding: 100px 3.472% 100px 3.472%;
+  padding: clamp(60px, 6.944vw, 120px) 3.472% clamp(60px, 6.944vw, 120px) 3.472%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1640,7 +1640,7 @@ body::before {
   max-width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  gap: clamp(40px, 5.556vw, 100px);
   align-items: start;
 }
 
@@ -1653,21 +1653,21 @@ body::before {
 
 .contact-eyebrow {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: clamp(11px, 0.9vw, 13px);
   letter-spacing: 0.1em;
   color: var(--accent-pink);
   text-transform: uppercase;
-  margin-bottom: 24px;
+  margin-bottom: clamp(16px, 1.667vw, 24px);
 }
 
 .contact-title {
-  font-family: var(--font-mokoto);
-  font-size: 64px;
+  font-family: var(--font-sans);
+  /* 64px at 1080px height corresponds to 5.926vw relative viewport size */
+  font-size: clamp(38px, 5.926vw, 84px);
   font-weight: 400;
-  line-height: 90px;
-  letter-spacing: -2.56px;
+  line-height: 1.15;
   text-transform: uppercase;
-  margin: 0 0 48px 0;
+  margin: 0 0 clamp(24px, 3.333vw, 48px) 0;
   display: flex;
   flex-direction: column;
 }
@@ -1682,7 +1682,7 @@ body::before {
 
 .contact-connect-box {
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1690,7 +1690,7 @@ body::before {
 
 .contact-connect-label {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: clamp(11px, 0.9vw, 13px);
   letter-spacing: 1.68px;
   color: var(--accent-pink);
   text-transform: uppercase;
@@ -1706,7 +1706,7 @@ body::before {
 
 .contact-email {
   font-family: var(--font-display);
-  font-size: 36px;
+  font-size: clamp(22px, 3.333vw, 44px);
   font-weight: 700;
   color: var(--white);
   text-decoration: none;
@@ -1752,7 +1752,8 @@ body::before {
 .contact-form textarea {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   padding: 16px;
@@ -1797,4 +1798,4 @@ body::before {
     grid-template-columns: 1fr;
     gap: 48px;
   }
-}
+}
