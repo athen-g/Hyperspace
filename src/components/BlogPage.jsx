@@ -446,7 +446,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
 
           <p
             style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.875rem", marginTop: "3rem", paddingTop: "1.5rem", borderTop: "1px solid var(--border-subtle)" }}>
-            — Durgesh Khadke, Design Head · Hyperspace XR SIG · Wadia College of Engineering, Department of Computer
+            — Atharva Ghule, Design Head · Hyperspace XR SIG · Wadia College of Engineering, Department of Computer
             Engineering · May 2026</p>
 
         </article>
@@ -479,8 +479,8 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
          Name: Syne 700 1rem. Role: JetBrains Mono 0.8rem accent-pink. Bio: 0.85rem text-muted. */}
           <div className="glass-card">
             <div className="sidebar-label">About the Author</div>
-            <div className="author-card-avatar">DK</div>
-            <div className="author-card-name">Durgesh Khadke</div>
+            <div className="author-card-avatar">AG</div>
+            <div className="author-card-name">Atharva Ghule</div>
             <div className="author-card-role">Design Head · Hyperspace XR</div>
             <div className="author-card-bio">
               Crafting the visual universe of Hyperspace XR — event backdrops, posters, brand identity, and everything in

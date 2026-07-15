@@ -220,7 +220,7 @@ body::before {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
   }
 
   .bg-line {
@@ -417,12 +417,12 @@ body::before {
 }
 
 /* ============================================================ 
-   BLOG PAGE STYLES (MIGRATED FROM blog.css)
+   BLOG PAGE STYLES
    ============================================================ */
 
 /* Blog page base — dark Hyperspace background throughout */
 .blog-page-wrapper {
-  background-color: #1a1a1a;
+  background-color: #0e0e0e;
   min-height: 100vh;
   color: #ffffff;
 }
@@ -628,7 +628,7 @@ body::before {
   left: 0;
   right: 0;
   height: 200px;
-  background: linear-gradient(180deg, transparent 0%, #1a1a1a 100%);
+  background: linear-gradient(180deg, transparent 0%, #0e0e0e 100%);
   z-index: 1;
 }
 
@@ -645,7 +645,7 @@ body::before {
   grid-template-columns: 1fr 320px;
   gap: clamp(3rem, 5vw, 5rem);
   align-items: start;
-  background: #1a1a1a;
+  background: #0e0e0e;
 }
 
 /* ============================================================
@@ -663,8 +663,10 @@ body::before {
   font-weight: 700;
   /* 33.6px / 1440 * 100 = 2.333vw; clamped */
   font-size: clamp(1.5rem, 2.333vw, 2.5rem);
-  line-height: 1.2; /* 120% */
-  letter-spacing: 0.04em; /* 1.344px at 33.6px */
+  line-height: 1.2;
+  /* 120% */
+  letter-spacing: 0.04em;
+  /* 1.344px at 33.6px */
   text-transform: none;
   margin-top: 3.5rem;
   margin-bottom: 1.25rem;
