@@ -1311,7 +1311,7 @@ body::before {
 
 /* Wordmark aligned with Line 1 (3.472%) and Line 5 (96.528%) */
 .footer-wordmark-container {
-  @apply relative z-[1] mx-[3.472%] flex flex-col items-stretch aspect-[4.098/1];
+  @apply relative z-[3] mx-[3.472%] flex flex-col items-stretch aspect-[4.098/1];
 }
 
 .footer-wordmark-main {
