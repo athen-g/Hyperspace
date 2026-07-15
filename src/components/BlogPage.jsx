@@ -178,7 +178,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
               to carry that weight. It cannot be an afterthought — and for Hyperspace XR, it never is.</p>
 
             <p>Our very first flagship event gave us our first real test: the <strong
-              style={{ color: "var(--text-primary)", fontWeight: "600" }}>Initiate Calibration</strong> induction. The name alone
+              style={{ color: "var(--color-text-primary)", fontWeight: "600" }}>Initiate Calibration</strong> induction. The name alone
               told us everything we needed to know about the visual direction. "Calibration" is a technical word — the process
               of adjusting a system before it can be trusted to operate correctly. To "initiate" it is to begin that
               adjustment. It's the moment before you can trust what you're seeing. That felt perfect for an induction event:
@@ -221,7 +221,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             <h2 id="immersion">Activate Immersion — Crossing the Threshold</h2>
 
             <p>If Initiate Calibration was the tension before entry, <strong
-              style={{ color: "var(--text-primary)", fontWeight: "600" }}>Activate Immersion</strong> was the act of crossing
+              style={{ color: "var(--color-text-primary)", fontWeight: "600" }}>Activate Immersion</strong> was the act of crossing
               through. Our second major event backdrop had to communicate something fundamentally different — not
               anticipation, but arrival. Full immersion, activated.</p>
 
@@ -266,7 +266,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
             <h2 id="render-creation">Render Creation — Glass, Unity, and the Feeling of Making</h2>
 
             <p>Our most technically ambitious backdrop to date was designed for <strong
-              style={{ color: "var(--text-primary)", fontWeight: "600" }}>Render Creation</strong>, our Unity-focused workshop
+              style={{ color: "var(--color-text-primary)", fontWeight: "600" }}>Render Creation</strong>, our Unity-focused workshop
               series. This one required us to think deeply about what Unity means to us — as developers, as creators, as a SIG
               built on the premise that XR is the future of interactive experience.</p>
 
@@ -446,7 +446,7 @@ Content: animate fade-in + translateY(30px), staggered by 0.1s per element.
               a question. And every time we face it, that question is the same: what world are we building today?</p>
 
             <p
-              style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.875rem", marginTop: "3rem", paddingTop: "1.5rem", borderTop: "1px solid var(--border-subtle)" }}>
+              style={{ color: "var(--color-text-muted)", fontStyle: "italic", fontSize: "0.875rem", marginTop: "3rem", paddingTop: "1.5rem", borderTop: "1px solid var(--color-border-subtle)" }}>
               — Atharva Ghule, Design Head · Hyperspace XR SIG · Wadia College of Engineering, Department of Computer
               Engineering · May 2026</p>
 

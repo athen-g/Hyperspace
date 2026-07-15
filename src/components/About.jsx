@@ -1,7 +1,7 @@
 import React from 'react'
 import { BackgroundPathsDemo } from './ui/BackgroundPaths'
-import face from '../assets/photos/about-lest1.png';
-import butterfly from '../assets/photos/about-right1.png';
+import face from '../assets/images/about-left1.png';
+import butterfly from '../assets/images/about-right1.png';
 import { ScrollRevealText } from './ui/ScrollRevealText';
 import { useMediaQuery } from 'react-responsive';
 import { useGSAP } from '@gsap/react';
