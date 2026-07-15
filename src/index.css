@@ -105,7 +105,7 @@ body::before {
   z-index: 1;
   pointer-events: none;
 }
-  
+
 .hero-bg {
   @apply absolute inset-0 z-0 bg-gradient-to-b from-[#0D0818] via-[#08080F] to-[#0A0A0F];
 }
@@ -307,8 +307,8 @@ body::before {
   flex-shrink: 0;
   margin-top: 0;
 }
-  
-  /*=============About Section=============*/
+
+/*=============About Section=============*/
 .about-main-content:nth-child(1) {
   width: 23.88%;
   @apply pl-[35px];
@@ -741,8 +741,8 @@ body::before {
 .blog-desc {
   @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2]
 }
-  
-  
+
+
 /* ============================================================ 
    BLOG PAGE STYLES
    ============================================================ */
@@ -892,7 +892,7 @@ body::before {
 
 /* Pink span */
 .blog-page-wrapper .blog-hero-title .pink-text {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* White span */
@@ -989,7 +989,7 @@ body::before {
   text-transform: none;
   margin-top: 3.5rem;
   margin-bottom: 1.25rem;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
@@ -1040,7 +1040,7 @@ body::before {
   font-size: 72px;
   font-weight: 800;
   line-height: 1;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   margin: -45px 0 -30px 0;
   display: block;
 }
@@ -1106,7 +1106,7 @@ body::before {
 }
 
 .blog-page-wrapper .media-caption strong {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* Section rule — pink gradient divider line */
@@ -1129,7 +1129,7 @@ body::before {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   margin-right: 0.5rem;
   margin-bottom: 1.75rem;
 }
@@ -1176,7 +1176,7 @@ body::before {
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -1187,7 +1187,7 @@ body::before {
   content: '';
   width: 16px;
   height: 1px;
-  background: var(--accent-pink);
+  background: var(--color-accent-pink);
 }
 
 /* ToC links — IBM Plex Mono, pink active state */
@@ -1219,7 +1219,7 @@ body::before {
 
 .blog-page-wrapper .toc-list a.toc-active {
   color: #ffffff;
-  border-left-color: var(--accent-pink);
+  border-left-color: var(--color-accent-pink);
   background: rgba(233, 30, 99, 0.08);
 }
 
@@ -1228,7 +1228,7 @@ body::before {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-pink), var(--accent-dark-pink));
+  background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-dark-pink));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1251,7 +1251,7 @@ body::before {
 
 .blog-page-wrapper .author-card-role {
   font-size: 0.8rem;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   font-family: var(--font-mono);
   margin-bottom: 0.75rem;
 }
@@ -1319,7 +1319,7 @@ body::before {
 }
 
 .blog-page-wrapper .related-category {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   font-family: var(--font-jetbrains-mono);
   font-size: 12.8px;
   font-style: normal;
@@ -1423,7 +1423,7 @@ body::before {
 }
 
 .blog-page-wrapper .footer-social-list a:hover {
-  color: var(--accent-cyan);
+  color: var(--color-accent-cyan);
 }
 
 
@@ -1460,7 +1460,7 @@ body::before {
   top: 64px;
   left: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
+  background: linear-gradient(90deg, var(--color-accent-pink), var(--color-accent-cyan));
   z-index: 999;
   width: 0%;
   transition: width 0.1s linear;
@@ -1600,7 +1600,7 @@ body::before {
 }
 
 .footer-brand-subtitle .pink-text {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 .footer-brand-subtitle .white-text {
@@ -1621,7 +1621,7 @@ body::before {
 
 /* "FOLLOW ON" header is pink */
 .footer-col-header--pink {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   border-bottom: none;
   margin-bottom: 1.25rem;
 }
@@ -1665,7 +1665,7 @@ body::before {
 }
 
 .footer-nav-link:hover {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* Arrow icon — 11.7x11.7 with 4.17px padding matching Figma component */
@@ -1682,7 +1682,7 @@ body::before {
 }
 
 .footer-nav-link:hover .arrow {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   transform: translateX(4px);
 }
 
@@ -1708,7 +1708,7 @@ body::before {
 }
 
 .footer-social-list a:hover {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* Tagline Statement */
@@ -1727,7 +1727,7 @@ body::before {
 }
 
 .footer-statement .pink-text {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 .footer-statement .white-text {
@@ -1797,7 +1797,7 @@ body::before {
   width: 100%;
   flex-direction: column;
   justify-content: center;
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   text-align: center;
   font-family: var(--font-mokoto);
   font-size: 296px;
@@ -1962,7 +1962,7 @@ body::before {
 }
 
 .contact-title .pink-text {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 .contact-title .white-text {
@@ -1983,7 +1983,7 @@ body::before {
 }
 
 .contact-connect-label {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
   font-family: var(--font-mono);
   font-size: 24px;
   font-style: normal;
@@ -2003,7 +2003,7 @@ body::before {
 }
 
 .contact-email:hover {
-  color: var(--accent-pink);
+  color: var(--color-accent-pink);
 }
 
 /* Right side form styling */
@@ -2097,3 +2097,4 @@ body::before {
     grid-template-columns: 1fr;
     gap: 48px;
   }
+}

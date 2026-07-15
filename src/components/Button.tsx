@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import rightArrowIcon from '../assets/photos/rightArrow.svg'
+import rightArrowIcon from '../assets/icons/rightArrow.svg'
 
 interface ButtonProps {
   label: string
