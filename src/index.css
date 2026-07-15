@@ -548,15 +548,13 @@ body::before {
 }
 
 /* Hero title — Figma: Mokoto 64px/400 at 1440px → 4.444vw at 1920px
-   Pink span line-height 90px (140.8%), white span 64px (100%)
-   letter-spacing -2.56px → -0.04em */
+   line-height 94px (146.9%), letter-spacing -2.56px → -0.04em */
 .blog-page-wrapper .blog-hero-title {
   font-family: Mokoto, sans-serif;
   font-weight: 400;
   /* 64px at 1440 → 4.444vw; clamped so it doesn't get too small */
   font-size: clamp(3rem, 4.444vw, 6rem);
-  /* overall line-height is driven by span overrides below */
-  line-height: 1;
+  line-height: 1.469; /* 94px / 64px */
   letter-spacing: -0.04em;
   margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
@@ -565,27 +563,25 @@ body::before {
   max-width: 900px;
 }
 
-/* Pink span: line-height 90px at 1440 → 140.8% of 64px */
+/* Pink span */
 .blog-page-wrapper .blog-hero-title .pink-text {
   color: #E91E63;
-  display: inline;
-  line-height: 1.408;
 }
 
-/* White span: line-height 64px at 1440 → 100% */
+/* White span */
 .blog-page-wrapper .blog-hero-title .white-text {
   color: #ffffff;
-  display: inline;
-  line-height: 1;
 }
 
-/* Subtitle — IBM Plex Mono, body text below the big title */
+/* Subtitle — Figma: IBM Plex Mono, 14px at 1440 → 0.972vw
+   line-height ~148.8%, color rgba(255,255,255,0.55) */
 .blog-page-wrapper .blog-hero-subtitle {
   font-family: "IBM Plex Mono", monospace;
-  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  font-size: clamp(0.8rem, 0.972vw, 1rem);
+  font-weight: 400;
   color: rgba(255, 255, 255, 0.55);
   max-width: 540px;
-  line-height: 1.7;
+  line-height: 1.488;
   margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.3s both;
 }
@@ -675,32 +671,36 @@ body::before {
   color: #E91E63;
 }
 
+/* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
 .blog-page-wrapper .blog-main p {
-  color: var(--text-primary);
+  font-family: "IBM Plex Mono", monospace;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: clamp(0.8rem, 0.972vw, 0.95rem);
   max-width: 68ch;
   margin-bottom: 1.5rem;
   font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
 }
 
-/* FIGMA NOTE: Pull quote — glass card elevated, border-left 3px violet,
-       DM Sans italic clamp(1.1rem,1.5vw,1.3rem), line-height 1.65.
-       Quotation mark: Syne 800 4rem, gradient text, top: -10px left: 24px. */
+/* Pull quote — IBM Plex Mono, pink left border, dark bg */
 .blog-page-wrapper .pull-quote {
   position: relative;
   margin: 3rem 0;
   padding: 1.75rem 2rem 1.75rem 2.25rem;
-  background: rgba(139, 92, 246, 0.06);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-left: 3px solid var(--accent-pink);
+  background: rgba(233, 30, 99, 0.04);
+  border: 1px solid rgba(233, 30, 99, 0.15);
+  border-left: 3px solid #E91E63;
   border-radius: 0 12px 12px 0;
   max-width: 68ch;
 }
 
 .blog-page-wrapper .pull-quote p {
-  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(0.9rem, 1.1vw, 1.1rem);
   font-style: italic;
   font-weight: 400;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.65;
   margin: 0;
 }
@@ -710,15 +710,12 @@ body::before {
   position: absolute;
   top: -12px;
   left: 20px;
-  font-family: var(--font-display);
-  font-size: 4.5rem;
-  font-weight: 800;
+  font-family: Mokoto, sans-serif;
+  font-size: 4rem;
+  font-weight: 400;
   line-height: 1;
-  background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  opacity: 0.55;
+  color: #E91E63;
+  opacity: 0.4;
 }
 
 /* ============================================================
@@ -737,14 +734,14 @@ body::before {
   aspect-ratio: 16/9;
   object-fit: cover;
   border-radius: 12px;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: block;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .blog-page-wrapper .media-block img:hover {
   transform: scale(1.006);
-  box-shadow: 0 16px 48px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
 }
 
 /* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
@@ -761,7 +758,7 @@ body::before {
   aspect-ratio: 3/4;
   object-fit: cover;
   border-radius: 12px;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: block;
   transition: transform 0.3s ease;
 }
@@ -770,42 +767,41 @@ body::before {
   transform: scale(1.01);
 }
 
-/* FIGMA NOTE: Caption — JetBrains Mono 0.75rem, text-muted,
-       margin-top 0.75rem, letter-spacing 0.05em. Accent color on strong. */
+/* Captions — IBM Plex Mono, muted text, pink on strong */
 .blog-page-wrapper .media-caption {
   margin-top: 0.75rem;
-  font-family: var(--font-mono);
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.04em;
   padding-left: 2px;
   line-height: 1.5;
 }
 
 .blog-page-wrapper .media-caption strong {
-  color: var(--accent-pink);
+  color: #E91E63;
 }
 
-/* Section rule — gradient divider line */
+/* Section rule — pink gradient divider line */
 .blog-page-wrapper .section-rule {
   margin: 3rem 0;
   border: none;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), rgba(0, 212, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(233, 30, 99, 0.3), rgba(233, 30, 99, 0.15), transparent);
 }
 
-/* Tag pills */
+/* Tag pills — pink border & text */
 .blog-page-wrapper .tag-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: rgba(233, 30, 99, 0.08);
+  border: 1px solid rgba(233, 30, 99, 0.3);
   border-radius: 100px;
-  font-family: var(--font-mono);
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent-pink);
+  color: #E91E63;
   margin-right: 0.5rem;
   margin-bottom: 1.75rem;
 }
@@ -823,43 +819,34 @@ body::before {
   gap: 1.5rem;
 }
 
-/* FIGMA NOTE: Base glass card —
-       background rgba(255,255,255,0.04), backdrop-filter blur(12px),
-       border 1px rgba(255,255,255,0.08), border-radius 16px, padding 1.5rem. */
+/* Glass card — dark surface with subtle border */
 .blog-page-wrapper .glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1.5rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 
 .blog-page-wrapper .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.07);
+  border-color: rgba(233, 30, 99, 0.2);
 }
 
-/* FIGMA NOTE: Elevated glass card —
-       background rgba(139,92,246,0.06), border rgba(139,92,246,0.2). */
+/* Elevated glass card — pink accent */
 .blog-page-wrapper .glass-card-elevated {
-  background: rgba(139, 92, 246, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 16px;
+  background: rgba(233, 30, 99, 0.04);
+  border: 1px solid rgba(233, 30, 99, 0.15);
+  border-radius: 12px;
   padding: 1.5rem;
 }
 
-/* FIGMA NOTE: Sidebar section label — JetBrains Mono 0.7rem,
-       0.15em tracking, uppercase, accent-pink. 16px line before. */
+/* Sidebar section label — IBM Plex Mono, pink accent */
 .blog-page-wrapper .sidebar-label {
-  font-family: var(--font-mono);
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--accent-pink);
+  color: #E91E63;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -870,13 +857,10 @@ body::before {
   content: '';
   width: 16px;
   height: 1px;
-  background: var(--accent-pink);
+  background: #E91E63;
 }
 
-/* FIGMA NOTE: ToC links — DM Sans 400 0.875rem, text-muted,
-       padding 0.5rem 0.75rem, border-left 2px transparent, border-radius 0 6px 6px 0.
-       Hover: text-primary, border violet 40%, bg violet 4%.
-       Active: text-primary, border violet, bg violet 8%. Transition 0.2s. */
+/* ToC links — IBM Plex Mono, pink active state */
 .blog-page-wrapper .toc-list {
   list-style: none;
   display: flex;
@@ -886,8 +870,9 @@ body::before {
 
 .blog-page-wrapper .toc-list a {
   display: block;
-  font-size: 0.875rem;
-  color: var(--text-muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
   padding: 0.45rem 0.75rem;
   border-left: 2px solid transparent;
@@ -897,68 +882,63 @@ body::before {
 }
 
 .blog-page-wrapper .toc-list a:hover {
-  color: var(--text-primary);
-  border-left-color: rgba(139, 92, 246, 0.4);
-  background: rgba(139, 92, 246, 0.04);
+  color: #ffffff;
+  border-left-color: rgba(233, 30, 99, 0.4);
+  background: rgba(233, 30, 99, 0.04);
 }
 
 .blog-page-wrapper .toc-list a.toc-active {
-  color: var(--text-primary);
-  border-left-color: var(--accent-pink);
-  background: rgba(139, 92, 246, 0.08);
+  color: #ffffff;
+  border-left-color: #E91E63;
+  background: rgba(233, 30, 99, 0.08);
 }
 
-/* FIGMA NOTE: Author card avatar — 52px circle, gradient pink→violet,
-       Syne 800 1.2rem initials, border rgba(255,255,255,0.1),
-       box-shadow 0 0 20px rgba(139,92,246,0.3). margin-bottom 1rem. */
+/* Author card avatar — pink gradient circle */
 .blog-page-wrapper .author-card-avatar {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-violet), var(--accent-pink));
+  background: linear-gradient(135deg, #E91E63, #880E4F);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 800;
+  font-family: Mokoto, sans-serif;
+  font-weight: 400;
   font-size: 1.2rem;
   color: white;
   margin-bottom: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 20px rgba(233, 30, 99, 0.25);
 }
 
 .blog-page-wrapper .author-card-name {
-  font-family: var(--font-display);
+  font-family: "IBM Plex Mono", monospace;
   font-weight: 700;
   font-size: 1rem;
-  color: var(--text-primary);
+  color: #ffffff;
   margin-bottom: 0.25rem;
 }
 
 .blog-page-wrapper .author-card-role {
   font-size: 0.8rem;
-  color: var(--accent-pink);
-  font-family: var(--font-mono);
+  color: #E91E63;
+  font-family: "IBM Plex Mono", monospace;
   margin-bottom: 0.75rem;
 }
 
 .blog-page-wrapper .author-card-bio {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1.6;
 }
 
-/* FIGMA NOTE: Related post row — flex, gap 0.875rem, padding 0.75rem 0.
-       Border-bottom 1px border-subtle (last child: none).
-       Thumb: 58x58px, border-radius 8px, gradient placeholder.
-       Category: JetBrains Mono 0.65rem cyan. Title: Syne 600 0.8rem 2-line clamp.
-       Date: 0.7rem text-faint. */
+/* Related posts */
 .blog-page-wrapper .related-post {
   display: flex;
   gap: 0.875rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   text-decoration: none;
   transition: opacity 0.2s ease;
 }
@@ -978,23 +958,23 @@ body::before {
   border-radius: 8px;
   flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .blog-page-wrapper .related-thumb-1 {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(0, 212, 255, 0.2));
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.35), rgba(136, 14, 79, 0.2));
   width: 100%;
   height: 100%;
 }
 
 .blog-page-wrapper .related-thumb-2 {
-  background: linear-gradient(135deg, rgba(224, 64, 251, 0.35), rgba(139, 92, 246, 0.2));
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.25), rgba(200, 0, 80, 0.2));
   width: 100%;
   height: 100%;
 }
 
 .blog-page-wrapper .related-thumb-3 {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(139, 92, 246, 0.25));
+  background: linear-gradient(135deg, rgba(200, 0, 80, 0.3), rgba(233, 30, 99, 0.2));
   width: 100%;
   height: 100%;
 }
@@ -1005,19 +985,19 @@ body::before {
 }
 
 .blog-page-wrapper .related-category {
-  font-family: var(--font-mono);
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.65rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent-cyan);
+  color: #E91E63;
   margin-bottom: 0.2rem;
 }
 
 .blog-page-wrapper .related-title {
-  font-family: var(--font-display);
+  font-family: "IBM Plex Mono", monospace;
   font-weight: 600;
   font-size: 0.8rem;
-  color: var(--text-primary);
+  color: #ffffff;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1026,8 +1006,9 @@ body::before {
 }
 
 .blog-page-wrapper .related-date {
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.7rem;
-  color: var(--text-faint);
+  color: rgba(255, 255, 255, 0.35);
   margin-top: 0.25rem;
 }
 
