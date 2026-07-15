@@ -810,7 +810,6 @@ body::before {
 .blog-page-wrapper .glass-card {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1.5rem;
@@ -825,7 +824,6 @@ body::before {
 .blog-page-wrapper .glass-card-elevated {
   background: rgba(233, 30, 99, 0.04);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(233, 30, 99, 0.15);
   border-radius: 12px;
   padding: 1.5rem;
