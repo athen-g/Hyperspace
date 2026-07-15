@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import initiateCalibrationImg from '../assets/images/initiate-calibration.jpg';
-import activateImmersionImg from '../assets/images/activate-immersion.png';
-import renderCreationWorkshopBackdropImg from '../assets/images/render-creation-workshop-backdrop.jpg';
-import renderCreationImg from '../assets/images/render-creation.jpg';
-import recruitmentImg from '../assets/images/recruitment-2026.jpg';
-import accessGrantedImg from '../assets/images/access-granted.jpg';
+import initiateCalibrationImg from '../assets/images/event-backdrops/initiate-calibration.jpg';
+import activateImmersionImg from '../assets/images/event-backdrops/activate-immersion.png';
+import renderCreationWorkshopBackdropImg from '../assets/images/event-backdrops/render-creation-workshop-backdrop.jpg';
+import renderCreationImg from '../assets/images/event-posters/render-creation.jpg';
+import recruitmentImg from '../assets/images/recruitment/recruitment-2026.jpg';
+import accessGrantedImg from '../assets/images/recruitment/access-granted.jpg';
 
 import Header from './Header';
 import BackgroundLines from './ui/BackgroundLines';
