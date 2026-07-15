@@ -17,7 +17,7 @@ const About = () => {
         const aboutTimeline = gsap.timeline({
             scrollTrigger: {
                 trigger: '#about',
-                start: '30% center'
+                start: '10% center'
             }
         })
 

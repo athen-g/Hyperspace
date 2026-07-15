@@ -24,7 +24,7 @@ export default function Header() {
         <nav className="site-header__nav">
           <a href="/team" onClick={(e) => handleNavClick(e, '/team')} className="site-header__link">TEAM</a>
           <a href="/news" onClick={(e) => handleNavClick(e, '/news')} className="site-header__link">NEWS</a>
-          <a href="/blog" onClick={(e) => handleNavClick(e, '/blog')} className="site-header__link">BLOG</a>
+          <a href="/blogs" onClick={(e) => handleNavClick(e, '/blogs')} className="site-header__link">BLOG</a>
         </nav>
       </div>
     </header>

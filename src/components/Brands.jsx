@@ -1,10 +1,43 @@
 import { BRANDS } from '../../constants/index'
 import React, { useRef, useState } from 'react'
 import gsap from 'gsap'
+import { SplitText, ScrollTrigger } from 'gsap/all';
+import { useGSAP } from '@gsap/react';
+import Button from './Button';
+
+gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const Brands = () => {
-    const [hoveredId, setHoveredId] = useState(null)
-    const photoRef = useRef(null)
+    const [hoveredId, setHoveredId] = useState(null);
+    const photoRef = useRef(null);
+
+    useGSAP(() => {
+        const titleSplit = new SplitText('.title', { type: 'lines' });
+        const subtitleSplit = new SplitText('.subtitle', { type: 'lines' });
+
+        const scrollTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: '#brands',
+                start: 'top center',
+            }
+        });
+
+        scrollTimeline
+            .from(titleSplit.lines, {
+                opacity: 0,
+                yPercent: 100,
+                duration: 1.8,
+                stagger: 0.05,
+                ease: 'expo.out',
+            })
+            .from(subtitleSplit.lines, {
+                opacity: 0,
+                yPercent: 100,
+                duration: 1,
+                stagger: 0.05,
+                ease: 'expo.out',
+            });
+    });
 
     const hoveredBrand = BRANDS.find(b => b.id === hoveredId)
 
@@ -30,13 +63,21 @@ const Brands = () => {
     return (
         <section id="brands">
             <div className="brand-title">
-                <span className="title"><span className="text-accent-pink">BRANDS</span> WE'VE <span className="text-accent-pink">WORKED</span> WITH</span>
-                <span className="subtitle">WE COLLABORATE WITH COMPANIES AND BRANDS WHO CARE ABOUT THOUGHTFUL DIGITAL PRESENCE AND THE GROWTH OF XR DEVELOPMENT IN INDIA. EACH EVENT IS SHAPED AND BUILD WITH THE SUPPORT OF SUCH BRANDS.</span>
+                <div className="title flex flex-col"><span className="top"><span className="text-accent-pink">BRANDS</span> WE'VE </span> <span className="text-accent-pink">WORKED</span> WITH</div>
+                <div className="subtitle">WE COLLABORATE WITH COMPANIES AND BRANDS WHO CARE ABOUT THOUGHTFUL DIGITAL PRESENCE AND THE GROWTH OF XR DEVELOPMENT IN INDIA. EACH EVENT IS SHAPED AND BUILD WITH THE SUPPORT OF SUCH BRANDS.</div>
             </div>
             <div className="brand-content border-b pb-40 border-[#666666]">
-                <div className="brand-content-head-col">
-                    <span className="brand-content-head">The goal is always the same: <span className="text-white">
-                        events that communicate clearly with the audience and leaves a lasting impression.</span></span>
+                <div className="brand-content-head-col flex flex-col items-start gap-6">
+                    <div className="brand-content-head">The goal is always the same: <span className="text-white">
+                        events that communicate clearly with the audience and leaves a lasting impression.</span></div>
+                    <Button
+                        className="!relative !left-0 !w-full mt-6"
+                        label='CONTACT US'
+                        onClick={() => {
+                            const el = document.getElementById('contact');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                    />
                 </div>
 
                 <div className={`brand-list-area${hoveredId ? ' has-hover' : ''}`}>

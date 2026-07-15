@@ -7,6 +7,7 @@ import Navbar from './Navbar'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import Brands from './Brands'
+import Blog_Home from './Blog_Home'
 
 const LandingPage = () => {
   return (
@@ -18,6 +19,7 @@ const LandingPage = () => {
       <About />
       <Brands />
       <Events />
+      <Blog_Home />
       <Contact />
       <Navbar />
     </>
