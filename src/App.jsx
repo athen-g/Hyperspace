@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './components/LandingPage'
 import BlogPage from './components/BlogPage'
+import gsap from 'gsap'
+import { ScrollTrigger, SplitText } from 'gsap/all';
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
   const progressRef = useRef(null)
@@ -27,12 +31,13 @@ function App() {
     }
   }, [])
 
-  // Route handling
   const renderPage = () => {
     switch (path) {
       case '/':
       case '/home':
         return <LandingPage />
+      case '/events':
+        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">EVENTS</span></div></div>
       case '/team':
         return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">TEAM</span></div></div>
       case '/news':

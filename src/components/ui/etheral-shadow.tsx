@@ -2,6 +2,7 @@
 
 import React, { useRef, useId, useEffect, CSSProperties } from 'react';
 import { animate, useMotionValue, AnimationPlaybackControls } from 'framer-motion';
+import { useMediaQuery } from 'react-responsive';
 
 interface ResponsiveImage {
   src: string;
@@ -54,8 +55,9 @@ export function Component({
   style,
   className,
 }: ShadowOverlayProps) {
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   const id = useInstanceId();
-  const animationEnabled = animation && animation.scale > 0;
+  const animationEnabled = animation && animation.scale > 0 && !isMobile;
   const feColorMatrixRef = useRef<SVGFEColorMatrixElement>(null);
   const hueRotateMotionValue = useMotionValue(180);
   const hueRotateAnimation = useRef<AnimationPlaybackControls | null>(null);
@@ -106,7 +108,7 @@ export function Component({
         style={{
           position: 'absolute',
           inset: -displacementScale,
-          filter: animationEnabled ? `url(#${id}) blur(4px)` : 'none',
+          filter: animationEnabled ? `url(#${id}) blur(4px)` : 'blur(4px)',
         }}
       >
         {animationEnabled && (
