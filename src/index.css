@@ -547,26 +547,36 @@ body::before {
   color: rgba(255, 255, 255, 0.3);
 }
 
-/* Hero title — Figma: Mokoto, large multi-line, pink + white split */
+/* Hero title — Figma: Mokoto 64px/400 at 1440px → 4.444vw at 1920px
+   Pink span line-height 90px (140.8%), white span 64px (100%)
+   letter-spacing -2.56px → -0.04em */
 .blog-page-wrapper .blog-hero-title {
   font-family: Mokoto, sans-serif;
   font-weight: 400;
-  font-size: clamp(3.5rem, 7.5vw, 7rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  /* 64px at 1440 → 4.444vw; clamped so it doesn't get too small */
+  font-size: clamp(3rem, 4.444vw, 6rem);
+  /* overall line-height is driven by span overrides below */
+  line-height: 1;
+  letter-spacing: -0.04em;
   margin-bottom: 2.5rem;
   animation: heroFadeIn 0.8s ease-out 0.2s both;
   color: #ffffff;
   text-transform: uppercase;
-  max-width: 820px;
+  max-width: 900px;
 }
 
+/* Pink span: line-height 90px at 1440 → 140.8% of 64px */
 .blog-page-wrapper .blog-hero-title .pink-text {
-  color: var(--accent-pink);
+  color: #E91E63;
+  display: inline;
+  line-height: 1.408;
 }
 
+/* White span: line-height 64px at 1440 → 100% */
 .blog-page-wrapper .blog-hero-title .white-text {
   color: #ffffff;
+  display: inline;
+  line-height: 1;
 }
 
 /* Subtitle — IBM Plex Mono, body text below the big title */
@@ -649,19 +659,20 @@ body::before {
   min-width: 0;
 }
 
-/* FIGMA NOTE: H2 — Syne 700, clamp(1.5rem,2.8vw,2.1rem), line-height 1.2,
-       letter-spacing -0.01em, margin-top 3.5rem, margin-bottom 1.25rem.
-       Gradient: violet→cyan, 135deg. */
+/* H2 — Figma: "IBM Plex Mono" 700, 33.6px at 1440 → 2.333vw at 1920
+   line-height 40.32px (120%), letter-spacing 1.344px → 0.04em
+   color #E91E63 */
 .blog-page-wrapper .blog-main h2 {
-  font-family: Mokoto, sans-serif;
-  font-weight: 400;
-  font-size: clamp(1.4rem, 2.5vw, 2rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  /* 33.6px / 1440 * 100 = 2.333vw; clamped */
+  font-size: clamp(1.5rem, 2.333vw, 2.5rem);
+  line-height: 1.2; /* 120% */
+  letter-spacing: 0.04em; /* 1.344px at 33.6px */
+  text-transform: none;
   margin-top: 3.5rem;
   margin-bottom: 1.25rem;
-  color: var(--accent-pink);
+  color: #E91E63;
 }
 
 .blog-page-wrapper .blog-main p {
