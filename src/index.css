@@ -1401,7 +1401,7 @@ body::before {
 }
 
 .contact-title {
-  @apply flex w-[482px] h-[316px] flex-col justify-center font-sans-condensed font-bold leading-[1.05] uppercase mt-[50px] mr-0 mb-[clamp(24px,3.333vw,48px)] ml-5;
+  @apply flex w-[482px] h-[316px] flex-col justify-center font-sans-condensed font-bold leading-[1.05] uppercase mt-[50px] mr-0 mb-[clamp(24px,3.333vw,48px)] ml-5 text-[clamp(38px,5.926vw,96px)];
 }
 
 .contact-title .pink-text {
