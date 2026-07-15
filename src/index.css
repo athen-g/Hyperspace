@@ -638,7 +638,6 @@ body::before {
   grid-template-columns: 1fr 320px;
   gap: clamp(3rem, 5vw, 5rem);
   align-items: start;
-  background: var(--bg-base);
 }
 
 /* ============================================================
@@ -691,6 +690,7 @@ body::before {
   border: 1px solid rgba(233, 30, 99, 0.20);
   border-left: 3px solid rgba(233, 30, 99, 0.20);
   background: rgba(233, 30, 99, 0.06);
+  backdrop-filter: blur(6px);
   max-width: 746.36px;
 }
 
@@ -785,6 +785,7 @@ body::before {
   padding: 0.25rem 0.75rem;
   background: rgba(233, 30, 99, 0.08);
   border: 1px solid rgba(233, 30, 99, 0.3);
+  backdrop-filter: blur(6px);
   border-radius: 100px;
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.7rem;
