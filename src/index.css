@@ -20,6 +20,7 @@
   --accent-pink: #E91E63;
   --accent-cyan: #00D4FF;
   --accent-violet: #885CF6;
+  --accent-dark-pink: #880E4F;
   --text-primary: #F0EFFF;
   --text-muted: #9B9BAA;
   --text-faint: #4A4A5A;
@@ -564,7 +565,7 @@ body::before {
 
 /* Pink span */
 .blog-page-wrapper .blog-hero-title .pink-text {
-  color: #E91E63;
+  color: var(--accent-pink);
 }
 
 /* White span */
@@ -660,7 +661,7 @@ body::before {
   text-transform: none;
   margin-top: 3.5rem;
   margin-bottom: 1.25rem;
-  color: #E91E63;
+  color: var(--accent-pink);
 }
 
 /* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
@@ -696,7 +697,8 @@ body::before {
   font-size: 16px;
   font-weight: 700;
   font-style: normal;
-  line-height: 28px; /* 175% */
+  line-height: 28px;
+  /* 175% */
   letter-spacing: 0.64px;
   color: #FFFFFF;
   margin: 0;
@@ -764,7 +766,7 @@ body::before {
 }
 
 .blog-page-wrapper .media-caption strong {
-  color: #E91E63;
+  color: var(--accent-pink);
 }
 
 /* Section rule — pink gradient divider line */
@@ -786,7 +788,7 @@ body::before {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #E91E63;
+  color: var(--accent-pink);
   margin-right: 0.5rem;
   margin-bottom: 1.75rem;
 }
@@ -807,6 +809,8 @@ body::before {
 /* Glass card — dark surface with subtle border */
 .blog-page-wrapper .glass-card {
   background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1.5rem;
@@ -820,6 +824,8 @@ body::before {
 /* Elevated glass card — pink accent */
 .blog-page-wrapper .glass-card-elevated {
   background: rgba(233, 30, 99, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(233, 30, 99, 0.15);
   border-radius: 12px;
   padding: 1.5rem;
@@ -831,7 +837,7 @@ body::before {
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #E91E63;
+  color: var(--accent-pink);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -842,7 +848,7 @@ body::before {
   content: '';
   width: 16px;
   height: 1px;
-  background: #E91E63;
+  background: var(--accent-pink);
 }
 
 /* ToC links — IBM Plex Mono, pink active state */
@@ -874,7 +880,7 @@ body::before {
 
 .blog-page-wrapper .toc-list a.toc-active {
   color: #ffffff;
-  border-left-color: #E91E63;
+  border-left-color: var(--accent-pink);
   background: rgba(233, 30, 99, 0.08);
 }
 
@@ -883,7 +889,7 @@ body::before {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #E91E63, #880E4F);
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-dark-pink));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -906,16 +912,20 @@ body::before {
 
 .blog-page-wrapper .author-card-role {
   font-size: 0.8rem;
-  color: #E91E63;
+  color: var(--accent-pink);
   font-family: "IBM Plex Mono", monospace;
   margin-bottom: 0.75rem;
 }
 
 .blog-page-wrapper .author-card-bio {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1.6;
+  color: var(--text-muted);
+  font-family: "Ubuntu Mono";
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  /* 145.455% */
+  letter-spacing: 1.68px;
 }
 
 /* Related posts */
@@ -970,31 +980,35 @@ body::before {
 }
 
 .blog-page-wrapper .related-category {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #E91E63;
-  margin-bottom: 0.2rem;
+  color: var(--accent-pink);
+  font-family: "JetBrains Mono";
+  font-size: 12.8px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22.4px;
+  /* 175% */
+  letter-spacing: 1.68px;
 }
 
 .blog-page-wrapper .related-title {
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: #ffffff;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: var(--text-primary);
+  font-family: Syne;
+  font-size: 12.8px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17.28px;
+  /* 135% */
 }
 
 .blog-page-wrapper .related-date {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.35);
-  margin-top: 0.25rem;
+  color: var(--text-faint);
+  font-family: "Ubuntu Mono";
+  font-size: 11.2px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22.4px;
+  /* 200% */
+  letter-spacing: 1.68px;
 }
 
 /* ============================================================
