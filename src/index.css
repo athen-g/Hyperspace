@@ -133,7 +133,11 @@ body::before {
 }
 
 .site-header__brand {
-  @apply text-[45px] tracking-[6px] uppercase text-text-primary font-mokoto;
+  @apply flex items-center text-[45px] leading-none tracking-[6px] uppercase text-text-primary font-mokoto;
+}
+
+.site-header__brand-link {
+  @apply flex items-center gap-3 no-underline;
 }
 
 .site-header__nav {
@@ -141,11 +145,53 @@ body::before {
 }
 
 .site-header__link {
-  @apply text-inherit no-underline transition-colors duration-[160ms] ease-out hover:text-white;
+  @apply text-inherit no-underline;
+}
+
+.header-roll-link {
+  @apply relative inline-flex items-center overflow-hidden text-inherit transition-colors duration-200 ease-out;
+}
+
+.header-roll-link__stack {
+  @apply relative block h-[1em] overflow-hidden leading-none;
+}
+
+.header-roll-link__face {
+  @apply block leading-none transition-transform duration-300 ease-in-out;
+  will-change: transform;
+}
+
+.header-roll-link__face--current {
+  @apply relative;
+  transform: translateY(0);
+}
+
+.header-roll-link__face--next {
+  @apply absolute left-0 top-0 text-white;
+  transform: translateY(100%);
+}
+
+.header-roll-link:hover,
+.header-roll-link:focus-visible {
+  @apply text-white;
+}
+
+.header-roll-link:hover .header-roll-link__face--current,
+.header-roll-link:focus-visible .header-roll-link__face--current {
+  transform: translateY(-100%);
+}
+
+.header-roll-link:hover .header-roll-link__face--next,
+.header-roll-link:focus-visible .header-roll-link__face--next {
+  transform: translateY(0);
+}
+
+.nav-link--active {
+  @apply text-white underline underline-offset-4 decoration-white decoration-1;
 }
 
 .site-header__title {
-  @apply flex gap-3 items-center justify-center ml-[35px];
+  @apply flex gap-3 items-center justify-center ml-[35px] pt-2;
 }
 
 .bg-lines {
@@ -157,11 +203,11 @@ body::before {
 }
 
 .logo-header {
-  @apply w-[50px] h-[50px];
+  @apply block w-[50px] h-[50px] shrink-0;
 }
 
 .navbar {
-  @apply fixed bottom-[50px] left-[24.5%] w-[783px] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[18px] px-3;
+  @apply fixed bottom-[50px] left-[568px] w-[783px] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[18px] px-3;
 }
 
 .navbar__pill {
@@ -177,6 +223,11 @@ body::before {
   @apply text-black;
 }
 
+.navbar__item:hover,
+.navbar__item:focus-visible {
+  @apply text-white;
+}
+
 .navbar__item--active .navbar__icon {
   filter: invert(1) brightness(0);
 }
@@ -188,6 +239,26 @@ body::before {
 
 .navbar__label {
   @apply text-[20px] font-bold font-sans;
+}
+
+.navbar__label-roll {
+  @apply relative inline-flex overflow-hidden leading-none transition-transform duration-300 ease-in-out;
+}
+
+.navbar__label-roll::after {
+  content: attr(data-text);
+  @apply absolute left-0 top-0 text-white;
+  transform: translateY(100%);
+}
+
+.navbar__item:hover .navbar__label-roll,
+.navbar__item:focus-visible .navbar__label-roll {
+  transform: translateY(-100%);
+}
+
+.navbar__item:hover .navbar__label-roll::after,
+.navbar__item:focus-visible .navbar__label-roll::after {
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {
@@ -678,9 +749,17 @@ body::before {
 
 .blog-home-grid {
   display: grid;
-  grid-template-columns: 23.88% 26.2% 26.12% 23.88%;
+  grid-template-columns: 23.888% 26.112% 26.112% 23.888%;
   grid-template-rows: auto auto;
-  align-items: end;
+  align-items: stretch;
+}
+
+.blog-card {
+  @apply flex h-[413px] w-full flex-col justify-between border-b border-light-grey px-8 pt-6 pb-8 transition-colors duration-300 cursor-pointer;
+}
+
+.blog-card:hover {
+  @apply bg-white/10;
 }
 
 .blog-home-card:hover {
@@ -727,6 +806,7 @@ body::before {
   padding: 20px;
 }
 
+
 .blog-home-content-head {
   @apply flex items-center justify-start gap-3 mb-47;
 }
@@ -736,7 +816,7 @@ body::before {
 }
 
 .blog-title {
-  @apply text-[13px] font-mono font-medium tracking-[0px];
+  @apply text-[13px] font-mono font-medium tracking-[0px] uppercase;
 }
 
 .blog-date {
@@ -744,7 +824,7 @@ body::before {
 }
 
 .blog-desc {
-  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-50 leading-[1.2];
+  @apply font-host font-extrabold text-[16px] tracking-[0.05em] mt-50 leading-[1];
 }
 
 .icon-circle {
@@ -765,7 +845,6 @@ body::before {
 
 .quote-testimonials{
   @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
-  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2];
 }
 
 

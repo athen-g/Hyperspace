@@ -2,14 +2,55 @@ import React from 'react'
 import Button from './Button'
 import logo from '../assets/icons/logo.svg'
 import arrow from '../assets/icons/north_east.svg'
-import { motion } from 'framer-motion'
+import { motion, useAnimationControls } from 'framer-motion'
+import { BLOGS_HOME } from '../../constants/index'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
     hover: {
-        x: [0, 8, 0],
-        y: [0, -8, 0]
+        x: [0, 8, 18, -8, 0],
+        y: [0, -8, -18, 8, 0],
+        opacity: [1, 1, 0, 0, 1],
+        transition: {
+            duration: 0.25,
+            ease: 'easeInOut',
+            times: [0, 0.22, 0.45, 0.72, 1]
+        }
     }
+}
+
+const BlogHomeCard = ({ id, title, date, desc, route }) => {
+    const arrowControls = useAnimationControls()
+
+    return (
+        <div
+            className="blog-home-card cursor-pointer"
+            onMouseEnter={() => arrowControls.start('hover')}
+            onMouseLeave={() => arrowControls.set('initial')}
+            onClick={() => {
+                window.history.pushState({}, '', route)
+                window.dispatchEvent(new PopStateEvent('popstate'))
+            }}
+        >
+            <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                    <span className="blog-title">{title}</span>
+                    <span className="blog-date">{date}</span>
+                </div>
+                <div className="icon-circle overflow-hidden">
+                    <motion.img
+                        src={arrow}
+                        alt="arrow"
+                        variants={hoverArrowVariants}
+                        initial="initial"
+                        animate={arrowControls}
+                        className="w-3 h-3"
+                    />
+                </div>
+            </div>
+            <span className={`blog-desc ${id === 2 ? 'leading-[1]' : ''}`}>{desc}</span>
+        </div>
+    )
 }
 
 const Blog_Home = () => {
@@ -24,7 +65,7 @@ const Blog_Home = () => {
                     className="!relative !left-[76.11%] !w-[23.9%] mt-6"
                     label="READ MORE BLOGS"
                     onClick={() => {
-                        window.history.pushState({}, '', '/blogs');
+                        window.history.pushState({}, '', '/blog');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                     }}
                 />
@@ -39,72 +80,9 @@ const Blog_Home = () => {
                             WE WRITE TO UNPACK THE THINKING BEHIND OUR EVENTS - <span className="text-white">THE CHOICES, THE REASONING, THE DISCUSSIONS AND THE QUIET DISCUSSIONS THAT SHAPE HOW A EVENT FEELS AND PERFORMS.</span>
                         </div>
                     </div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
-                        </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center mb-50">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
-                        </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
-                        </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
+                    {BLOGS_HOME.map((blog) => (
+                        <BlogHomeCard key={blog.id} {...blog} />
+                    ))}
                     </div>
                 </div>
             </div>
