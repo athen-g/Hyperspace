@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Sans+Condensed:ital,wght@0,100..700;1,100..700&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
@@ -14,32 +14,44 @@
 }
 
 @theme {
-  --color-bg-base: #0A0A0F;
+  /* Colors */
+  --color-bg-base: #0E0E0E;
   --color-bg-surface: #0F0F1A;
   --color-bg-card: rgba(255, 255, 255, 0.04);
+  --color-bg-light-grey: #666666;
+
+  --color-white: #FFFFFF;
+
   --color-accent-pink: #E91E63;
   --color-accent-cyan: #00D4FF;
   --color-accent-violet: #885CF6;
+  --color-accent-dark-pink: #880E4F;
+
   --color-text-primary: #F0EFFF;
   --color-text-muted: #9B9BAA;
   --color-text-faint: #4A4A5A;
   --color-light-grey: #666666;
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-accent: rgba(139, 92, 246, 0.25);
+
   --color-header-background: rgba(8, 8, 15, 0.45);
   --color-navbar-bg: rgba(10, 10, 15, 0.45);
   --color-navbar-border: rgba(102, 102, 102, 0.4);
 
+  /* Shadows */
   --shadow-glow-violet: 0 0 32px rgba(139, 92, 246, 0.35);
   --shadow-glow-cyan: 0 0 32px rgba(0, 212, 255, 0.25);
 
+  /* Fonts */
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
-  --font-jetbrains-mono: 'JetBrains Mono', monospace;
   --font-mokoto: 'Mokoto', sans-serif;
+  --font-host: 'Host Grotesk', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-ubuntu-mono: 'Ubuntu Mono', monospace;
   --font-mono: 'IBM Plex Mono', monospace;
   --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-host: 'Host Grotesk', sans-serif;
+  --font-sans-condensed: 'IBM Plex Sans Condensed', sans-serif;
 }
 
 html {
@@ -83,6 +95,17 @@ body::before {
   @apply relative min-h-[90vh] flex flex-col justify-end pt-16 overflow-hidden bg-[#08080F];
 }
 
+.hero-fade-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: linear-gradient(180deg, transparent 0%, var(--color-bg-base) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 .hero-bg {
   @apply absolute inset-0 z-0 bg-gradient-to-b from-[#0D0818] via-[#08080F] to-[#0A0A0F];
 }
@@ -110,7 +133,7 @@ body::before {
 }
 
 .site-header__brand {
-  @apply text-[45px] tracking-[6px] uppercase text-[#F0EFFF] font-mokoto;
+  @apply text-[45px] tracking-[6px] uppercase text-text-primary font-mokoto;
 }
 
 .site-header__nav {
@@ -126,7 +149,7 @@ body::before {
 }
 
 .bg-lines {
-  @apply fixed inset-0 pointer-events-none z-[1];
+  @apply fixed inset-0 pointer-events-none z-[2];
 }
 
 .bg-line {
@@ -217,6 +240,75 @@ body::before {
   @apply flex items-start justify-center flex-col;
 }
 
+@keyframes floatOrb {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(24px, -32px) scale(1.06);
+  }
+
+  66% {
+    transform: translate(-16px, 20px) scale(0.94);
+  }
+}
+
+@utility animate-float-orb {
+  animation: floatOrb 9s ease-in-out infinite;
+}
+
+@utility bg-blog-hero-radial {
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 70%, rgba(0, 212, 255, 0.07) 0%, transparent 50%),
+    linear-gradient(180deg, #0D0818 0%, #08080F 50%, #0A0A0F 100%);
+}
+
+@utility bg-blog-divider {
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), rgba(0, 212, 255, 0.2), transparent);
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-hero-fade-in {
+  animation: heroFadeIn 0.8s ease-out both;
+}
+
+/* Horizontal rule lines with endpoint dot circles */
+.rule-line {
+  position: relative;
+  margin: 0 3.35%;
+  height: 1px;
+  background-color: var(--color-bg-light-grey);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rule-dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--color-bg-light-grey);
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+/*=============About Section=============*/
 .about-main-content:nth-child(1) {
   width: 23.88%;
   @apply pl-[35px];
@@ -324,29 +416,29 @@ body::before {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #E91E63;
-  box-shadow: 13px 0 0 0 #E91E63, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
+  background-color: var(--color-accent-pink);
+  box-shadow: 13px 0 0 0 var(--color-accent-pink), 26px 0 0 0 var(--color-accent-pink), 39px 0 0 0 var(--color-accent-pink);
   margin-right: 39px;
 }
 
 .impact-card:nth-child(1) .impact-dot::before {
-  background-color: #fff;
-  box-shadow: 13px 0 0 0 #E91E63, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
+  background-color: var(--color-white);
+  box-shadow: 13px 0 0 0 var(--color-accent-pink), 26px 0 0 0 var(--color-accent-pink), 39px 0 0 0 var(--color-accent-pink);
 }
 
 .impact-card:nth-child(2) .impact-dot::before {
-  background-color: #fff;
-  box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #E91E63, 39px 0 0 0 #E91E63;
+  background-color: var(--color-white);
+  box-shadow: 13px 0 0 0 var(--color-white), 26px 0 0 0 var(--color-accent-pink), 39px 0 0 0 var(--color-accent-pink);
 }
 
 .impact-card:nth-child(3) .impact-dot::before {
-  background-color: #fff;
-  box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #fff, 39px 0 0 0 #E91E63;
+  background-color: var(--color-white);
+  box-shadow: 13px 0 0 0 var(--color-white), 26px 0 0 0 var(--color-white), 39px 0 0 0 var(--color-accent-pink);
 }
 
 .impact-card:nth-child(4) .impact-dot::before {
-  background-color: #fff;
-  box-shadow: 13px 0 0 0 #fff, 26px 0 0 0 #fff, 39px 0 0 0 #fff;
+  background-color: var(--color-white);
+  box-shadow: 13px 0 0 0 var(--color-white), 26px 0 0 0 var(--color-white), 39px 0 0 0 var(--color-white);
 }
 
 .card-number {
@@ -451,12 +543,12 @@ body::before {
 }
 
 .brand-list-area.has-hover .brand-list-content.is-hovered .brand-list-title {
-  color: #ffffff;
+  color: var(--color-white);
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.35);
 }
 
 .brand-list-area.has-hover .brand-list-content.is-hovered .brand-list-date {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .events-section {
@@ -484,7 +576,7 @@ body::before {
   font-family: var(--font-host);
   font-size: clamp(2.5rem, 5.5vw, 6rem);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-white);
   text-transform: uppercase;
   line-height: 1.1;
   text-align: center;
@@ -519,7 +611,7 @@ body::before {
   flex-direction: column;
   width: 100%;
   background: transparent;
-  border-top: 0.5px solid #666666;
+  border-top: 0.5px solid var(--color-bg-light-grey);
   overflow: hidden;
   margin-bottom: 12px;
 }
@@ -528,7 +620,7 @@ body::before {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-bottom: 0.5px solid #666666;
+  border-bottom: 0.5px solid var(--color-bg-light-grey);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -544,14 +636,14 @@ body::before {
 .event-card__info {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-top: 0.5px solid #666666;
+  border-top: 0.5px solid var(--color-bg-light-grey);
 }
 
 .event-card__name {
   font-family: var(--font-sans);
   font-size: 36px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-white);
   text-transform: uppercase;
   line-height: 1.1;
   padding: 24px 20px 24px 24px;
@@ -615,23 +707,23 @@ body::before {
 
 .blog-home-card:nth-child(2) {
   grid-column: 2;
-  border: 1px solid #666;
-  border-left: 1px solid #666;
+  border: 1px solid var(--color-bg-light-grey);
+  border-left: 1px solid var(--color-bg-light-grey);
   padding: 20px;
 }
 
 .blog-home-card:nth-child(3) {
   grid-column: 3;
   grid-row: 1;
-  border: 1px solid #666;
-  border-left: 1px solid #666;
+  border: 1px solid var(--color-bg-light-grey);
+  border-left: 1px solid var(--color-bg-light-grey);
   padding: 20px;
 }
 
 .blog-home-card:nth-child(4) {
   grid-column: 4;
-  border: 1px solid #666;
-  border-left: 1px solid #666;
+  border: 1px solid var(--color-bg-light-grey);
+  border-left: 1px solid var(--color-bg-light-grey);
   padding: 20px;
 }
 
@@ -673,4 +765,749 @@ body::before {
 
 .quote-testimonials{
   @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10 
+  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2]
+}
+
+
+/* ============================================================ 
+   BLOG PAGE STYLES
+   ============================================================ */
+
+/* Blog page base — dark Hyperspace background throughout */
+.blog-page-wrapper {
+  @apply bg-bg-base min-h-screen text-white;
+}
+
+.blog-strong {
+  @apply text-text-primary font-semibold;
+}
+
+/* ============================================================
+   BLOG HERO SECTION
+   Matches Figma: dark near-black purple bg, large Mokoto title,
+   eyebrow label, subtitle, author meta all left-aligned.
+   ============================================================ */
+.blog-page-wrapper .blog-hero {
+  @apply relative min-h-[818px] flex flex-col justify-end overflow-hidden;
+}
+
+/* Dark background matching Figma — deep near-black with subtle purple */
+.blog-page-wrapper .blog-hero-bg {
+  @apply absolute inset-0 z-0;
+  background:
+    radial-gradient(ellipse 70% 80% at 75% 50%, rgba(80, 0, 60, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 60% at 20% 30%, rgba(40, 0, 60, 0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #0A0010 0%, #060008 60%, #080010 100%);
+}
+
+/* Floating background ambient orbs */
+.blog-page-wrapper .blog-hero-orb {
+  @apply absolute rounded-full blur-[100px] opacity-35;
+  animation: floatOrb 9s ease-in-out infinite;
+}
+
+.blog-page-wrapper .blog-hero-orb-1 {
+  @apply w-[600px] h-[600px] bg-[rgba(150,0,80,0.8)] -top-[10%] -right-[5%];
+  animation-delay: 0s;
+}
+
+.blog-page-wrapper .blog-hero-orb-2 {
+  @apply w-[400px] h-[400px] bg-[rgba(80,0,120,0.6)] bottom-[10%] left-[5%];
+  animation-delay: -4.5s;
+}
+
+.blog-page-wrapper .blog-hero-orb-3 {
+  @apply w-[300px] h-[300px] bg-[rgba(200,0,100,0.4)] top-[40%] right-[30%] opacity-20;
+  animation-delay: -2s;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -32px) scale(1.06); }
+  66% { transform: translate(-16px, 20px) scale(0.94); }
+}
+
+/* Hero Content Area */
+.blog-page-wrapper .blog-hero-content {
+  @apply relative z-[3] pt-[112px] px-[115.2px] pb-[96px] flex flex-col items-start w-full box-border;
+  animation: heroFadeIn 0.8s ease-out both;
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.blog-page-wrapper .blog-hero-eyebrow {
+  @apply font-mono text-[13px] font-normal tracking-[0.1em] uppercase text-white/55 mb-[1.75rem] flex items-center gap-[0.75rem];
+  animation: heroFadeIn 0.8s ease-out 0.1s both;
+}
+
+.blog-page-wrapper .blog-hero-eyebrow .bullet {
+  @apply text-white/30;
+}
+
+/* Hero title — Figma: Mokoto 64px/400 at 1440px → 4.444vw at 1920px
+   line-height 94px (146.9%), letter-spacing -2.56px → -0.04em */
+.blog-page-wrapper .blog-hero-title {
+  @apply font-mokoto font-normal text-white uppercase max-w-[900px] mb-[2.5rem];
+  font-size: clamp(3rem, 4.444vw, 6rem);
+  line-height: 1.469;
+  animation: heroFadeIn 0.8s ease-out 0.2s both;
+}
+
+/* Accent pink text */
+.blog-page-wrapper .blog-hero-title .pink-text {
+  @apply text-accent-pink;
+}
+
+/* White text */
+.blog-page-wrapper .blog-hero-title .white-text {
+  @apply text-white;
+}
+
+/* Subtitle — Figma: IBM Plex Mono, 14px at 1440 → 0.972vw
+   line-height ~148.8%, color rgba(255,255,255,0.55) */
+.blog-page-wrapper .blog-hero-subtitle {
+  @apply font-mono font-normal text-white/55 max-w-[540px] mb-[2.5rem];
+  font-size: clamp(0.8rem, 0.972vw, 1rem);
+  line-height: 1.488;
+  animation: heroFadeIn 0.8s ease-out 0.3s both;
+}
+
+/* Author meta row — avatar circle + name · role · date · read time */
+.blog-page-wrapper .blog-hero-author-meta {
+  @apply flex items-center gap-3;
+  animation: heroFadeIn 0.8s ease-out 0.4s both;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-avatar-img-wrapper {
+  @apply w-9 h-9 rounded-full overflow-hidden bg-white/10 shrink-0;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-text-info {
+  @apply flex items-center gap-[6px] text-[0.8rem] font-mono text-white/55 flex-wrap;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .author-name {
+  @apply text-white font-semibold;
+}
+
+.blog-page-wrapper .blog-hero-author-meta .meta-sep {
+  @apply text-white/25;
+}
+
+/* ============================================================
+   BLOG BODY LAYOUT
+   FIGMA NOTE: max-width 1320px, grid 1fr 320px, gap clamp(3rem,5vw,5rem).
+   Padding: 4rem clamp(1.5rem,5vw,4rem) 6rem.
+   ============================================================ */
+.blog-page-wrapper .blog-body {
+  @apply relative z-[3] max-w-[1320px] mx-auto grid grid-cols-[1fr_320px] items-start;
+  padding: 4rem clamp(1.5rem, 5vw, 6rem) 6rem;
+  gap: clamp(3rem, 5vw, 5rem);
+}
+
+/* ============================================================
+   MAIN ARTICLE COLUMN
+   ============================================================ */
+.blog-page-wrapper .blog-main {
+  @apply min-w-0;
+}
+
+/* H2 — Figma: "IBM Plex Mono" 700, 33.6px at 1440 → 2.333vw at 1920
+   line-height 40.32px (120%), letter-spacing 1.344px → 0.04em
+   color #E91E63 */
+.blog-page-wrapper .blog-main h2 {
+  @apply font-mono font-bold tracking-[0.04em] normal-case mt-[3.5rem] mb-[1.25rem] text-accent-pink;
+  font-size: clamp(1.5rem, 2.333vw, 2.5rem);
+  line-height: 1.2;
+}
+
+/* Body paragraphs — Figma: IBM Plex Mono, 14px at 1440 */
+.blog-page-wrapper .blog-main p {
+  @apply font-mono text-white/75 max-w-[68ch] mb-6 font-normal leading-[1.75] tracking-[0.01em];
+  font-size: clamp(0.8rem, 0.972vw, 0.95rem);
+}
+
+/* Pull quote — IBM Plex Mono, pink left border, dark bg */
+.blog-page-wrapper .pull-quote {
+  @apply box-border my-12 flex flex-col items-start self-stretch pt-7 px-8 pb-7 pr-9 rounded-r-xl border border-accent-pink/20 border-l-[3px] border-l-accent-pink/20 bg-accent-pink/[0.06] backdrop-blur-[6px] max-w-[565.36px];
+}
+
+.blog-page-wrapper .pull-quote p {
+  @apply font-host text-base font-bold normal-case leading-7 tracking-[0.64px] text-white m-0 flex-1;
+}
+
+.blog-page-wrapper .pull-quote::before {
+  @apply font-display text-[72px] font-extrabold leading-none text-accent-pink block mt-[-45px] mx-0 mb-[-30px];
+  content: '“';
+}
+
+/* ============================================================
+   MEDIA BLOCKS — inline images
+   FIGMA NOTE: 16:9 aspect ratio, border-radius 12px,
+   border 1px rgba(255,255,255,0.08), width 100%.
+   Hover: slight scale 1.01, box-shadow violet glow.
+   ============================================================ */
+.blog-page-wrapper .media-block {
+  @apply my-12 max-w-full;
+}
+
+.blog-page-wrapper .media-block img {
+  @apply w-full aspect-video object-cover rounded-xl border border-white/8 block transition-all duration-300 ease-out;
+}
+
+.blog-page-wrapper .media-block img:hover {
+  @apply scale-[1.006] shadow-[0_16px_48px_rgba(233,30,99,0.12)];
+}
+
+/* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
+   Each item: aspect-ratio 3/4, same border treatment. */
+.blog-page-wrapper .poster-grid {
+  @apply grid grid-cols-2 gap-5 my-12;
+}
+
+.blog-page-wrapper .poster-grid img {
+  @apply w-full aspect-[3/4] object-cover rounded-xl border border-white/8 block transition-transform duration-300 ease-out;
+}
+
+.blog-page-wrapper .poster-grid img:hover {
+  @apply scale-101;
+}
+
+/* Captions — IBM Plex Mono, muted text, pink on strong */
+.blog-page-wrapper .media-caption {
+  @apply mt-3 font-mono text-[0.75rem] text-white/45 tracking-[0.04em] pl-[2px] leading-[1.5];
+}
+
+.blog-page-wrapper .media-caption strong {
+  @apply text-accent-pink;
+}
+
+/* Section rule — pink gradient divider line */
+.blog-page-wrapper .section-rule {
+  @apply my-12 border-none h-[1px];
+  background: linear-gradient(90deg, transparent, rgba(233, 30, 99, 0.3), rgba(233, 30, 99, 0.15), transparent);
+}
+
+/* Tag pills — pink border & text */
+.blog-page-wrapper .tag-pill {
+  @apply inline-block py-1 px-3 bg-accent-pink/8 border border-accent-pink/30 backdrop-blur-[6px] rounded-full font-mono text-[0.7rem] tracking-[0.08em] uppercase text-accent-pink mr-2 mb-7;
+}
+
+/* ============================================================
+   SIDEBAR
+   FIGMA NOTE: sticky top: 88px, width 320px,
+   flex-col gap 1.5rem.
+   ============================================================ */
+.blog-page-wrapper .blog-sidebar {
+  @apply sticky top-[88px] flex flex-col gap-6;
+}
+
+/* Glass card — dark surface with subtle border */
+.blog-page-wrapper .glass-card {
+  @apply bg-white/[0.03] backdrop-blur-[6px] border border-white/8 rounded-xl p-6 transition-colors duration-300 ease-out;
+}
+
+.blog-page-wrapper .glass-card:hover {
+  @apply border-accent-pink/20;
+}
+
+/* Elevated glass card — pink accent */
+.blog-page-wrapper .glass-card-elevated {
+  @apply bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
+}
+
+/* Sidebar section label — IBM Plex Mono, pink accent */
+.blog-page-wrapper .sidebar-label {
+  @apply font-mono text-[0.7rem] tracking-[0.15em] uppercase text-accent-pink mb-4 flex items-center gap-2;
+}
+
+.blog-page-wrapper .sidebar-label::before {
+  @apply w-4 h-[1px] bg-accent-pink;
+  content: '';
+}
+
+/* ToC links — IBM Plex Mono, pink active state */
+.blog-page-wrapper .toc-list {
+  @apply list-none flex flex-col gap-[0.05rem];
+}
+
+.blog-page-wrapper .toc-list a {
+  @apply block font-mono text-[0.8rem] text-white/50 no-underline py-[0.45rem] px-[0.75rem] border-l-2 border-l-transparent rounded-r-md transition-all duration-200 ease-out leading-[1.4];
+}
+
+.blog-page-wrapper .toc-list a:hover {
+  @apply text-white border-l-accent-pink/40 bg-accent-pink/[0.04];
+}
+
+.blog-page-wrapper .toc-list a.toc-active {
+  @apply text-white border-l-accent-pink bg-accent-pink/8;
+}
+
+/* Author card avatar — pink gradient circle */
+.blog-page-wrapper .author-card-avatar {
+  @apply w-[52px] h-[52px] rounded-full flex items-center justify-center font-mokoto font-normal text-[1.2rem] text-white mb-4 border-2 border-white/10 shadow-[0_0_20px_rgba(233,30,99,0.25)];
+  background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-dark-pink));
+}
+
+.blog-page-wrapper .author-card-name {
+  @apply font-mono font-bold text-base text-white mb-1;
+}
+
+.blog-page-wrapper .author-card-role {
+  @apply text-[0.8rem] text-accent-pink font-mono mb-3;
+}
+
+.blog-page-wrapper .author-card-bio {
+  @apply text-text-muted font-ubuntu-mono text-[11px] font-normal leading-4 tracking-[1.68px];
+}
+
+/* Related posts list */
+.blog-page-wrapper .related-post {
+  @apply flex gap-[0.875rem] py-3 border-b border-b-white/8 no-underline transition-opacity duration-200 ease-out;
+}
+
+.blog-page-wrapper .related-post:last-child {
+  @apply border-b-0 pb-0;
+}
+
+.blog-page-wrapper .related-post:hover {
+  @apply opacity-75;
+}
+
+.blog-page-wrapper .related-thumb {
+  @apply w-[58px] h-[58px] rounded-lg shrink-0 overflow-hidden border border-white/8;
+}
+
+.blog-page-wrapper .related-thumb-1 {
+  @apply w-full h-full;
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.35), rgba(136, 14, 79, 0.2));
+}
+
+.blog-page-wrapper .related-thumb-2 {
+  @apply w-full h-full;
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.25), rgba(200, 0, 80, 0.2));
+}
+
+.blog-page-wrapper .related-thumb-3 {
+  @apply w-full h-full;
+  background: linear-gradient(135deg, rgba(200, 0, 80, 0.3), rgba(233, 30, 99, 0.2));
+}
+
+.blog-page-wrapper .related-info {
+  @apply flex-1 min-w-0;
+}
+
+.blog-page-wrapper .related-category {
+  @apply text-accent-pink font-jetbrains-mono text-[12.8px] font-normal leading-[22.4px] tracking-[1.68px];
+}
+
+.blog-page-wrapper .related-title {
+  @apply text-text-primary font-display text-[12.8px] font-normal leading-[17.28px];
+}
+
+.blog-page-wrapper .related-date {
+  @apply text-text-faint font-ubuntu-mono text-[11.2px] font-normal leading-[22.4px] tracking-[1.68px];
+}
+
+/* ============================================================
+   FOOTER
+   FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
+   Grid: 1fr repeat(3,auto). Gap 3rem 5rem. pb 3rem + border-bottom.
+   Wordmark: Syne 800, clamp(4.5rem,11vw,10rem), rgba(255,255,255,0.055).
+   Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
+   ============================================================ */
+.blog-page-wrapper .footer-logo-mark {
+  @apply w-[38px] h-[38px] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(224,64,251,0.4)];
+  background: linear-gradient(135deg, #E040FB, var(--color-accent-violet));
+}
+
+.blog-page-wrapper .footer-logo-mark svg {
+  @apply w-5 h-5;
+}
+
+.blog-page-wrapper .footer-logo-text {
+  @apply font-display font-extrabold text-[1.1rem] tracking-[0.08em] text-text-primary uppercase;
+}
+
+.blog-page-wrapper .footer-col-title {
+  @apply font-display font-bold text-[0.875rem] tracking-[0.05em] uppercase text-text-primary mb-5;
+}
+
+.blog-page-wrapper .footer-social-list {
+  @apply list-none flex flex-col gap-[0.6rem];
+}
+
+.blog-page-wrapper .footer-social-list a {
+  @apply text-[0.875rem] text-text-muted no-underline transition-colors duration-200 ease-out;
+}
+
+.blog-page-wrapper .footer-social-list a:hover {
+  @apply text-accent-cyan;
+}
+
+/* FIGMA NOTE: Wordmark text — Syne 800, clamp(4.5rem,11vw,10rem),
+   rgba(255,255,255,0.055), line-height 0.9, letter-spacing -0.02em. */
+.blog-page-wrapper .footer-wordmark-text {
+  @apply font-display font-extrabold tracking-[-0.02em] uppercase text-white/[0.055] leading-[0.9] text-right select-none;
+  font-size: clamp(4.5rem, 11vw, 10rem);
+}
+
+.blog-page-wrapper .footer-wordmark-sub {
+  @apply font-display font-semibold tracking-[0.3em] uppercase text-white/[0.045] text-right;
+  font-size: clamp(1.5rem, 3.5vw, 3.5rem);
+}
+
+/* Reading progress bar */
+.blog-page-wrapper .reading-progress {
+  @apply fixed top-16 left-0 h-[2px] z-[999] w-0 transition-[width] duration-100 ease-linear;
+  background: linear-gradient(90deg, var(--color-accent-pink), var(--color-accent-cyan));
+}
+
+/* ============================================================
+   RESPONSIVE OVERRIDES
+   ============================================================ */
+@media (max-width: 960px) {
+  .blog-page-wrapper .blog-body {
+    @apply grid-cols-1 gap-10;
+  }
+
+  .blog-page-wrapper .blog-sidebar {
+    @apply static order-[-1] grid grid-cols-2 gap-4;
+  }
+}
+
+@media (max-width: 620px) {
+  .blog-page-wrapper .blog-sidebar {
+    @apply grid-cols-1;
+  }
+
+  .blog-page-wrapper .poster-grid {
+    @apply grid-cols-1;
+  }
+
+  .blog-page-wrapper .hero-orb {
+    @apply hidden;
+  }
+}
+
+/* ============================================================
+   GLOBAL FOOTER STYLING (FIGMA NODE 1-1970 COMPONENT SPEC)
+   ============================================================ */
+.site-footer {
+  @apply bg-[#1a1a1a] text-white w-full pt-[100px] pb-0 px-0 flex flex-col relative overflow-hidden box-border;
+}
+
+/* Main container — borders replaced by explicit rule elements */
+.footer-main-container {
+  @apply relative z-[1] w-full;
+}
+
+.footer-grid {
+  @apply w-full grid grid-cols-[3.472%_22.222%_24.306%_24.306%_22.222%_3.472%] items-stretch;
+}
+
+.footer-spacer-col {
+  @apply pointer-events-none;
+}
+
+.footer-brand-col,
+.footer-tagline-col,
+.footer-socials-col {
+  @apply py-[30px] px-[22.25px] flex flex-col;
+}
+
+/* Sitemap column: no horizontal padding so row borders span full width */
+.footer-sitemap-col {
+  @apply p-0 flex flex-col;
+}
+
+/* Col 1 Brand elements */
+.footer-logo {
+  @apply flex items-end gap-[10px] no-underline mb-6;
+}
+
+.footer-logo-img {
+  @apply w-[72px] h-[72px] object-contain;
+}
+
+.footer-logo-text {
+  @apply flex w-[189px] h-[72px] flex-col justify-end text-white font-mokoto text-[36px] font-normal leading-[36px] uppercase;
+}
+
+.footer-logo-text span {
+  @apply block;
+}
+
+.footer-brand-subtitle {
+  @apply w-[230px] h-10 font-mono text-base font-normal leading-[104.392%] tracking-[-0.26px] uppercase m-0;
+}
+
+.footer-brand-subtitle .pink-text {
+  @apply text-accent-pink;
+}
+
+.footer-brand-subtitle .white-text {
+  @apply text-white;
+}
+
+/* Sitemap / Links column header */
+.footer-col-header {
+  @apply font-mono text-[24px] font-normal tracking-[0.1em] text-white/40 uppercase mb-0 border-b border-b-white/15;
+}
+
+/* "FOLLOW ON" header is pink */
+.footer-col-header--pink {
+  @apply text-accent-pink border-b-0 mb-5;
+}
+
+/* Sitemap nav links — full-width rows with separator lines and arrow */
+.footer-links-list {
+  @apply list-none p-0 m-0 flex flex-col;
+}
+
+.footer-links-list li {
+  @apply border-b border-b-white/15;
+}
+
+.footer-links-list li:last-child {
+  @apply border-b-0;
+}
+
+.footer-nav-link {
+  @apply flex items-center justify-between w-full py-5 px-[22.25px] text-white no-underline font-mono text-[20px] font-medium leading-[19px] tracking-[-0.8px] uppercase transition-colors duration-200 ease-out box-border;
+}
+
+.footer-nav-link:hover {
+  @apply text-accent-pink;
+}
+
+/* Arrow icon — 11.7x11.7 with 4.17px padding matching Figma component */
+.footer-nav-link .arrow {
+  @apply flex items-center justify-center w-[30px] h-[30px] text-white/50 text-[30px] shrink-0 transition-all duration-200 ease-out;
+}
+
+.footer-nav-link:hover .arrow {
+  @apply text-accent-pink translate-x-1;
+}
+
+/* Socials plain list — no separators, no arrows */
+.footer-social-list {
+  @apply list-none p-0 m-0 flex flex-col gap-[0.6rem];
+}
+
+.footer-social-list a {
+  @apply text-white no-underline font-mono text-[18px] font-normal tracking-[0.05em] uppercase transition-colors duration-200 ease-out;
+}
+
+.footer-social-list a:hover {
+  @apply text-accent-pink;
+}
+
+/* Tagline Statement */
+.footer-statement {
+  @apply w-[230px] h-[38px] text-white font-mono text-base font-normal leading-[104.392%] tracking-[-0.26px] uppercase mb-auto;
+}
+
+.footer-statement .pink-text {
+  @apply text-accent-pink;
+}
+
+.footer-statement .white-text {
+  @apply text-white;
+}
+
+.footer-created-by {
+  @apply flex items-center gap-[10px];
+}
+
+.footer-created-by .created-text {
+  @apply flex w-[94px] h-[30px] flex-col justify-center text-white font-mono text-base font-normal leading-[104.392%] tracking-[-0.26px] uppercase;
+}
+
+.footer-created-by .avatar-wrapper {
+  @apply w-10 h-10 aspect-square rounded-full overflow-hidden;
+}
+
+.footer-created-by .created-brand {
+  @apply flex w-[105px] h-[30px] flex-col justify-center text-white font-mono text-base font-normal leading-[104.392%] tracking-[-0.26px] uppercase;
+}
+
+/* Wordmark aligned with Line 1 (3.472%) and Line 5 (96.528%) */
+.footer-wordmark-container {
+  @apply relative z-[3] mx-[3.472%] flex flex-col items-stretch aspect-[4.098/1];
+}
+
+.footer-wordmark-main {
+  @apply flex w-full flex-col justify-center text-accent-pink text-center font-mokoto text-[296px] font-normal leading-[436px] uppercase select-none mx-auto;
+}
+
+.footer-wordmark-sub-container {
+  @apply flex justify-end w-full mt-[-80px] mx-0 mb-9;
+}
+
+.footer-wordmark-sub-text {
+  @apply flex w-[426.66px] flex-col justify-center text-white text-center font-mokoto text-[136px] font-normal leading-[90px] uppercase;
+}
+
+/* Bottom Heading */
+.footer-bottom-heading {
+  @apply hidden;
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .footer-grid {
+    @apply grid-cols-2;
+  }
+
+  .footer-spacer-col {
+    @apply hidden;
+  }
+
+  .footer-brand-col,
+  .footer-sitemap-col,
+  .footer-socials-col,
+  .footer-tagline-col {
+    @apply py-12 px-6;
+  }
+
+  .footer-socials-col,
+  .footer-tagline-col {
+    @apply border-t border-t-white/15;
+  }
+
+  .footer-socials-col {
+    @apply border-l-0;
+  }
+
+  .footer-divider-container,
+  .footer-wordmark-container {
+    @apply ml-6 mr-6;
+  }
+
+  .footer-background-lines {
+    @apply hidden;
+    /* Hide background lines on grid wrap */
+  }
+}
+
+@media (max-width: 620px) {
+  .footer-grid {
+    @apply grid-cols-1;
+  }
+
+  .footer-sitemap-col,
+  .footer-socials-col,
+  .footer-tagline-col {
+    @apply border-l-0 border-t border-t-white/15;
+  }
+}
+
+/* ============================================================
+   CONTACT SECTION (FIGMA COMPONENT SPECIFICATION - NODE 1-354)
+   ============================================================ */
+.contact-section {
+  @apply w-full box-border pt-0 px-[3.45%] pb-[90px] flex flex-col items-center relative z-[3];
+}
+
+.contact-section .rule-line {
+  @apply w-full mb-[90px];
+}
+
+.contact-container {
+  @apply max-w-full w-full box-border grid grid-cols-2 grid-rows-[auto_auto] gap-0 items-start;
+}
+
+/* Left side styling */
+.contact-info {
+  @apply col-start-1 row-start-1 flex flex-col items-start;
+}
+
+.contact-eyebrow {
+  @apply text-white font-mono text-[32px] font-bold leading-10 ml-5;
+}
+
+.contact-title {
+  @apply flex w-[482px] h-[316px] flex-col justify-center font-sans-condensed font-bold leading-[1.05] uppercase mt-[50px] mr-0 mb-[clamp(24px,3.333vw,48px)] ml-5 text-[clamp(38px,5.926vw,96px)];
+}
+
+.contact-title .pink-text {
+  @apply text-accent-pink;
+}
+
+.contact-title .white-text {
+  @apply text-white;
+}
+
+.contact-connect-box {
+  @apply w-full max-w-[430px] flex flex-col items-start;
+}
+
+.contact-connect-box .rule-line {
+  @apply w-full m-0;
+}
+
+.contact-connect-label {
+  @apply text-accent-pink font-mono text-[24px] font-bold mt-5 mr-0 mb-0 ml-[30px] uppercase;
+}
+
+.contact-email {
+  @apply text-white font-mono text-[32px] font-bold mt-[15px] mr-0 mb-[30px] ml-[30px];
+}
+
+.contact-email:hover {
+  @apply text-accent-pink;
+}
+
+/* Right side form styling */
+.contact-form-wrapper {
+  @apply col-start-2 row-start-2 w-full;
+}
+
+.contact-form {
+  @apply flex flex-col gap-6;
+}
+
+.contact-form .form-group {
+  @apply flex flex-col gap-2;
+}
+
+.contact-form .form-row {
+  @apply grid grid-cols-[465px_1fr] gap-[5px];
+}
+
+.contact-form label {
+  @apply font-mono tracking-[1.68px] text-white uppercase font-medium text-[30px] ml-5;
+}
+
+.contact-form input,
+.contact-form textarea {
+  @apply w-full box-border bg-[#D9D9D9] border-none rounded-none p-4 font-body text-[15px] text-black transition-opacity duration-300 ease-out;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  @apply outline-none bg-[#EAEAEA];
+}
+
+.contact-submit-btn {
+  @apply flex w-[425px] h-[72px] flex-col justify-center text-left text-white font-mono text-[24px] font-bold uppercase self-end bg-[#1A1A1A] border-none rounded-none mt-10 py-4 px-[36px] cursor-pointer transition-all duration-300 ease-out;
+}
+
+.contact-submit-btn:hover {
+  @apply bg-[#2D2D2D];
+}
+
+.contact-submit-btn:active {
+  @apply scale-[0.98];
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .contact-container {
+    @apply grid-cols-1 gap-12;
+  }
 }

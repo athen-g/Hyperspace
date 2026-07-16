@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './components/LandingPage'
+import BlogPage from './components/BlogPage'
 import gsap from 'gsap'
 import { ScrollTrigger, SplitText } from 'gsap/all';
 
@@ -41,8 +42,8 @@ function App() {
         return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">TEAM</span></div></div>
       case '/news':
         return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">NEWS</span></div></div>
-      case '/blogs':
-        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">BLOG</span></div></div>
+      case '/blog':
+        return <BlogPage />
       default:
         return <LandingPage />
     }
