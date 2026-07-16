@@ -349,11 +349,11 @@ body::before {
 }
 
 .about-section {
-  @apply w-[93.056%] ml-[53px] mt-8 mb-16 border-b border-light-grey p-8 font-host z-10
+  @apply w-[93.056%] ml-[53px] mt-8 mb-16 border-b border-light-grey p-8 font-host z-10;
 }
 
 .about-title {
-  @apply text-accent-pink text-[96px] tracking-[1px] font-extrabold z-10 relative
+  @apply text-accent-pink text-[96px] tracking-[1px] font-extrabold z-10 relative;
 }
 
 .about-text-content {
@@ -732,7 +732,7 @@ body::before {
 }
 
 .blog-home-content-title {
-  @apply flex flex-col text-[24px] font-medium leading-[1em] tracking-[0px]
+  @apply flex flex-col text-[24px] font-medium leading-[1em] tracking-[0px];
 }
 
 .blog-title {
@@ -740,15 +740,15 @@ body::before {
 }
 
 .blog-date {
-  @apply text-[13px] font-mono font-medium tracking-[0px] text-white/60
+  @apply text-[13px] font-mono font-medium tracking-[0px] text-white/60;
 }
 
 .blog-desc {
-  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-50 leading-[1.2]
+  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-50 leading-[1.2];
 }
 
 .icon-circle {
-  @apply bg-[#1A1A1A] border border-light-grey rounded-full w-8 h-8 flex items-center justify-center
+  @apply bg-[#1A1A1A] border border-light-grey rounded-full w-8 h-8 flex items-center justify-center;
 }
 
 .faq-card {
@@ -764,8 +764,8 @@ body::before {
 }
 
 .quote-testimonials{
-  @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10 
-  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2]
+  @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
+  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2];
 }
 
 
