@@ -2,14 +2,41 @@ import React from 'react'
 import Button from './Button'
 import logo from '../assets/icons/logo.svg'
 import arrow from '../assets/icons/north_east.svg'
-import { motion } from 'framer-motion'
+import { motion, useAnimationControls } from 'framer-motion'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
     hover: {
-        x: [0, 8, 0],
-        y: [0, -8, 0]
+        x: [0, 8, 18, -8, 0],
+        y: [0, -8, -18, 8, 0],
+        opacity: [1, 1, 0, 0, 1],
+        transition: {
+            duration: 0.25,
+            ease: 'easeInOut',
+            times: [0, 0.22, 0.45, 0.72, 1]
+        }
     }
+}
+
+const RollingArrow = () => {
+    const controls = useAnimationControls()
+
+    return (
+        <div
+            className="icon-circle overflow-hidden"
+            onMouseEnter={() => controls.start('hover')}
+            onMouseLeave={() => controls.set('initial')}
+        >
+            <motion.img
+                src={arrow}
+                alt="arrow"
+                variants={hoverArrowVariants}
+                initial="initial"
+                animate={controls}
+                className="w-3 h-3"
+            />
+        </div>
+    )
 }
 
 const Blog_Home = () => {
@@ -24,7 +51,7 @@ const Blog_Home = () => {
                     className="!relative !left-[76.11%] !w-[23.9%] mt-6"
                     label="READ MORE BLOGS"
                     onClick={() => {
-                        window.history.pushState({}, '', '/blogs');
+                        window.history.pushState({}, '', '/blog');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                     }}
                 />
@@ -49,15 +76,7 @@ const Blog_Home = () => {
                                 <span className="blog-title">GAME DEVELOPMENT</span>
                                 <span className="blog-date">MAY 22, 2026</span>
                             </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
+                            <RollingArrow />
                         </div>
                         <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
                         </motion.div>
@@ -71,17 +90,9 @@ const Blog_Home = () => {
                                 <span className="blog-title">GAME DEVELOPMENT</span>
                                 <span className="blog-date">MAY 22, 2026</span>
                             </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
+                            <RollingArrow />
                         </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
+                        <span className="blog-desc leading-[1]">Developing Games With Unity Hub: Beginner’s Guide </span>
                         </motion.div>
                         <motion.div
                         className="blog-home-card"
@@ -93,15 +104,7 @@ const Blog_Home = () => {
                                 <span className="blog-title">GAME DEVELOPMENT</span>
                                 <span className="blog-date">MAY 22, 2026</span>
                             </div>
-                            <div className="icon-circle overflow-hidden">
-                                <motion.img
-                                    src={arrow}
-                                    alt="arrow"
-                                    variants={hoverArrowVariants}
-                                    transition={{ duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 1] }}
-                                    className="w-3 h-3"
-                                />
-                            </div>
+                            <RollingArrow />
                         </div>
                         <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
                         </motion.div>

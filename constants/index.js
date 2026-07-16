@@ -156,6 +156,65 @@ const FAQ_C = [
   {id: 4, question: 'What is our policy of accepting brand sponsorships?', answer: "Hyperspace is strictly an technical group. Hence, all our events are technical and focused on knowledge sharing. Therefore, Hyperspace only accepts techincal sponsors who can provide them with resources necessary for lectures and workshops with a few exceptions. Techincal sponsors are selected based on their contribution level to our progress and the event's availability. Hyperspace primarly focues on XR startups, founders and industries, but also includes 3D developement industries in their wide catalog."},
 ]
 
+const BLOGS = [
+  {
+    id:1,
+    tag: 'GAME DEVELOPMENT',
+    date: 'MAY 22, 2026',
+    title: 'Developing Games With Unity Hub: Beginner’s Guide',
+    route: '/developing-games-with-unity-hub-beginners-guide',
+  },
+  {
+    id:2,
+    tag: 'Design Journal',
+    date: 'MAY 30, 2026',
+    title: 'Crafting Visual Identity: From Blank Canvas to Brand Universe',
+    route: '/crafting-visual-identity-from-blank-canvas-to-brand-universe',
+  },
+  {
+    id:3,
+    tag: 'Management Tips',
+    date: 'MAY 22, 2026',
+    title: 'How To Plan Events',
+    route: '/managin-to-plan-events',
+  },
+  {
+    id:4,
+    tag: 'Management Tips',
+    date: 'MAY 22, 2026',
+    title: 'How To Plan Events',
+    route: '/managin-to-plan-events',
+  },
+  {
+    id:5,
+    tag: 'Management Tips',
+    date: 'MAY 22, 2026',
+    title: 'How To Plan Events',
+    route: '/managin-to-plan-events',
+  },
+  {
+    id:6,
+    tag: 'Management Tips',
+    date: 'MAY 22, 2026',
+    title: 'How To Plan Events',
+    route: '/managin-to-plan-events',
+  },
+  {
+    id:7,
+    tag: 'Management Tips',
+    date: 'MAY 22, 2026',
+    title: 'How To Plan Events',
+    route: '/managin-to-plan-events',
+  },
+  {
+    id:8,
+    tag: 'Design Journal',
+    date: 'MAY 30, 2026',
+    title: 'Crafting Visual Identity: From Blank Canvas to Brand Universe',
+    route: '/crafting-visual-identity-from-blank-canvas-to-brand-universe',
+  },
+]
+
 export {
   NAV_ITEMS,
   BRANDS,
@@ -163,5 +222,6 @@ export {
   EVENTS_COMING_SOON,
   BLOGS_HOME,
   testimonials,
-  FAQ_C
+  FAQ_C,
+  BLOGS
 };
