@@ -3,6 +3,7 @@ import Button from './Button'
 import logo from '../assets/icons/logo.svg'
 import arrow from '../assets/icons/north_east.svg'
 import { motion, useAnimationControls } from 'framer-motion'
+import { BLOGS_HOME } from '../../constants/index'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
@@ -18,23 +19,36 @@ const hoverArrowVariants = {
     }
 }
 
-const RollingArrow = () => {
-    const controls = useAnimationControls()
+const BlogHomeCard = ({ id, title, date, desc, route }) => {
+    const arrowControls = useAnimationControls()
 
     return (
         <div
-            className="icon-circle overflow-hidden"
-            onMouseEnter={() => controls.start('hover')}
-            onMouseLeave={() => controls.set('initial')}
+            className="blog-home-card cursor-pointer"
+            onMouseEnter={() => arrowControls.start('hover')}
+            onMouseLeave={() => arrowControls.set('initial')}
+            onClick={() => {
+                window.history.pushState({}, '', route)
+                window.dispatchEvent(new PopStateEvent('popstate'))
+            }}
         >
-            <motion.img
-                src={arrow}
-                alt="arrow"
-                variants={hoverArrowVariants}
-                initial="initial"
-                animate={controls}
-                className="w-3 h-3"
-            />
+            <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                    <span className="blog-title">{title}</span>
+                    <span className="blog-date">{date}</span>
+                </div>
+                <div className="icon-circle overflow-hidden">
+                    <motion.img
+                        src={arrow}
+                        alt="arrow"
+                        variants={hoverArrowVariants}
+                        initial="initial"
+                        animate={arrowControls}
+                        className="w-3 h-3"
+                    />
+                </div>
+            </div>
+            <span className={`blog-desc ${id === 2 ? 'leading-[1]' : ''}`}>{desc}</span>
         </div>
     )
 }
@@ -66,48 +80,9 @@ const Blog_Home = () => {
                             WE WRITE TO UNPACK THE THINKING BEHIND OUR EVENTS - <span className="text-white">THE CHOICES, THE REASONING, THE DISCUSSIONS AND THE QUIET DISCUSSIONS THAT SHAPE HOW A EVENT FEELS AND PERFORMS.</span>
                         </div>
                     </div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <RollingArrow />
-                        </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center mb-50">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <RollingArrow />
-                        </div>
-                        <span className="blog-desc leading-[1]">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
-                        <motion.div
-                        className="blog-home-card"
-                        initial="initial"
-                        whileHover="hover"
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="flex flex-col">
-                                <span className="blog-title">GAME DEVELOPMENT</span>
-                                <span className="blog-date">MAY 22, 2026</span>
-                            </div>
-                            <RollingArrow />
-                        </div>
-                        <span className="blog-desc">Developing Games With Unity Hub: Beginner’s Guide </span>
-                        </motion.div>
+                    {BLOGS_HOME.map((blog) => (
+                        <BlogHomeCard key={blog.id} {...blog} />
+                    ))}
                     </div>
                 </div>
             </div>

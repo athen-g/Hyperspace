@@ -845,7 +845,6 @@ body::before {
 
 .quote-testimonials{
   @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
-  @apply font-host font-extrabold text-[14px] tracking-[0.05em] mt-40 leading-[1.2];
 }
 
 

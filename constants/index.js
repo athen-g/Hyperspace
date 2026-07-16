@@ -101,9 +101,9 @@ const EVENTS_COMING_SOON = [
 ]
 
 const BLOGS_HOME = [
-  { id: 1, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide ' },
-  { id: 2, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide ' },
-  { id: 3, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide ' },
+  { id: 1, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide', route: '/developing-games-with-unity-hub-beginners-guide', },
+  { id: 2, title: 'DESIGN JOURNAL', date: 'MAY 30, 2026', desc: 'Crafting Visual Identity: From Blank Canvas to Brand Universe', route: '/crafting-visual-identity-from-blank-canvas-to-brand-universe' },
+  { id: 3, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide', route: '/developing-games-with-unity-hub-beginners-guide', },
 ]
 
 const testimonials = [
