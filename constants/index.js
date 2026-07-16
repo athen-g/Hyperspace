@@ -1,12 +1,11 @@
-import homeIcon from '../src/assets/photos/home.svg'
-import aboutIcon from '../src/assets/photos/about.svg'
-import eventsIcon from '../src/assets/photos/events.svg'
-import contactIcon from '../src/assets/photos/contact.svg'
-import brandDemo from '../src/assets/photos/brand-1.webp'
-import initiateCalibration from '../src/assets/photos/initiate-calibration.png'
-import activateImmersion from '../src/assets/photos/activate-immersion.png'
-import renderCreation from '../src/assets/photos/render-creation.png'
-import maskedImage2 from '../src/assets/photos/masked-image-2.png'
+import homeIcon from '../src/assets/icons/home.svg'
+import aboutIcon from '../src/assets/icons/about.svg'
+import eventsIcon from '../src/assets/icons/events.svg'
+import contactIcon from '../src/assets/icons/contact.svg'
+import brandDemo from '../src/assets/images/brand-1.webp'
+import initiateCalibration from '../src/assets/images/event-backdrops/initiate-calibration.jpg'
+import activateImmersion from '../src/assets/images/event-backdrops/activate-immersion.png'
+import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: homeIcon, sectionId: '#home' },
   { id: 'about', label: 'About', icon: aboutIcon, sectionId: '#about' },
@@ -28,7 +27,6 @@ const EVENTS_CONDUCTED = [
     id: 1,
     name: 'INITIATE CALIBRATION',
     thumbnail: initiateCalibration,
-    maskedImage: maskedImage2,
     tags: [
       'INTRODUCTORY EVENT',
       'BASIC XR EXPLANATION',
@@ -39,7 +37,6 @@ const EVENTS_CONDUCTED = [
     id: 2,
     name: 'ACTIVATE IMMERSION',
     thumbnail: activateImmersion,
-    maskedImage: maskedImage2,
     tags: [
       'EXPERT LECTURE',
       'INDUSTRY CONNECT',

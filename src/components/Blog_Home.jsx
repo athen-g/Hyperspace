@@ -1,7 +1,7 @@
 import React from 'react'
 import Button from './Button'
-import logo from '../assets/photos/Logo.svg'
-import arrow from '../assets/photos/north_east.svg'
+import logo from '../assets/icons/logo.svg'
+import arrow from '../assets/icons/north_east.svg'
 import { motion } from 'framer-motion'
 
 const hoverArrowVariants = {

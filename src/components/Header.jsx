@@ -1,5 +1,5 @@
 import { useMediaQuery } from 'react-responsive'
-import logo from '../assets/photos/Logo.svg'
+import logo from '../assets/icons/logo.svg'
 
 export default function Header() {
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from './Button'
-import demo from '../assets/photos/activate-immersion.png'
+import demo from '../assets/images/event-backdrops/activate-immersion.png'
 
 const Team_Home = () => {
     return (

@@ -1,6 +1,6 @@
 import { FAQ_C } from '../../constants/index'
-import plusIcon from '../assets/photos/plus.svg'
-import crossIcon from '../assets/photos/cross.svg'
+import plusIcon from '../assets/icons/plus.svg'
+import crossIcon from '../assets/icons/cross.svg'
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion'
 
