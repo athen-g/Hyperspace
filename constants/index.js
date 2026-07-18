@@ -6,6 +6,7 @@ import brandDemo from '../src/assets/images/brand-1.webp'
 import initiateCalibration from '../src/assets/images/event-backdrops/initiate-calibration.jpg'
 import activateImmersion from '../src/assets/images/event-backdrops/activate-immersion.png'
 import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
+import backActiveImmersion from '../src/assets/images/event-backdrops/activate-immersion2.png'
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: homeIcon, sectionId: '#home' },
   { id: 'about', label: 'About', icon: aboutIcon, sectionId: '#about' },
@@ -27,31 +28,39 @@ const EVENTS_CONDUCTED = [
     id: 1,
     name: 'INITIATE CALIBRATION',
     thumbnail: initiateCalibration,
+    bthumbnail: backActiveImmersion,
+    route: '/events/initiate-calibration',
     tags: [
       'INTRODUCTORY EVENT',
       'BASIC XR EXPLANATION',
       'FUTURE OPPORTUNITIES IN XR',
     ],
+    tagline: 'Our Introduction. Our Beginning. Our Future. The First Step.',
   },
   {
     id: 2,
     name: 'ACTIVATE IMMERSION',
     thumbnail: activateImmersion,
+    bthumbnail: backActiveImmersion,
+    route: '/events/activate-immersion',
     tags: [
       'EXPERT LECTURE',
       'INDUSTRY CONNECT',
       'CAREER ROADMAP FOR XR',
     ],
+    tagline: 'ONE GUEST. DIVERSE MINDS. ONE LECTURE. BOUNDLESS LEARNING.',
   },
   {
     id: 3,
     name: 'RENDER CREATION',
     thumbnail: renderCreation,
+    route: '/events/render-creation',
     tags: [
       'WORKSHOP 1',
       '3D GAME DEVELOPMENT USING UNITY',
       'HANDS-ON EXPERIENCE',
     ],
+    tagline: 'TWO DAYS. UNFORGETTABLE EXPERIENCES. GAME CREATION.',
   },
 ]
 const EVENTS_COMING_SOON = [
@@ -64,6 +73,7 @@ const EVENTS_COMING_SOON = [
       'FUTURE XR KNOWLEDGE',
       'HANDS-ON EXPERIENCE',
     ],
+    tagline: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
   },
   {
     id: 2,
@@ -75,6 +85,7 @@ const EVENTS_COMING_SOON = [
       'ENIVRONMENT AND ASSETS BUILDING',
       'DETAILS COMING SOON!',
     ],
+    tagline: 'CREATING ASSETS AND BUILDING ENVIRONMENTS FOR YOUR PROJECTS.',
   },
   {
     id: 3,
@@ -86,6 +97,7 @@ const EVENTS_COMING_SOON = [
       '3D GAME DEVELOPMENT',
       'DETIALS COMING SOON',
     ],
+    tagline: 'BUILDING DIGITAL WORLDS. ONE STROKE AT A TIME.'
   },
   {
     id: 4,
@@ -97,6 +109,7 @@ const EVENTS_COMING_SOON = [
       'RETRO 3D GAME DEVELOPMENT',
       'DETIALS COMING SOON',
     ],
+    tagline: 'RETRO GAMES. NEW TECHNOLGIES. AMAZING MINDS. INFINITE TALENT.'
   },
 ]
 

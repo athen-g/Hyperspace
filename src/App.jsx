@@ -4,7 +4,8 @@ import gsap from 'gsap'
 import { ScrollTrigger, SplitText } from 'gsap/all';
 import Blog from './components/Blog';
 import BlogPage from './components/BlogPage'
-import { BLOGS } from '../constants/index'
+import { BLOGS, EVENTS_CONDUCTED } from '../constants/index'
+import EventsPage from './components/EventsPage';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -35,13 +36,14 @@ function App() {
 
   const renderPage = () => {
     const isBlogPostRoute = BLOGS.some(({ route }) => route === path)
+    const isEventPostRoute = EVENTS_CONDUCTED.some(({ route }) => route === path)
 
     switch (path) {
       case '/':
       case '/home':
         return <LandingPage />
       case '/events':
-        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">EVENTS</span></div></div>
+        return <EventsPage />
       case '/team':
         return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">TEAM</span></div></div>
       case '/news':
@@ -51,6 +53,8 @@ function App() {
       default:
         if (isBlogPostRoute) {
           return <BlogPage />
+        } else if(isEventPostRoute) {
+          return <EventsPage />
         }
         return <LandingPage />
     }

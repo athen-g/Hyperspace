@@ -701,12 +701,17 @@ body::before {
   width: 97%;
   height: 95%;
   display: block;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.event-card__thumb-img :hover {
+  transform: scale(1.01);
 }
 
 .event-card__info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   border-top: 0.5px solid var(--color-bg-light-grey);
 }
 
@@ -720,6 +725,7 @@ body::before {
   padding: 24px 20px 24px 24px;
   display: flex;
   align-items: center;
+  max-width: 120px;
 }
 
 .event-card__tags {
@@ -734,12 +740,12 @@ body::before {
 
 .event-card__tag {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 20px;
   font-weight: medium;
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  line-height: 1.1;
+  line-height: 1.6;
   text-align: right;
 }
 
@@ -843,7 +849,7 @@ body::before {
   @apply font-mono uppercase font-semibold text-[15px] tracking-[0.05em] leading-[2];
 }
 
-.quote-testimonials{
+.quote-testimonials {
   @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
 }
 
@@ -886,24 +892,34 @@ body::before {
 }
 
 .blog-page-wrapper .blog-hero-orb-1 {
-  @apply w-[600px] h-[600px] bg-[rgba(150,0,80,0.8)] -top-[10%] -right-[5%];
+  @apply w-[600px] h-[600px] bg-[#960050CC] -top-[10%] -right-[5%];
   animation-delay: 0s;
 }
 
 .blog-page-wrapper .blog-hero-orb-2 {
-  @apply w-[400px] h-[400px] bg-[rgba(80,0,120,0.6)] bottom-[10%] left-[5%];
+  @apply w-[400px] h-[400px] bg-[#50007899] bottom-[10%] left-[5%];
   animation-delay: -4.5s;
 }
 
 .blog-page-wrapper .blog-hero-orb-3 {
-  @apply w-[300px] h-[300px] bg-[rgba(200,0,100,0.4)] top-[40%] right-[30%] opacity-20;
+  @apply w-[300px] h-[300px] bg-[#c8006466] top-[40%] right-[30%] opacity-20;
   animation-delay: -2s;
 }
 
 @keyframes floatOrb {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(24px, -32px) scale(1.06); }
-  66% { transform: translate(-16px, 20px) scale(0.94); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(24px, -32px) scale(1.06);
+  }
+
+  66% {
+    transform: translate(-16px, 20px) scale(0.94);
+  }
 }
 
 /* Hero Content Area */
@@ -913,8 +929,15 @@ body::before {
 }
 
 @keyframes heroFadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .blog-page-wrapper .blog-hero-eyebrow {
@@ -1038,7 +1061,8 @@ body::before {
 }
 
 .blog-page-wrapper .media-block img:hover {
-  @apply scale-[1.006] shadow-[0_16px_48px_rgba(233,30,99,0.12)];
+  @apply scale-[1.006];
+  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
 }
 
 /* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
@@ -1127,8 +1151,9 @@ body::before {
 
 /* Author card avatar — pink gradient circle */
 .blog-page-wrapper .author-card-avatar {
-  @apply w-[52px] h-[52px] rounded-full flex items-center justify-center font-mokoto font-normal text-[1.2rem] text-white mb-4 border-2 border-white/10 shadow-[0_0_20px_rgba(233,30,99,0.25)];
+  @apply w-[52px] h-[52px] rounded-full flex items-center justify-center font-mokoto font-normal text-[1.2rem] text-white mb-4 border-2 border-white/10;
   background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-dark-pink));
+  box-shadow: 0 0 20px rgba(233, 30, 99, 0.25);
 }
 
 .blog-page-wrapper .author-card-name {
@@ -1199,8 +1224,9 @@ body::before {
    Right-aligned. Sub: 0.3em tracking, smaller, same opacity.
    ============================================================ */
 .blog-page-wrapper .footer-logo-mark {
-  @apply w-[38px] h-[38px] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(224,64,251,0.4)];
+  @apply w-[38px] h-[38px] rounded-full flex items-center justify-center;
   background: linear-gradient(135deg, #E040FB, var(--color-accent-violet));
+  box-shadow: 0 0 20px rgba(224, 64, 251, 0.4);
 }
 
 .blog-page-wrapper .footer-logo-mark svg {
@@ -1510,7 +1536,9 @@ body::before {
 }
 
 .contact-title {
-  @apply flex w-[482px] h-[316px] flex-col justify-center font-sans-condensed font-bold leading-[1.05] uppercase mt-[50px] mr-0 mb-[clamp(24px,3.333vw,48px)] ml-5 text-[clamp(38px,5.926vw,96px)];
+  @apply flex w-[482px] h-[316px] flex-col justify-center font-sans-condensed font-bold leading-[1.05] uppercase mt-[50px] mr-0 ml-5;
+  margin-bottom: clamp(24px, 3.333vw, 48px);
+  font-size: clamp(38px, 5.926vw, 96px);
 }
 
 .contact-title .pink-text {
@@ -1584,9 +1612,293 @@ body::before {
   @apply scale-[0.98];
 }
 
+/* Events Page — Showcase scroll animation */
+.events-page {
+  @apply relative bg-bg-base;
+}
+
+.events-showcase-scroll {
+  @apply relative;
+}
+
+.events-showcase-stage {
+  @apply relative w-full h-[100svh] flex items-center justify-center overflow-hidden;
+  z-index: 3;
+}
+
+.events-showcase-video-wrap {
+  @apply absolute inset-0 origin-center will-change-transform;
+  transform: scale(0.18);
+}
+
+.events-showcase-video {
+  @apply w-full h-full object-cover;
+}
+
+.events-showcase-words {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none whitespace-nowrap;
+}
+
+.events-showcase-word {
+  @apply font-sans font-bold uppercase text-white leading-none;
+  font-size: clamp(2.75rem, 11.5vw, 9.5rem);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+}
+
+.events-showcase-scroll-hint {
+  @apply absolute bottom-10 left-1/2 -translate-x-1/2 z-10 font-mono text-[11px] tracking-[0.35em] uppercase text-white/50 pointer-events-none;
+  animation: events-scroll-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes events-scroll-hint {
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: translate(-50%, 6px);
+  }
+}
+
+.events-page-content {
+  @apply relative min-h-[50vh] bg-bg-base;
+  z-index: 1;
+}
+
+.events-page-header {
+  @apply flex items-end justify-between pt-50 pb-0;
+  margin-left: 3.472%;
+  width: 93.056%;
+}
+
+.events-page-title {
+  @apply flex flex-col items-start text-white uppercase relative pl-10;
+  font-family: var(--font-host);
+  font-size: clamp(2.75rem, 6.67vw, 96px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+}
+
+.events-page-title__line {
+  @apply block text-left;
+}
+
+.events-page-header__desc {
+  @apply uppercase font-mono text-[13px] font-normal tracking-[0.02em] leading-[1.35] max-w-[250px] text-left text-white shrink-0;
+}
+
 /* Responsive Overrides */
 @media (max-width: 960px) {
   .contact-container {
     @apply grid-cols-1 gap-12;
+  }
+
+  .events-showcase-word {
+    font-size: clamp(2rem, 14vw, 4.5rem);
+  }
+
+  .events-showcase-scroll-hint {
+    @apply bottom-6 text-[10px];
+  }
+
+  .events-page-header {
+    @apply flex-col items-start gap-8 pt-30;
+    margin-left: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .events-page-header__desc {
+    @apply max-w-none;
+  }
+}
+
+/* ==========================================================================
+   Event cards — scroll-stack section
+   Import this alongside EventsPage.jsx (adjust the path in the import if
+   your CSS lives somewhere other than next to the component).
+   ========================================================================== */
+
+.events-cards-section {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.events-card-stack {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Each item is a normal-flow "slot" tall enough to give the sticky card
+   room to travel before the next one takes over. This is what produces the
+   stacking effect — no JS required for the stacking motion itself. */
+.events-card-stack__item {
+  position: relative;
+  width: 100%;
+  min-height: 92vh;
+  display: flex;
+  justify-content: center;
+}
+
+.events-card-stack__item:last-child {
+  min-height: auto;
+  padding-bottom: 12vh;
+}
+
+.event-card {
+  position: sticky;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 28px;
+  padding: 30px 34px 34px;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* Conducted events: glass effect (intentionally not the flat light-blue
+   look from the reference — dark, translucent, blurred). */
+.event-card--conducted {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.025));
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 30px 60px -25px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Coming-soon events: quieter, solid dark card. */
+.event-card--soon {
+  background: #131316;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.event-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Pill starts muted/outlined (image 2 state) and is animated to a solid
+   white pill with dark text (image 1 state) via GSAP scrub — see JS. */
+.event-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.event-card__pill-number {
+  color: inherit;
+}
+
+.event-card__pill-name {
+  display: inline-block;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+}
+
+.event-card__arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 17px;
+}
+
+.event-card__body {
+  margin-top: 30px;
+}
+
+.event-card__tagline {
+  font-size: clamp(18px, 2.4vw, 27px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.28;
+  letter-spacing: 0.01em;
+  max-width: 640px;
+  text-transform: uppercase;
+}
+.event-card__chip {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.event-card__tag-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.event-card__tag--latest .event-card__tag-dot {
+  background: #3ddc71;
+}
+
+.event-card__tag--soon .event-card__tag-dot {
+  background: #ff5a4e;
+}
+
+.event-card__media {
+  margin-top: 24px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.event-card__media-img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .events-card-stack {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .event-card {
+    padding: 22px 20px 26px;
+    border-radius: 20px;
+  }
+
+  .events-card-stack__item {
+    min-height: 78vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-card__pill-name {
+    opacity: 1;
+    max-width: none;
   }
 }
