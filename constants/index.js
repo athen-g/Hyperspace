@@ -15,7 +15,7 @@ import e1_image_4 from '../src/assets/images/event-images/initiate-calibration/i
 import e2_image_1 from '../src/assets/images/event-images/activate-immersion/activate_immersion_image_1.jpg'
 import e2_image_2 from '../src/assets/images/event-images/activate-immersion/activate_immersion_image_2.jpg'
 import e2_image_3 from '../src/assets/images/event-images/activate-immersion/activate_immersion_image_3.jpg'
-import e2_image_4 from '../src/assets/images/event-images/activate-immersion/activate_immersion_image_4.jpg'
+import e2_image_4 from '../src/assets/images/event-images/activate-immersion/activate_immersion_image_4.JPG'
 import e3_image_1 from '../src/assets/images/event-images/render-creation/rennder-creation-images-1.jpg'
 import e3_image_2 from '../src/assets/images/event-images/render-creation/render-creation-images-2.jpg'
 import e3_image_3 from '../src/assets/images/event-images/render-creation/render-creation-images-3.jpg'
