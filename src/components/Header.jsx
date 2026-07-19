@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import logo from '../assets/icons/logo.svg'
 import { BLOGS } from '../../constants/index'
+import { useNavigate } from 'react-router-dom'
 
 export default function Header() {
+  const navigate = useNavigate();
   const [pathname, setPathname] = useState(window.location.pathname)
 
   useEffect(() => {
@@ -19,8 +21,7 @@ export default function Header() {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const handleNavClick = (e, href) => {
     e.preventDefault()
-    window.history.pushState(null, '', href)
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    navigate(href);
   }
 
   const isBlogDetailRoute = BLOGS.some(({ route }) => route === pathname)
@@ -33,6 +34,7 @@ export default function Header() {
   }
 
   return (
+
     <header className="site-header" style={{
       boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.04)",
     }}>
@@ -68,9 +70,9 @@ export default function Header() {
           </a>
           <a
             href="/blog"
-            onClick={(e) => handleNavClick(e, '/blog')}
+            onClick={(e) => handleNavClick(e, '/blogs')}
             className={`site-header__link header-roll-link ${isActive('/blog') ? 'nav-link--active' : ''}`}
-            aria-current={isActive('/blog') ? 'page' : undefined}
+            aria-current={isActive('/blogs') ? 'page' : undefined}
           >
             <span className="header-roll-link__stack">
               <span className="header-roll-link__face header-roll-link__face--current">BLOG</span>

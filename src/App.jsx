@@ -1,71 +1,98 @@
-import { useEffect, useRef, useState } from 'react'
-import LandingPage from './components/LandingPage'
-import gsap from 'gsap'
-import { ScrollTrigger, SplitText } from 'gsap/all';
-import Blog from './components/Blog';
-import BlogPage from './components/BlogPage'
-import { BLOGS, EVENTS_CONDUCTED } from '../constants/index'
-import EventsPage from './components/EventsPage';
+import { useEffect, useRef } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import gsap from "gsap";
+import { ScrollTrigger, SplitText } from "gsap/all";
+
+import LandingPage from "./components/LandingPage";
+import Blog from "./components/Blog";
+import BlogPage from "./components/BlogPage";
+import EventsPage from "./components/EventsPage";
+import EventPageTemplate from "./components/EventPageTemplate";
+import Blog_Home from "./components/Blog_Home";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
-  const progressRef = useRef(null)
-  const [path, setPath] = useState(window.location.pathname)
+  const progressRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      const progress =
+        docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
       if (progressRef.current) {
-        progressRef.current.style.width = progress + '%'
+        progressRef.current.style.width = `${progress}%`;
       }
-    }
+    };
 
-    const handlePopState = () => setPath(window.location.pathname)
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('popstate', handlePopState)
+    handleScroll();
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('popstate', handlePopState)
-    }
-  }, [])
-
-  const renderPage = () => {
-    const isBlogPostRoute = BLOGS.some(({ route }) => route === path)
-    const isEventPostRoute = EVENTS_CONDUCTED.some(({ route }) => route === path)
-
-    switch (path) {
-      case '/':
-      case '/home':
-        return <LandingPage />
-      case '/events':
-        return <EventsPage />
-      case '/team':
-        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">TEAM</span></div></div>
-      case '/news':
-        return <div className="blog-hero"><div className="hero-bg"></div><div className="hero-name"><span className="hero-title">NEWS</span></div></div>
-      case '/blog':
-        return <Blog />
-      default:
-        if (isBlogPostRoute) {
-          return <BlogPage />
-        } else if(isEventPostRoute) {
-          return <EventsPage />
-        }
-        return <LandingPage />
-    }
-  }
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <>
       <div className="reading-progress" ref={progressRef}></div>
-      {renderPage()}
+
+      <Routes>
+        {/* Landing */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
+
+        {/* Events */}
+        <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/:slug" element={<EventPageTemplate />} />
+
+        {/* Registration */}
+        {/* <Route
+          path="/register/:slug"
+          element={<RegistrationPage />}
+        /> */}
+
+        {/* Blogs */}
+        <Route path="/blogs" element={<Blog />} />
+        <Route path="/blogs/:slug" element={<BlogPage />} />
+
+        {/* Team */}
+        <Route
+          path="/team"
+          element={
+            <div className="blog-hero">
+              <div className="hero-bg"></div>
+              <div className="hero-name">
+                <span className="hero-title">TEAM</span>
+              </div>
+            </div>
+          }
+        />
+
+        {/* News */}
+        <Route
+          path="/news"
+          element={
+            <div className="blog-hero">
+              <div className="hero-bg"></div>
+              <div className="hero-name">
+                <span className="hero-title">NEWS</span>
+              </div>
+            </div>
+          }
+        />
+
+        {/* 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

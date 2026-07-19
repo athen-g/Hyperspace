@@ -4,6 +4,7 @@ import { SplitText } from 'gsap/all'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Button from './Button'
+import { useNavigate } from 'react-router-dom';
 
 const EventImage = ({ thumbnail, bthumbnail, alt }) => {
   const containerRef = React.useRef(null);
@@ -66,7 +67,7 @@ const EventImage = ({ thumbnail, bthumbnail, alt }) => {
     mousePos.current = { x, y };
     blobPos.current = { x, y };
     setCoords({ x, y });
-    
+
     blobScale.current = 0;
     targetScale.current = 0;
     setScale(0);
@@ -99,7 +100,7 @@ const EventImage = ({ thumbnail, bthumbnail, alt }) => {
       onMouseLeave={handleMouseLeave}
     >
       <img src={thumbnail} alt={alt} className="w-full h-full object-cover" />
-      
+
       <div
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{
@@ -148,6 +149,8 @@ const EventImage = ({ thumbnail, bthumbnail, alt }) => {
 
 const Events = () => {
 
+  const navigate = useNavigate();
+
   useGSAP(() => {
     const titleSplit = new SplitText('.events-conducted-label', { type: 'lines' });
     const timeline = gsap.timeline({
@@ -184,10 +187,7 @@ const Events = () => {
               key={event.id}
               className={`event-card-wrap cursor-pointer ${index % 2 === 0 ? 'event-card-wrap--odd' : 'event-card-wrap--even'}`}
               onClick={() => {
-                if (event.route) {
-                  window.history.pushState({}, '', event.route);
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }
+                  navigate(`/events/${event.slug}`);
               }}
             >
               <div className="event-card">
@@ -210,13 +210,12 @@ const Events = () => {
             </div>
           ))}
         </div>
-        
+
         <Button
           className="bottom-10"
           label="VIEW ALL EVENTS"
           onClick={() => {
-            window.history.pushState({}, '', '/events');
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            navigate(`/events`);
           }}
         />
       </div>
@@ -237,10 +236,7 @@ const Events = () => {
               key={event.id}
               className={`event-card-wrap cursor-pointer ${index % 2 === 0 ? 'event-card-wrap--odd' : 'event-card-wrap--even'}`}
               onClick={() => {
-                if (event.route) {
-                  window.history.pushState({}, '', event.route);
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }
+                navigate(`/events/${event.slug}`);
               }}
             >
               <div className="event-card">
@@ -269,8 +265,7 @@ const Events = () => {
         className="bottom-10"
         label="VIEW ALL EVENTS"
         onClick={() => {
-          window.history.pushState({}, '', '/events');
-          window.dispatchEvent(new PopStateEvent('popstate'));
+          navigate(`/events`);
         }}
       />
 

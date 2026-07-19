@@ -4,10 +4,11 @@ import Header from './Header'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
-import showcaseVideo from '../assets/videos/motion.mp4'
+import showcaseVideo from '../assets/videos/events-motion-video.mp4'
 import { EVENTS_CONDUCTED, EVENTS_COMING_SOON } from '../../constants/index'
 import Contact from './Contact'
 import Footer from './Footer'
+import { useNavigate } from 'react-router-dom'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -55,6 +56,9 @@ const PillTitle = ({ displayNum, name, pillBgRef, pillTextRef }) => {
 }
 
 const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTextRef, imageRef }) => {
+
+    const navigate = useNavigate();
+
     if (!event) return null
 
     const name = event.name || ''
@@ -62,12 +66,8 @@ const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTex
     const thumbnail = event.thumbnail || ''
 
     const handleCardClick = () => {
-        if (event.route) {
-            window.history.pushState({}, '', event.route)
-            window.dispatchEvent(new PopStateEvent('popstate'))
-        }
+        navigate(`/events/${event.slug}`);
     }
-
     return (
         <div
             onClick={handleCardClick}
