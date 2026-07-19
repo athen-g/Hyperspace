@@ -1,8 +1,12 @@
 import React from 'react'
 import Button from './Button'
 import demo from '../assets/images/event-backdrops/activate-immersion.png'
+import { useNavigate } from 'react-router-dom'
 
 const Team_Home = () => {
+
+    const navigate = useNavigate();
+
     return (
         <section id="team_hero" className='m-26 mb-0 pt-0 p-27'>
             <div>
@@ -13,8 +17,7 @@ const Team_Home = () => {
                 <Button
                     label="KNOW MORE"
                     onClick={() => {
-                        window.history.pushState({}, '', '/team');
-                        window.dispatchEvent(new PopStateEvent('popstate'));
+                        navigate(`/team`);
                     }}
                 />
             </div>

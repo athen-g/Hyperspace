@@ -4,6 +4,7 @@ import logo from '../assets/icons/logo.svg'
 import arrow from '../assets/icons/north_east.svg'
 import { motion, useAnimationControls } from 'framer-motion'
 import { BLOGS_HOME } from '../../constants/index'
+import { useNavigate } from 'react-router-dom'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
@@ -19,8 +20,9 @@ const hoverArrowVariants = {
     }
 }
 
-const BlogHomeCard = ({ id, title, date, desc, route }) => {
+const BlogHomeCard = ({ id, title, date, desc, route, slug }) => {
     const arrowControls = useAnimationControls()
+    const navigate = useNavigate();
 
     return (
         <div
@@ -28,8 +30,7 @@ const BlogHomeCard = ({ id, title, date, desc, route }) => {
             onMouseEnter={() => arrowControls.start('hover')}
             onMouseLeave={() => arrowControls.set('initial')}
             onClick={() => {
-                window.history.pushState({}, '', route)
-                window.dispatchEvent(new PopStateEvent('popstate'))
+                navigate(`/blogs/${slug}`);
             }}
         >
             <div className="flex justify-between items-center">
@@ -65,8 +66,7 @@ const Blog_Home = () => {
                     className="!relative !left-[76.11%] !w-[23.9%] mt-6"
                     label="READ MORE BLOGS"
                     onClick={() => {
-                        window.history.pushState({}, '', '/blog');
-                        window.dispatchEvent(new PopStateEvent('popstate'));
+                        navigate(`/blogs`);
                     }}
                 />
                 <div className="blog-home-container relative mt-20 pb-50 border-b border-[#666666]">

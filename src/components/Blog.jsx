@@ -6,6 +6,7 @@ import arrow from '../assets/icons/north_east.svg'
 import { BLOGS } from '../../constants/index'
 import Contact from './Contact'
 import Footer from './Footer'
+import { useNavigate } from 'react-router-dom'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
@@ -22,6 +23,7 @@ const hoverArrowVariants = {
 }
 
 const Blog = () => {
+    const navigate = useNavigate();
     return (
         <>
             <Header />
@@ -36,15 +38,14 @@ const Blog = () => {
                         <span className="uppercase font-mono text-[13px] font-normal tracking-[0.02em] leading-[1] max-w-[250px] text-left text-white">OUR EXPERIENCE. EVERY DECISION. EVERY THOUGHT. NOW EXPLAINED.</span>
                     </div>
                     <div className="blog-home-grid mt-8 border-light-grey border border-b-0">
-                        {BLOGS.map(({ id, tag, date, title, route }) => (
+                        {BLOGS.map(({ id, tag, date, title, route, slug }) => (
                             <motion.div
                                 key={id}
                                 className="blog-card"
                                 initial="initial"
                                 whileHover="hover"
                                 onClick={() => {
-                                    window.history.pushState({}, '', route)
-                                    window.dispatchEvent(new PopStateEvent('popstate'))
+                                    navigate(`/blogs/${slug}`);
                                 }}
                             >
                                 <div className="flex items-start justify-between gap-6">
