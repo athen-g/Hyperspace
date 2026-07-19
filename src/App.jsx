@@ -10,6 +10,7 @@ import BlogPage from "./components/BlogPage";
 import EventsPage from "./components/EventsPage";
 import EventPageTemplate from "./components/EventPageTemplate";
 import Blog_Home from "./components/Blog_Home";
+import News from "./components/News";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -79,12 +80,7 @@ function App() {
         <Route
           path="/news"
           element={
-            <div className="blog-hero">
-              <div className="hero-bg"></div>
-              <div className="hero-name">
-                <span className="hero-title">NEWS</span>
-              </div>
-            </div>
+            <News />
           }
         />
 
