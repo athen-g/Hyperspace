@@ -1,22 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import logo from '../assets/icons/logo.svg'
-import { BLOGS } from '../../constants/index'
+import { BLOGS, NAV_ITEMS } from '../../constants/index'
 import { useNavigate } from 'react-router-dom'
+import { NEWS_ITEMS } from '../../constants/news'
+import { useLocation } from 'react-router-dom'
 
 export default function Header() {
   const navigate = useNavigate();
-  const [pathname, setPathname] = useState(window.location.pathname)
 
-  useEffect(() => {
-    const handlePopState = () => setPathname(window.location.pathname)
-
-    window.addEventListener('popstate', handlePopState)
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState)
-    }
-  }, [])
+  const { pathname } = useLocation()
 
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const handleNavClick = (e, href) => {
@@ -24,13 +17,18 @@ export default function Header() {
     navigate(href);
   }
 
-  const isBlogDetailRoute = BLOGS.some(({ route }) => route === pathname)
-  const isActive = (href) => {
-    if (href === '/blog') {
-      return pathname === '/blog' || isBlogDetailRoute
-    }
 
-    return pathname === href
+  const isActive = (href) => {
+    switch (href) {
+      case '/blogs':
+        return pathname.startsWith('/blogs')
+
+      case '/news':
+        return pathname.startsWith('/news')
+
+      default:
+        return pathname === href
+    }
   }
 
   return (
@@ -71,7 +69,7 @@ export default function Header() {
           <a
             href="/blog"
             onClick={(e) => handleNavClick(e, '/blogs')}
-            className={`site-header__link header-roll-link ${isActive('/blog') ? 'nav-link--active' : ''}`}
+            className={`site-header__link header-roll-link ${isActive('/blogs') ? 'nav-link--active' : ''}`}
             aria-current={isActive('/blogs') ? 'page' : undefined}
           >
             <span className="header-roll-link__stack">
