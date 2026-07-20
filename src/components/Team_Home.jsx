@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from './Button'
-import demo from '../assets/images/event-backdrops/activate-immersion.png'
+import combined from '../assets/images/team-images/combined.jpeg'
 import { useNavigate } from 'react-router-dom'
 
 const Team_Home = () => {
@@ -21,8 +21,8 @@ const Team_Home = () => {
                     }}
                 />
             </div>
-            <div className='w-[100vh] h-auto mt-50 flex items-center justify-center'>
-                <img src={demo} alt='Team Photo' className='w-full h-auto relative z-10 m-auto' />
+            <div className='w-[1500px] h-250 mt-50 flex items-center justify-center'>
+                <img src={combined} alt='Team Photo' className='w-full h-full relative z-10 m-8 mt-0' />
             </div>
             <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[105px]" />
         </section>

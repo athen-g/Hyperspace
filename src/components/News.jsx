@@ -47,7 +47,7 @@ export default function News() {
     const filtered =
         activeCategory === 'All' ? rest : rest.filter((item) => item.category === activeCategory)
 
-    const goToArticle = (id) => navigate(`/news/${id}`)
+    const goToArticle = (slug) => navigate(`/news/${slug}`)
 
     return (
         <>
@@ -110,7 +110,7 @@ export default function News() {
                             <article
                                 ref={addRevealRef}
                                 className="news-featured news-reveal"
-                                onClick={() => goToArticle(featured.id)}
+                                onClick={() => goToArticle(featured.slug)}
                             >
                                 <div className="news-featured__media">
                                     {featured.thumbnail ? (
@@ -149,7 +149,7 @@ export default function News() {
                                     key={item.id}
                                     ref={addRevealRef}
                                     className="news-card news-reveal"
-                                    onClick={() => goToArticle(item.id)}
+                                    onClick={() => goToArticle(item.slug)}
                                 >
                                     <div className="news-card__media">
                                         <span className="news-corner news-corner--tl">
