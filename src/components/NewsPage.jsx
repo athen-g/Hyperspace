@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import { NEWS_ITEMS } from '../../constants/news'
+import { ScrollRevealText } from './ui/ScrollRevealText'
+import Contact from './Contact'
+import Footer from './Footer'
 
 
 const toParagraphs = (text) =>
@@ -221,7 +224,11 @@ const NewsPage = () => {
                       {block.paragraphs.length > 0 && (
                         <div className="tx-copy tx-copy--hero">
                           {block.paragraphs.map((p, j) => (
-                            <p key={j}>{p.text}</p>
+                            <ScrollRevealText 
+                              key={j} 
+                              text={p.text} 
+                              className="tx-copy__paragraph" 
+                            />
                           ))}
                         </div>
                       )}
@@ -246,14 +253,21 @@ const NewsPage = () => {
                         </div>
                         {hasText && (
                           <div className="tx-zigzag__text">
-                            <p className="tx-copy">{block.lead.text}</p>
+                            <ScrollRevealText 
+                              className="tx-copy"
+                              text={block.lead.text} 
+                            />
                           </div>
                         )}
                       </div>
                       {block.rest.length > 0 && (
                         <div className="tx-copy">
                           {block.rest.map((p, j) => (
-                            <p key={j}>{p.text}</p>
+                            <p 
+                              key={j}
+                              text = {p.text} 
+                              className='tex-copy__paragraph'
+                            />
                           ))}
                         </div>
                       )}
@@ -265,7 +279,10 @@ const NewsPage = () => {
                 return (
                   <div key={i} className="tx-copy">
                     {block.paragraphs.map((p, j) => (
-                      <p key={j}>{p.text}</p>
+                      <ScrollRevealText 
+                        key={j}
+                        text = {p.text} 
+                      />
                     ))}
                   </div>
                 )
@@ -284,6 +301,8 @@ const NewsPage = () => {
           </section>
         </div>
       </main>
+      <Contact />
+      <Footer />
     </>
   )
 }
