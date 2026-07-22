@@ -12,6 +12,7 @@ import EventPageTemplate from "./components/EventPageTemplate";
 import Blog_Home from "./components/Blog_Home";
 import News from "./components/News";
 import NewsPage from "./components/NewsPage";
+import EventRouter from "./components/EventRouter";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -52,7 +53,10 @@ function App() {
 
         {/* Events */}
         <Route path="/events" element={<EventsPage />} />
-        <Route path="/events/:slug" element={<EventPageTemplate />} />
+        <Route
+          path="/events/:slug"
+          element={<EventRouter />}
+        />
 
         {/* Registration */}
         {/* <Route
@@ -84,7 +88,7 @@ function App() {
             <News />
           }
         />
-        <Route path= "/news/:slug" element={<NewsPage />} />
+        <Route path="/news/:slug" element={<NewsPage />} />
 
         {/* 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />

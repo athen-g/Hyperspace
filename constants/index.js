@@ -124,7 +124,7 @@ const EVENTS_CONDUCTED = [
     id: 3,
     name: 'RENDER CREATION',
     thumbnail: renderCreation,
-    bthumbnail: backRenderCreation ,
+    bthumbnail: backRenderCreation,
     slug: 'render-creation',
     tags: [
       'WORKSHOP 1',
@@ -160,36 +160,10 @@ const EVENTS_CONDUCTED = [
 ]
 const EVENTS_COMING_SOON = [
   {
-    id: 1,
-    name: 'INTRO EVENT',
-    slug: 'intro-event',
-    thumbnail: coming_soon_1,
-    tags: [
-      'INTRODUCTION TO NEW STUDENTS',
-      'FUTURE XR KNOWLEDGE',
-      'HANDS-ON EXPERIENCE',
-    ],
-    tagline: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
-    pagesubtitle: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
-    overview: 'Why so impatient? Details coming soon!',
-    date: 'COMING SOON!',
-    audience: 'COMING SOON!',
-    type: 'LECTURE EVENT',
-    sponsors: 'COMING SOON!',
-    images: [
-      coming_soon_grid_1,
-      coming_soon_grid_2,
-      coming_soon_grid_3,
-      coming_soon_grid_4,
-    ],
-    plan: 'Coming Soon!',
-    albumLink: '',
-  },
-  {
     id: 2,
     name: 'BLENDER WORKSHOP',
     slug: 'blender-workshop',
-    thumbnail: coming_soon_2,
+    thumbnail: coming_soon_1,
     tags: [
       'WORKSHOP 2',
       'BLENDER DESIGN AND 3D DEVELOPMENT',
@@ -212,34 +186,34 @@ const EVENTS_COMING_SOON = [
     plan: 'Coming Soon!',
     albumLink: '',
   },
+
   {
     id: 3,
-    name: 'RENDER CREATION 2',
+    name: 'RENDER CREATION II',
     slug: 'render-creation-2',
-    thumbnail: coming_soon_3,
-    tags: [
-      'WORKSHOP 3',
-      'VR DEVELOPMENT',
-      '3D GAME DEVELOPMENT',
-      'DETIALS COMING SOON',
-    ],
-    tagline: 'BUILDING DIGITAL WORLDS. ONE STROKE AT A TIME.',
-    pagesubtitle: 'BUILDING DIGITAL WORLDS. ONE STROKE AT A TIME.',
-    overview: 'Why so impatient? Details coming soon!',
+    thumbnail: coming_soon_2,
+    tagline: 'tHE SECOND INSTALLMENT OF OUR 3D AND XR DEVELOPMENT WORKSHOP TRILOGY.',
+    overview: `COMING SOON!`,
     date: 'COMING SOON!',
     audience: 'COMING SOON!',
-    type: 'WORKSHOP',
+    type: 'workshop',
     sponsors: 'COMING SOON!',
     images: [
       coming_soon_grid_1,
       coming_soon_grid_2,
       coming_soon_grid_3,
       coming_soon_grid_4,
-
     ],
-    plan: 'COMING SOON!',
-    albumLink: ''
+    type: 'workshop',
+    tags: [
+      'FREE ENTRY',
+      'CERTIFICATE AT COMPLETION',
+      'REGISTRATION ONLY',
+    ],
+    sponsors: 'COMING SOON',
+    plan: 'COMING SOON!'
   },
+
   {
     id: 4,
     name: 'RE:INCARNATION 2026',
