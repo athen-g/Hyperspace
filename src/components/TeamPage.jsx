@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import Contact from './Contact'
@@ -679,6 +680,23 @@ export default function TeamPage() {
                         </div>
                     </div>
                 </section>
+
+                {/* ── ADMIN GATE LINK ── */}
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '4rem 0 2rem' }}>
+                    <Link 
+                        to="/admin" 
+                        className="member-tag"
+                        style={{ 
+                            textDecoration: 'none', 
+                            fontSize: '0.7rem', 
+                            padding: '0.5rem 1rem', 
+                            opacity: 0.6,
+                            cursor: 'pointer'
+                        }}
+                    >
+                        ADMIN PANEL
+                    </Link>
+                </div>
 
             </main>
 
