@@ -14,6 +14,7 @@ import News from "./components/News";
 import NewsPage from "./components/NewsPage";
 import EventRouter from "./components/EventRouter";
 import RegistrationsPage from "./components/RegistrationsPage";
+import TeamPage from "./components/TeamPage";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -70,17 +71,7 @@ function App() {
         <Route path="/blogs/:slug" element={<BlogPage />} />
 
         {/* Team */}
-        <Route
-          path="/team"
-          element={
-            <div className="blog-hero">
-              <div className="hero-bg"></div>
-              <div className="hero-name">
-                <span className="hero-title">TEAM</span>
-              </div>
-            </div>
-          }
-        />
+        <Route path="/team" element={<TeamPage />} />
 
         {/* News */}
         <Route
