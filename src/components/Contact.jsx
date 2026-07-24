@@ -1,8 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import Button from './Button';
 
+// ── Replace these three values with your EmailJS credentials ──────────────────
+const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
+// ─────────────────────────────────────────────────────────────────────────────
+
 const Contact = () => {
-  const [focused, setFocused] = useState(null);
+  const formRef = useRef(null);
+  const [focused,  setFocused]  = useState(null);
+  const [status,   setStatus]   = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (status === 'loading') return;
+
+    setStatus('loading');
+    setErrorMsg('');
+
+    try {
+      await emailjs.sendForm(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        formRef.current,
+        { publicKey: EMAILJS_PUBLIC_KEY }
+      );
+      setStatus('success');
+      formRef.current.reset();
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setErrorMsg(err?.text || 'Something went wrong. Please try again.');
+      setStatus('error');
+    }
+  };
 
   return (
     <section id="contact" className="contact-section">
@@ -37,7 +70,7 @@ const Contact = () => {
 
         {/* Right Side Form */}
         <div className="contact-form-wrapper">
-          <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+          <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
             <div className="contact-grid-container">
               {/* Row 1: Name */}
               <div className={`form-group contact-grid-full ${focused === 'name' ? 'contact-field--active' : ''}`}>
@@ -45,6 +78,7 @@ const Contact = () => {
                 <input
                   type="text"
                   id="form-name"
+                  name="from_name"
                   placeholder="Jane Smith"
                   required
                   onFocus={() => setFocused('name')}
@@ -58,6 +92,7 @@ const Contact = () => {
                 <input
                   type="email"
                   id="form-email"
+                  name="from_email"
                   placeholder="your@email.com"
                   required
                   onFocus={() => setFocused('email')}
@@ -69,6 +104,7 @@ const Contact = () => {
                 <input
                   type="tel"
                   id="form-phone"
+                  name="phone"
                   placeholder="+00 0123456789"
                   onFocus={() => setFocused('phone')}
                   onBlur={() => setFocused(null)}
@@ -80,6 +116,7 @@ const Contact = () => {
                 <label htmlFor="form-message">MESSAGE</label>
                 <textarea
                   id="form-message"
+                  name="message"
                   rows="4"
                   placeholder="My message is..."
                   required
@@ -89,7 +126,23 @@ const Contact = () => {
               </div>
             </div>
 
-            <Button label='SEND REQUEST' className='bottom-0 mt-24' />
+            {/* Status feedback */}
+            {status === 'success' && (
+              <p style={{ color: 'var(--color-accent-cyan)', marginTop: '1rem', fontFamily: 'var(--font-jetbrains-mono)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+                ✓ Message sent! We'll get back to you soon.
+              </p>
+            )}
+            {status === 'error' && (
+              <p style={{ color: 'var(--color-accent-pink)', marginTop: '1rem', fontFamily: 'var(--font-jetbrains-mono)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+                ✗ {errorMsg}
+              </p>
+            )}
+
+            <Button
+              label={status === 'loading' ? 'SENDING…' : 'SEND REQUEST'}
+              className='bottom-0 mt-24'
+              disabled={status === 'loading'}
+            />
           </form>
         </div>
       </div>
