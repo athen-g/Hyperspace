@@ -18,7 +18,7 @@ const Brands = () => {
         const scrollTimeline = gsap.timeline({
             scrollTrigger: {
                 trigger: '#brands',
-                start: 'top center',
+                start: '5% center',
             }
         });
 
@@ -26,7 +26,14 @@ const Brands = () => {
             .from(titleSplit.lines, {
                 opacity: 0,
                 yPercent: 100,
-                duration: 1.8,
+                duration: 1,
+                stagger: 0.05,
+                ease: 'expo.out',
+            })
+            .from(subtitleSplit.lines, {
+                opacity: 0,
+                yPercent: 100,
+                duration: 0.5,
                 stagger: 0.05,
                 ease: 'expo.out',
             })

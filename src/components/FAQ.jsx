@@ -12,14 +12,14 @@ const FAQ = () => {
     };
 
 
-  return (
-    <section id="FAQ" className='mt-13 mb-13 ml-[25.694%] w-[48.612%]' >
-        <div className="flex item-center justify-center mt-40 mb-20">
-            <div className="title text-[80px] text-center">
-                <p className="text-accent-pink">FREQUENTLY</p>
-                <p>ASKED QUESTIONS</p>
+    return (
+        <section id="FAQ" className='mt-13 mb-13 ml-[25.694%] w-[48.612%]' >
+            <div className="flex item-center justify-center mt-40 mb-20">
+                <div className="title text-[80px] text-center">
+                    <p className="text-accent-pink">FREQUENTLY</p>
+                    <p>ASKED QUESTIONS</p>
+                </div>
             </div>
-        </div>
             <div className="flex flex-col gap-0 border border-[#666] relative z-10">
                 {FAQ_C.map(({ id, question, answer }) => {
                     const isOpened = openId === id;
@@ -69,8 +69,8 @@ const FAQ = () => {
                 })}
             </div>
             <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[50px]" />
-    </section>
-  )
+        </section>
+    )
 }
 
 export default FAQ

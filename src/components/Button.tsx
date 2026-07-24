@@ -15,7 +15,6 @@ const Button: React.FC<ButtonProps> = ({ label, onClick, className = '' }) => {
       initial="initial"
       whileHover="hover"
       className={`button !border-l-[2px] !border-l-white cursor-pointer relative overflow-hidden ${className}`}
-      style={{ cursor: 'pointer' }}
     >
       <div className="relative overflow-hidden h-[24px] flex items-center pointer-events-none">
         <div className="relative flex flex-col">

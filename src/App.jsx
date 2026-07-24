@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 import gsap from "gsap";
 import { ScrollTrigger, SplitText } from "gsap/all";
@@ -15,11 +16,14 @@ import NewsPage from "./components/NewsPage";
 import EventRouter from "./components/EventRouter";
 import RegistrationsPage from "./components/RegistrationsPage";
 import TeamPage from "./components/TeamPage";
+import PageTransition from "./components/ui/PageTransition";
+import CustomCursor from "./components/ui/CustomCursor";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
   const progressRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,47 +50,44 @@ function App() {
 
   return (
     <>
+      <CustomCursor />
       <div className="reading-progress" ref={progressRef}></div>
 
-      <Routes>
-        {/* Landing */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<Navigate to="/" replace />} />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Landing */}
+          <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
 
-        {/* Events */}
-        <Route path="/events" element={<EventsPage />} />
-        <Route
-          path="/events/:slug"
-          element={<EventRouter />}
-        />
+          {/* Events */}
+          <Route path="/events" element={<PageTransition><EventsPage /></PageTransition>} />
+          <Route
+            path="/events/:slug"
+            element={<PageTransition><EventRouter /></PageTransition>}
+          />
 
-        {/* Registration */}
-        {/* <Route
-          path="/register/:slug"
-          element={<RegistrationPage />}
-        /> */}
+          {/* Blogs */}
+          <Route path="/blogs" element={<PageTransition><Blog /></PageTransition>} />
+          <Route path="/blogs/:slug" element={<PageTransition><BlogPage /></PageTransition>} />
 
-        {/* Blogs */}
-        <Route path="/blogs" element={<Blog />} />
-        <Route path="/blogs/:slug" element={<BlogPage />} />
+          {/* Team */}
+          <Route path="/team" element={<PageTransition><TeamPage /></PageTransition>} />
 
-        {/* Team */}
-        <Route path="/team" element={<TeamPage />} />
+          {/* News */}
+          <Route
+            path="/news"
+            element={
+              <PageTransition><News /></PageTransition>
+            }
+          />
+          <Route path="/news/:slug" element={<PageTransition><NewsPage /></PageTransition>} />
 
-        {/* News */}
-        <Route
-          path="/news"
-          element={
-            <News />
-          }
-        />
-        <Route path="/news/:slug" element={<NewsPage />} />
+          <Route path="/register/:slug" element={<PageTransition><RegistrationsPage /></PageTransition>} />
 
-        <Route path="/register/:slug" element={<RegistrationsPage />} />
-
-        {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AnimatePresence>
     </>
   );
 }

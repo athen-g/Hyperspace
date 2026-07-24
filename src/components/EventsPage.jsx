@@ -72,13 +72,12 @@ const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false,
     return (
         <div
             onClick={handleCardClick}
-            className={`w-full mx-auto rounded-3xl p-6 md:p-8 backdrop-blur-3xl border shadow-[0_35px_120px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.15)] text-white flex flex-col justify-between transition-all duration-300 ${
-                isOngoing
+            className={`w-full mx-auto rounded-3xl p-6 md:p-8 backdrop-blur-3xl border shadow-[0_35px_120px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.15)] text-white flex flex-col justify-between transition-all duration-300 ${isOngoing
                     ? 'bg-neutral-950/60 border-green-500/20 hover:border-green-500/35 max-w-3xl min-h-[420px] md:min-h-[480px]'
                     : isComingSoon
                         ? 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-2xl min-h-[220px] md:min-h-[260px]'
                         : 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-[1320px] min-h-[480px] md:h-full'
-            } ${event.route ? 'cursor-pointer' : ''}`}
+                } ${event.route ? 'cursor-pointer' : ''}`}
         >
             {/* Registrations Open Badge — only for ongoing cards, pinned at the very top */}
             {isOngoing && (
@@ -100,9 +99,8 @@ const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false,
 
             {/* Middle Row: Tagline Announcement Text */}
             <div
-                className={`w-full text-center py-4 flex items-center justify-center ${
-                    isComingSoon && !isOngoing ? 'flex-grow' : 'flex-shrink-0'
-                }`}
+                className={`w-full text-center py-4 flex items-center justify-center ${isComingSoon && !isOngoing ? 'flex-grow' : 'flex-shrink-0'
+                    }`}
             >
                 <h3 className="text-white font-extrabold uppercase tracking-wide text-sm md:text-base max-w-xl mx-auto leading-relaxed">
                     {tagline}

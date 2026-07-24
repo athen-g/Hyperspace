@@ -25,6 +25,7 @@ const BlogHomeCard = ({ id, title, date, desc, route, slug }) => {
     const navigate = useNavigate();
 
     return (
+
         <div
             className="blog-home-card cursor-pointer"
             onMouseEnter={() => arrowControls.start('hover')}
@@ -72,17 +73,17 @@ const Blog_Home = () => {
                 <div className="blog-home-container relative mt-20 pb-50 border-b border-[#666666]">
                     <div className="blog-home-grid">
                         <div className="blog-home-card">
-                        <div className="blog-home-content-head">
-                            <img src={logo} alt="Logo" className='w-10 h-10' />
-                            <span className="blog-home-content-title"><span className='text-accent-pink'>TEAM</span><span>HYPERSPACE</span></span>
+                            <div className="blog-home-content-head">
+                                <img src={logo} alt="Logo" className='w-10 h-10' />
+                                <span className="blog-home-content-title"><span className='text-accent-pink'>TEAM</span><span>HYPERSPACE</span></span>
+                            </div>
+                            <div className="text-white/60 font-mono text-[13px] font-medium tracking-[0px] leading-[1.3em] ">
+                                WE WRITE TO UNPACK THE THINKING BEHIND OUR EVENTS - <span className="text-white">THE CHOICES, THE REASONING, THE DISCUSSIONS AND THE QUIET DISCUSSIONS THAT SHAPE HOW A EVENT FEELS AND PERFORMS.</span>
+                            </div>
                         </div>
-                        <div className="text-white/60 font-mono text-[13px] font-medium tracking-[0px] leading-[1.3em] ">
-                            WE WRITE TO UNPACK THE THINKING BEHIND OUR EVENTS - <span className="text-white">THE CHOICES, THE REASONING, THE DISCUSSIONS AND THE QUIET DISCUSSIONS THAT SHAPE HOW A EVENT FEELS AND PERFORMS.</span>
-                        </div>
-                    </div>
-                    {BLOGS_HOME.map((blog) => (
-                        <BlogHomeCard key={blog.id} {...blog} />
-                    ))}
+                        {BLOGS_HOME.map((blog) => (
+                            <BlogHomeCard key={blog.id} {...blog} />
+                        ))}
                     </div>
                 </div>
             </div>

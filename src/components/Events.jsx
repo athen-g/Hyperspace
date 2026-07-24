@@ -157,7 +157,14 @@ const Events = () => {
     const timeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#events',
-        start: 'top center'
+        start: '10% center',
+      }
+    });
+    const scrolltimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#events',
+        start: '10% center',
+        scrub: true,
       }
     });
 
@@ -169,6 +176,9 @@ const Events = () => {
         stagger: 0.05,
         ease: 'expo.out'
       });
+
+    scrolltimeline
+      .to('.event-card', { y: -100 }, 0)
   })
 
   return (
@@ -238,7 +248,7 @@ const Events = () => {
               key={event.id}
               className={`event-card-wrap cursor-pointer ${index % 2 === 0 ? 'event-card-wrap--odd' : 'event-card-wrap--even'}`}
               onClick={() => {
-                  navigate(`/events/${event.slug}`);
+                navigate(`/events/${event.slug}`);
               }}
             >
               <div className="event-card">
