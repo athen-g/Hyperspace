@@ -1533,7 +1533,7 @@ body::before {
    CONTACT SECTION (FIGMA COMPONENT SPECIFICATION - NODE 1-354)
    ============================================================ */
 .contact-section {
-  @apply w-full box-border pt-0 px-[3.45%] pb-[90px] flex flex-col items-center relative z-[3];
+  @apply w-full box-border pt-0 px-[3.45%] pb-[110px] mb-20 flex flex-col items-center relative z-[3];
 }
 
 .contact-section .rule-line {
@@ -1596,26 +1596,89 @@ body::before {
   @apply flex flex-col gap-6;
 }
 
-.contact-form .form-group {
-  @apply flex flex-col gap-2;
+.contact-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: #0b0b0b;
 }
 
-.contact-form .form-row {
-  @apply grid grid-cols-[465px_1fr] gap-[5px];
+.contact-grid-full {
+  grid-column: span 2;
+}
+
+.contact-form .form-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0;
+  margin: 0;
+}
+
+.contact-grid-full.form-group {
+  border-right: none;
+}
+
+.contact-grid-container>.form-group:last-child {
+  border-bottom: none;
 }
 
 .contact-form label {
-  @apply font-mono tracking-[1.68px] text-white uppercase font-medium text-[30px] ml-5;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  padding: 16px 20px 8px 20px;
+  margin: 0;
+  transition: color 0.25s ease;
+}
+
+.contact-field--active label {
+  color: var(--color-accent-pink);
 }
 
 .contact-form input,
 .contact-form textarea {
-  @apply w-full box-border bg-[#D9D9D9] border-none rounded-none p-4 font-body text-[15px] text-black transition-opacity duration-300 ease-out;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 4px 20px 18px 20px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: #ffffff;
+  transition: all 0.3s ease-out;
+  resize: vertical;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  @apply outline-none bg-[#EAEAEA];
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-sans);
+  font-size: 16px;
+}
+
+/* Animated underline on focus matching the active field */
+.contact-form .form-group::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0%;
+  height: 1.5px;
+  background: #ffffff;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.contact-form .contact-field--active::after {
+  width: 100%;
 }
 
 .contact-submit-btn {
@@ -1799,6 +1862,55 @@ body::before {
 .event-card--soon {
   background: #131316;
   border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Ongoing events: vibrant glass card with a subtle green tint. */
+.event-card--ongoing {
+  border-top: 1px solid rgba(34, 197, 94, 0.18);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.18);
+  box-shadow:
+    0 30px 60px -25px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(34, 197, 94, 0.08);
+}
+
+/* Ongoing registration badge */
+.ongoing-reg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ongoing-reg-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  animation: ongoingPulse 1.8s ease-in-out infinite;
+}
+
+.ongoing-reg-badge__text {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #22c55e;
+}
+
+@keyframes ongoingPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
 }
 
 .event-card__top {
@@ -2783,4 +2895,299 @@ body::before {
 
 .register-hover-container:hover .register-hover-line {
   background-position: -100% 0%;
-}
+}
+
+/* ============================================================
+   REGISTRATION PAGE
+   ============================================================ */
+
+/* Section label — "REGISTRATION" in accent-pink */
+.reg-section-label {
+  font-family: var(--font-host);
+  font-weight: 900;
+  font-size: 75px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-accent-pink);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+/* ── Liquid glass card ── */
+.reg-glass-card {
+  position: relative;
+  max-width: 925px;
+  margin: 0 auto;
+  padding: 48px 52px 52px;
+  border-radius: 50px;
+
+  /* Match .glass-card */
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  overflow: hidden;
+  transition: border-color 300ms ease-out;
+}
+
+/* Iridescent shimmer highlight */
+.reg-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 30% at 50% 0%,
+      rgba(255, 255, 255, 0.09) 0%,
+      transparent 70%);
+}
+
+/* Match .glass-card:hover border accent */
+.reg-glass-card:hover {
+  border-color: rgba(233, 30, 99, 0.20);
+}
+
+/* ── Individual field wrapper ── */
+.reg-field {
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.reg-field:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Two-column row */
+.reg-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 36px;
+  align-items: start;
+}
+
+/* ── Label ── */
+.reg-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: white;
+  margin-bottom: 8px;
+  transition: color 0.25s ease;
+}
+
+.reg-field:focus-within .reg-label {
+  color: var(--color-accent-pink);
+}
+
+/* ── Base input / select / textarea ── */
+.reg-input {
+  display: block;
+  width: 100%;
+  background: transparent;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  padding: 8px 0 10px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+
+  /* Only a bottom border — no box */
+  border: none;
+  border-bottom: 1.5px solid var(--color-light-grey);
+
+  position: relative;
+}
+
+.reg-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-family: var(--font-sans);
+  letter-spacing: 0.07em;
+}
+
+/* ── Animated underline — expands left→right on focus ── */
+.reg-field::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 1.5px;
+  background: #ffffff;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Trigger: any focused input/select/textarea inside the field */
+.reg-field:focus-within::after {
+  width: 100%;
+}
+
+/* ── Custom RegSelect — trigger button ── */
+.reg-select-wrapper {
+  position: relative;
+}
+
+.reg-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+}
+
+.reg-select-trigger__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reg-select-trigger__chevron {
+  display: inline-block;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Open state — white border */
+.reg-select-trigger--open {
+  border-bottom-color: #ffffff;
+}
+
+/* ── Animated dropdown panel ── */
+.reg-select-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  z-index: 100;
+
+  /* Distinct glass look when open */
+  background: rgba(18, 18, 22, 0.82);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-top-color: rgba(255, 255, 255, 0.20);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+/* ── Individual option ── */
+.reg-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.70);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.reg-select-option:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.reg-select-option--selected {
+  color: #ffffff;
+  background: rgba(233, 30, 99, 0.12);
+}
+
+.reg-select-option--selected:hover {
+  background: rgba(233, 30, 99, 0.18);
+}
+
+.reg-select-option__check {
+  font-size: 11px;
+  color: var(--color-accent-pink);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ── Textarea ── */
+.reg-textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.6;
+  padding-top: 8px;
+}
+
+/* ── Submit row ── */
+.reg-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 44px;
+  padding-top: 32px;
+}
+
+.reg-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid var(--color-accent-pink);
+  color: var(--color-accent-pink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+/* Wipe fill on hover */
+.reg-submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent-pink);
+  transform: translateX(-101%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.reg-submit-btn:hover::before {
+  transform: translateX(0);
+}
+
+.reg-submit-btn:hover {
+  color: #ffffff;
+}
+
+.reg-submit-btn__text,
+.reg-submit-btn__arrow {
+  position: relative;
+  z-index: 1;
+}
+
+.reg-submit-btn__arrow {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.reg-submit-btn:hover .reg-submit-btn__arrow {
+  transform: translateX(5px);
+}

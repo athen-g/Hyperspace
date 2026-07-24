@@ -13,6 +13,7 @@ import Blog_Home from "./components/Blog_Home";
 import News from "./components/News";
 import NewsPage from "./components/NewsPage";
 import EventRouter from "./components/EventRouter";
+import RegistrationsPage from "./components/RegistrationsPage";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -89,6 +90,8 @@ function App() {
           }
         />
         <Route path="/news/:slug" element={<NewsPage />} />
+
+        <Route path="/register/:slug" element={<RegistrationsPage />} />
 
         {/* 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />

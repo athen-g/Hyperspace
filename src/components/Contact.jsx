@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Button from './Button';
 
 const Contact = () => {
+  const [focused, setFocused] = useState(null);
+
   return (
     <section id="contact" className="contact-section">
       <div className="rule-line">
@@ -35,30 +38,58 @@ const Contact = () => {
         {/* Right Side Form */}
         <div className="contact-form-wrapper">
           <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
-            <div className="form-group">
-              <label htmlFor="form-name">NAME</label>
-              <input type="text" id="form-name" required />
-            </div>
+            <div className="contact-grid-container">
+              {/* Row 1: Name */}
+              <div className={`form-group contact-grid-full ${focused === 'name' ? 'contact-field--active' : ''}`}>
+                <label htmlFor="form-name">NAME</label>
+                <input
+                  type="text"
+                  id="form-name"
+                  placeholder="Jane Smith"
+                  required
+                  onFocus={() => setFocused('name')}
+                  onBlur={() => setFocused(null)}
+                />
+              </div>
 
-            <div className="form-row">
-              <div className="form-group">
+              {/* Row 2: Email & Phone */}
+              <div className={`form-group border-r border-light-grey ${focused === 'email' ? 'contact-field--active' : ''}`}>
                 <label htmlFor="form-email">EMAIL</label>
-                <input type="email" id="form-email" required />
+                <input
+                  type="email"
+                  id="form-email"
+                  placeholder="your@email.com"
+                  required
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                />
               </div>
-              <div className="form-group">
+              <div className={`form-group ${focused === 'phone' ? 'contact-field--active' : ''}`}>
                 <label htmlFor="form-phone">PHONE</label>
-                <input type="tel" id="form-phone" />
+                <input
+                  type="tel"
+                  id="form-phone"
+                  placeholder="+00 0123456789"
+                  onFocus={() => setFocused('phone')}
+                  onBlur={() => setFocused(null)}
+                />
+              </div>
+
+              {/* Row 4: Message */}
+              <div className={`form-group contact-grid-full ${focused === 'message' ? 'contact-field--active' : ''}`}>
+                <label htmlFor="form-message">MESSAGE</label>
+                <textarea
+                  id="form-message"
+                  rows="4"
+                  placeholder="My message is..."
+                  required
+                  onFocus={() => setFocused('message')}
+                  onBlur={() => setFocused(null)}
+                ></textarea>
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="form-message">MESSAGE</label>
-              <textarea id="form-message" rows="4" required></textarea>
-            </div>
-
-            <button type="submit" className="contact-submit-btn">
-              SEND REQUEST
-            </button>
+            <Button label='SEND REQUEST' className='bottom-0 mt-24' />
           </form>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import showcaseVideo from '../assets/videos/events-motion-video.mp4'
 import { EVENTS_CONDUCTED, EVENTS_COMING_SOON } from '../../constants/index'
+import { eventsOngoing } from '../../constants/events'
 import Contact from './Contact'
 import Footer from './Footer'
 import { useNavigate } from 'react-router-dom'
@@ -55,7 +56,7 @@ const PillTitle = ({ displayNum, name, pillBgRef, pillTextRef }) => {
     )
 }
 
-const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTextRef, imageRef }) => {
+const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false, pillBgRef, pillTextRef, imageRef }) => {
 
     const navigate = useNavigate();
 
@@ -71,10 +72,24 @@ const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTex
     return (
         <div
             onClick={handleCardClick}
-            className={`w-full mx-auto rounded-3xl p-6 md:p-8 backdrop-blur-3xl border border-white/10 shadow-[0_35px_120px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.15)] bg-neutral-950/60 text-white flex flex-col justify-between transition-all duration-300 hover:border-white/20 ${event.route ? 'cursor-pointer' : ''
-                } ${isComingSoon ? 'max-w-2xl min-h-[220px] md:min-h-[260px]' : 'max-w-[1320px] min-h-[480px] md:h-full'
-                }`}
+            className={`w-full mx-auto rounded-3xl p-6 md:p-8 backdrop-blur-3xl border shadow-[0_35px_120px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.15)] text-white flex flex-col justify-between transition-all duration-300 ${
+                isOngoing
+                    ? 'bg-neutral-950/60 border-green-500/20 hover:border-green-500/35 max-w-3xl min-h-[420px] md:min-h-[480px]'
+                    : isComingSoon
+                        ? 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-2xl min-h-[220px] md:min-h-[260px]'
+                        : 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-[1320px] min-h-[480px] md:h-full'
+            } ${event.route ? 'cursor-pointer' : ''}`}
         >
+            {/* Registrations Open Badge — only for ongoing cards, pinned at the very top */}
+            {isOngoing && (
+                <div className="flex items-center gap-2.5 flex-shrink-0 mb-3">
+                    <div className="ongoing-reg-badge">
+                        <span className="ongoing-reg-badge__dot" />
+                        <span className="ongoing-reg-badge__text">Registrations Open</span>
+                    </div>
+                </div>
+            )}
+
             {/* Top Row: Animated Pill Title & Action Icon */}
             <div className="flex items-center justify-between w-full flex-shrink-0">
                 <PillTitle displayNum={displayNum} name={name} pillBgRef={pillBgRef} pillTextRef={pillTextRef} />
@@ -85,38 +100,36 @@ const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTex
 
             {/* Middle Row: Tagline Announcement Text */}
             <div
-                className={`w-full text-center py-4 flex items-center justify-center ${isComingSoon ? 'flex-grow' : 'flex-shrink-0'
-                    }`}
+                className={`w-full text-center py-4 flex items-center justify-center ${
+                    isComingSoon && !isOngoing ? 'flex-grow' : 'flex-shrink-0'
+                }`}
             >
                 <h3 className="text-white font-extrabold uppercase tracking-wide text-sm md:text-base max-w-xl mx-auto leading-relaxed">
                     {tagline}
                 </h3>
             </div>
 
-            {/* Bottom Row Area: Status Indicators & Dynamic Media Assets.
-                On conducted cards this area flexes to fill exactly whatever
-                room the pinned stage has left, so the thumbnail below can
-                never overflow/clip past the bottom of the pinned viewport. */}
-            <div className={`w-full flex flex-col gap-4 ${isComingSoon ? 'flex-shrink-0' : 'flex-1 min-h-0'}`}>
-                <div className="flex items-center justify-start gap-2.5 text-[11px] font-black tracking-widest uppercase font-mono flex-shrink-0">
-                    {isComingSoon ? (
-                        <>
-                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            <span className="text-orange-500">Coming Soon</span>
-                        </>
-                    ) : (
-                        <>
-                            <span className="w-2 h-2 rounded-full bg-green-500" />
-                            <span className="text-green-500">Latest</span>
-                        </>
-                    )}
-                </div>
+            {/* Bottom Row Area: Status Indicators & Dynamic Media Assets. */}
+            <div className={`w-full flex flex-col gap-4 ${isComingSoon && !isOngoing ? 'flex-shrink-0' : 'flex-1 min-h-0'}`}>
+                {/* Status chip — hidden for ongoing (badge is already at top) */}
+                {!isOngoing && (
+                    <div className="flex items-center justify-start gap-2.5 text-[11px] font-black tracking-widest uppercase font-mono flex-shrink-0">
+                        {isComingSoon ? (
+                            <>
+                                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                                <span className="text-orange-500">Coming Soon</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="w-2 h-2 rounded-full bg-green-500" />
+                                <span className="text-green-500">Latest</span>
+                            </>
+                        )}
+                    </div>
+                )}
 
-                {/* Media block — sized to fill whatever space remains (no fixed
-                    aspect ratio) so it always fits inside the card, and its
-                    background/image is revealed only once the card has settled
-                    into its resting position (see the timeline below). */}
-                {!isComingSoon && thumbnail && (
+                {/* Media block — shown for conducted and ongoing cards */}
+                {(!isComingSoon || isOngoing) && thumbnail && (
                     <div
                         ref={imageRef}
                         className="w-full flex-1 min-h-0 rounded-2xl overflow-hidden relative bg-neutral-900/60 border border-white/5 shadow-2xl mt-1"
@@ -127,7 +140,7 @@ const EventCard = ({ event, displayNum, isComingSoon = false, pillBgRef, pillTex
                             className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
                         />
                         <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/10 h-8 w-8 rounded-full flex items-center justify-center pointer-events-none">
-                            <div className="w-2.5 h-2.5 bg-accent-pink rounded-full opacity-90" />
+                            <div className={`w-2.5 h-2.5 rounded-full opacity-90 ${isOngoing ? 'bg-green-500' : 'bg-accent-pink'}`} />
                         </div>
                         <div className="absolute top-4 right-4 text-white/40 text-sm font-light pointer-events-none font-mono">
                             →
@@ -158,6 +171,14 @@ const EventsPage = () => {
     const conductedCardPillBgRef = useRef([])
     const conductedCardPillTextRef = useRef([])
     const conductedCardImageRef = useRef([])
+
+    // Ongoing Events refs
+    const ongoingSectionRef = useRef(null)
+    const ongoingHeadingRef = useRef(null)
+    const ongoingPillRef = useRef(null)
+    const ongoingCardsRef = useRef([])
+    const ongoingCardPillBgRef = useRef([])
+    const ongoingCardPillTextRef = useRef([])
 
     // Coming Soon refs
     const comingSoonSectionRef = useRef(null)
@@ -402,6 +423,54 @@ const EventsPage = () => {
         ScrollTrigger.refresh()
     }, [])
 
+    // Ongoing Events: same scroll-driven white-pill reveal as Coming Soon.
+    useGSAP(() => {
+        const ongoingSection = ongoingSectionRef.current
+        if (!ongoingSection) return
+
+        if (ongoingPillRef.current && ongoingHeadingRef.current) {
+            gsap.set(ongoingPillRef.current, { opacity: 0, scale: 0.9 })
+            gsap.set(ongoingHeadingRef.current, { color: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.1)' })
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: ongoingSection,
+                    start: 'top bottom',
+                    end: 'top center',
+                    scrub: 0.6,
+                },
+            })
+                .to(ongoingPillRef.current, { opacity: 1, scale: 1, ease: 'none' }, 0)
+                .to(ongoingHeadingRef.current, { color: '#000000', borderColor: 'rgba(255, 255, 255, 0)', ease: 'none' }, 0)
+        }
+
+        const ogCards = ongoingCardsRef.current.filter(Boolean)
+        const ogPillBgs = ongoingCardPillBgRef.current.filter(Boolean)
+        const ogPillTexts = ongoingCardPillTextRef.current.filter(Boolean)
+
+        ogCards.forEach((card, idx) => {
+            const bg = ogPillBgs[idx]
+            const text = ogPillTexts[idx]
+            if (!bg || !text) return
+
+            gsap.set(bg, { opacity: 0, scale: 0.9 })
+            gsap.set(text, { color: '#ffffff' })
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    end: 'top 55%',
+                    scrub: 0.6,
+                },
+            })
+                .to(bg, { opacity: 1, scale: 1, ease: 'none' }, 0)
+                .to(text, { color: '#000000', ease: 'none' }, 0)
+        })
+
+        ScrollTrigger.refresh()
+    }, [])
+
     return (
         <>
             <Header />
@@ -448,6 +517,45 @@ const EventsPage = () => {
                             EVERY EVENT HERE WAS SHAPED WITH INTENTION — FROM LAYOUT AND TYPOGRAPHY TO INTERACTION AND TONE.
                         </p>
                     </div>
+
+                    {/* --- ONGOING EVENTS SECTION (only when data exists) --- */}
+                    {eventsOngoing && eventsOngoing.length > 0 && (
+                        <div
+                            ref={ongoingSectionRef}
+                            className="relative w-full min-h-fit flex flex-col items-center justify-start py-12 md:py-16 px-4 md:px-0"
+                        >
+                            {/* Ongoing Section Heading */}
+                            <div className="w-full flex-shrink-0 z-20">
+                                <SectionHeading
+                                    title="Ongoing Events"
+                                    headingRef={ongoingHeadingRef}
+                                    pillRef={ongoingPillRef}
+                                />
+                            </div>
+
+                            {/* Ongoing Cards Flow */}
+                            <div className="w-full max-w-4xl flex flex-col gap-6 md:gap-8 mt-12 md:mt-16 z-10">
+                                {eventsOngoing.map((event, idx) => {
+                                    const displayNum = String(idx + 1).padStart(2, '0')
+                                    return (
+                                        <div
+                                            key={event.id || idx}
+                                            className="w-full"
+                                            ref={(el) => { ongoingCardsRef.current[idx] = el }}
+                                        >
+                                            <EventCard
+                                                event={event}
+                                                displayNum={displayNum}
+                                                isOngoing={true}
+                                                pillBgRef={(el) => { ongoingCardPillBgRef.current[idx] = el }}
+                                                pillTextRef={(el) => { ongoingCardPillTextRef.current[idx] = el }}
+                                            />
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* --- EVENTS CONDUCTED SECTION --- */}
                     <div

@@ -1,5 +1,6 @@
 import React from 'react'
 import { EVENTS_COMING_SOON, EVENTS_CONDUCTED } from '../../constants/index'
+import { eventsOngoing } from '../../constants/events'
 import { SplitText } from 'gsap/all'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -172,6 +173,56 @@ const Events = () => {
 
   return (
     <section id="events" className="events-section">
+
+      {/* --- ONGOING EVENTS SECTION (only rendered when data exists) --- */}
+      {eventsOngoing && eventsOngoing.length > 0 && (
+        <div className="relative pt-40">
+          <div className="events-conducted-title">
+            <div className="events-conducted-label flex flex-col items-center">
+              <span className="text-accent-pink">ONGOING</span>
+              <span>EVENTS</span>
+            </div>
+          </div>
+
+          <div className="events-card-list">
+            {eventsOngoing.map((event, index) => (
+              <div
+                key={event.id}
+                className={`event-card-wrap cursor-pointer ${index % 2 === 0 ? 'event-card-wrap--odd' : 'event-card-wrap--even'}`}
+                onClick={() => { navigate(`/events/${event.slug}`); }}
+              >
+                <div className="event-card event-card--ongoing">
+                  {/* Registration Open Badge */}
+                  <div className="flex items-center gap-2 pt-5 px-6">
+                    <div className="ongoing-reg-badge">
+                      <span className="ongoing-reg-badge__dot" />
+                      <span className="ongoing-reg-badge__text">Registrations Open</span>
+                    </div>
+                  </div>
+
+                  <div className="event-card__thumb">
+                    {event.thumbnail
+                      ? <EventImage thumbnail={event.thumbnail} alt={event.name} />
+                      : <div className="event-card__thumb-placeholder" />
+                    }
+                  </div>
+
+                  <div className="event-card__info">
+                    <div className="event-card__name">{event.name}</div>
+                    <ul className="event-card__tags">
+                      {event.tags.map((tag, i) => (
+                        <li key={i} className="event-card__tag">{tag}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] my-[80px]" />
+        </div>
+      )}
 
       <div className="relative pt-40">
         <div className="events-conducted-title">
