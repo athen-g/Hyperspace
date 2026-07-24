@@ -307,7 +307,7 @@ export default function EventOngoingTemplate() {
                   <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE RULEBOOK</span>
                 </span>
               </a>
-            )}  
+            )}
 
             <span>|</span>
 

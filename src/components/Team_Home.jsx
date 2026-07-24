@@ -21,8 +21,8 @@ const Team_Home = () => {
                     }}
                 />
             </div>
-            <div className='w-[1500px] h-250 mt-50 flex items-center justify-center'>
-                <img src={combined} alt='Team Photo' className='w-full h-full relative z-10 m-8 mt-0' />
+            <div className='mt-50 flex items-center justify-center'>
+                <img src={combined} alt='Team Photo' className='object-contain h-200 rounded-4xl relative z-10 m-8 mt-0' />
             </div>
             <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[105px]" />
         </section>
