@@ -7,6 +7,7 @@ import Footer from './Footer';
 import { eventsOngoing } from '../../constants/events';
 import { registrationQuestions } from '../../constants/registration';
 import RegSelect from './ui/RegSelect';
+import { supabase } from '../lib/supabase';
 
 /* ─── Reusable animated field wrapper ─── */
 function Field({ children, className = '' }) {
@@ -32,20 +33,72 @@ export default function RegistrationsPage() {
         name: '',
         email: '',
         contact: '',
-        class: '',
-        division: '',
+        class: 'COMP', // set default option
+        division: '1',  // set default option
         ...Object.fromEntries(questions.map((q) => [q.id, ''])),
     });
 
     const [focused, setFocused] = useState(null);
+    const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleChange = (e) =>
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Registration submitted:', form);
-        // TODO: wire up to backend / Google Forms / etc.
+        if (status === 'loading') return;
+
+        // Basic validation
+        if (!form.name || !form.email || !form.contact) {
+            setErrorMsg('Please fill in all core fields.');
+            setStatus('error');
+            return;
+        }
+
+        setStatus('loading');
+        setErrorMsg('');
+
+        try {
+            // Separate static fields from dynamic question answers
+            const { name, email, contact, class: cls, division } = form;
+            const extraAnswers = {};
+            questions.forEach((q) => {
+                extraAnswers[q.id] = form[q.id] || '';
+            });
+
+            const { error } = await supabase.from('registrations').insert({
+                event_slug: slug || event.slug,
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                contact: contact.trim(),
+                class: cls,
+                division: division,
+                extra_answers: extraAnswers,
+            });
+
+            if (error) {
+                if (error.code === '23505') {
+                    throw new Error('You have already registered for this event!');
+                }
+                throw error;
+            }
+
+            setStatus('success');
+            // Reset dynamic fields & details, keeping structure
+            setForm({
+                name: '',
+                email: '',
+                contact: '',
+                class: 'COMP',
+                division: '1',
+                ...Object.fromEntries(questions.map((q) => [q.id, ''])),
+            });
+        } catch (err) {
+            console.error('Registration error:', err);
+            setErrorMsg(err.message || 'Failed to submit registration. Please try again.');
+            setStatus('error');
+        }
     };
 
     if (!event)
@@ -232,10 +285,24 @@ export default function RegistrationsPage() {
                             </Field>
                         ))}
 
+                        {/* Status feedback */}
+                        {status === 'success' && (
+                            <p style={{ color: 'var(--color-accent-cyan)', marginBottom: '1.5rem', fontFamily: 'var(--font-jetbrains-mono)', fontSize: '0.85rem', letterSpacing: '0.05em', textAlign: 'center' }}>
+                                ✓ Registered successfully! We've received your request.
+                            </p>
+                        )}
+                        {status === 'error' && (
+                            <p style={{ color: 'var(--color-accent-pink)', marginBottom: '1.5rem', fontFamily: 'var(--font-jetbrains-mono)', fontSize: '0.85rem', letterSpacing: '0.05em', textAlign: 'center' }}>
+                                ✗ {errorMsg}
+                            </p>
+                        )}
+
                         {/* ── Submit ── */}
                         <div className="reg-submit-row">
-                            <button type="submit" className="reg-submit-btn">
-                                <span className="reg-submit-btn__text">SEND REQUEST</span>
+                            <button type="submit" className="reg-submit-btn" disabled={status === 'loading'}>
+                                <span className="reg-submit-btn__text">
+                                    {status === 'loading' ? 'REGISTERING...' : 'SEND REQUEST'}
+                                </span>
                                 <span className="reg-submit-btn__arrow">→</span>
                             </button>
                         </div>
