@@ -3,9 +3,11 @@ import plusIcon from '../assets/icons/plus.svg'
 import crossIcon from '../assets/icons/cross.svg'
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion'
+import { useMediaQuery } from 'react-responsive'
 
 const FAQ = () => {
     const [openId, setOpenId] = useState(null);
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
     const handleToggle = (id) => {
         setOpenId((currentOpenId) => (currentOpenId === id ? null : id));
@@ -13,14 +15,14 @@ const FAQ = () => {
 
 
     return (
-        <section id="FAQ" className='mt-13 mb-13 ml-[25.694%] w-[48.612%]' >
-            <div className="flex item-center justify-center mt-40 mb-20">
-                <div className="title text-[80px] text-center">
+        <section id="FAQ" className={isMobile768 ? 'mt-13 mb-13 ml-[3.472%] w-[93.056%]' : 'mt-13 mb-13 ml-[25.694%] w-[48.612%]'} >
+            <div className={isMobile768 ? 'flex items-center justify-center mt-20 mb-12' : 'flex items-center justify-center mt-40 mb-20'}>
+                <div className={`title text-center ${isMobile768 ? '!ml-0 !mr-0 !w-full !text-[50px] leading-[0.9] flex flex-col items-center justify-center' : 'text-[80px]'}`}>
                     <p className="text-accent-pink">FREQUENTLY</p>
                     <p>ASKED QUESTIONS</p>
                 </div>
             </div>
-            <div className="flex flex-col gap-0 border border-[#666] relative z-10">
+            <div className="flex flex-col gap-0 border border-[#666] relative z-10 w-full">
                 {FAQ_C.map(({ id, question, answer }) => {
                     const isOpened = openId === id;
 
@@ -29,13 +31,15 @@ const FAQ = () => {
                             type="button"
                             key={id}
                             layout
-                            animate={{ height: isOpened ? 'auto' : 80 }}
+                            animate={{ height: isOpened ? 'auto' : (isMobile768 ? 'auto' : 80) }}
                             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                             onClick={() => handleToggle(id)}
                             aria-expanded={isOpened}
-                            className="faq-card !flex !flex-col !items-stretch !justify-start overflow-hidden w-full text-left px-6 py-5 cursor-pointer relative z-10 bg-[#0e0e0e]"
+                            className={`faq-card !flex !flex-col !items-stretch overflow-hidden w-full text-left px-6 py-5 cursor-pointer relative z-10 bg-[#0e0e0e] ${
+                                isOpened ? '!justify-start' : '!justify-center min-h-[80px]'
+                            }`}
                         >
-                            <div className="flex items-center justify-between gap-6 relative z-10">
+                            <div className="flex items-center justify-between gap-6 relative z-10 w-full my-auto">
                                 <span
                                     className={`faq-question transition-colors duration-300 ${isOpened ? 'text-[#ababab]' : 'text-white'}`}
                                 >

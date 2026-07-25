@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
-  const [isHovered, setIsHovered] = useState(false);
+  const [hoverType, setHoverType] = useState(null); // null | "default" | "invert" | "transparent"
   const [isVisible, setIsVisible] = useState(false);
-  const isHoveredRef = useRef(false);
+  const hoverTypeRef = useRef(null);
 
   // Direct mouse position motion values (instantaneous, 0 lag)
   const mouseX = useMotionValue(-100);
@@ -26,13 +26,27 @@ export default function CustomCursor() {
       if (!isVisible) setIsVisible(true);
 
       const target = e.target.closest(
-        "a, button, input, select, textarea, [data-cursor], .cursor-pointer, [role='button'], [onclick], [onClick]"
+        "a, button, input, select, textarea, [data-cursor], .cursor-pointer, .cursor-invert, .cursor-transparent, [role='button'], [onclick], [onClick]"
       );
 
-      const isPointer = Boolean(target) || (e.target && window.getComputedStyle(e.target).cursor === "pointer");
-      if (isPointer !== isHoveredRef.current) {
-        isHoveredRef.current = isPointer;
-        setIsHovered(isPointer);
+      let currentHoverType = null;
+
+      if (target) {
+        const customType = target.getAttribute("data-cursor");
+        if (customType === "invert" || target.classList.contains("cursor-invert")) {
+          currentHoverType = "invert";
+        } else if (customType === "transparent" || target.classList.contains("cursor-transparent")) {
+          currentHoverType = "transparent";
+        } else {
+          currentHoverType = "default";
+        }
+      } else if (e.target && window.getComputedStyle(e.target).cursor === "pointer") {
+        currentHoverType = "default";
+      }
+
+      if (currentHoverType !== hoverTypeRef.current) {
+        hoverTypeRef.current = currentHoverType;
+        setHoverType(currentHoverType);
       }
     };
 
@@ -52,36 +66,62 @@ export default function CustomCursor() {
 
   if (!isVisible) return null;
 
+  const isHovered = hoverType !== null;
+  const isInvert = hoverType === "invert";
+  const isTransparent = hoverType === "transparent";
+
+  // Dynamic animation values based on hover class / type
+  const scale = isHovered ? (isInvert ? 2.8 : isTransparent ? 2.4 : 2.2) : 1;
+
+  let backgroundColor = "rgba(255, 255, 255, 0)";
+  let borderColor = "rgba(255, 255, 255, 0.85)";
+
+  if (isHovered) {
+    if (isInvert) {
+      backgroundColor = "rgba(255, 255, 255, 1)";
+      borderColor = "rgba(255, 255, 255, 0)";
+    } else if (isTransparent) {
+      backgroundColor = "rgba(255, 255, 255, 0.25)";
+      borderColor = "rgba(255, 255, 255, 0.9)";
+    } else {
+      // Semi-transparent difference background so background content & text remain visible underneath with contrasting tones
+      backgroundColor = "rgba(255, 255, 255, 0.85)";
+      borderColor = "rgba(255, 255, 255, 0.4)";
+    }
+  }
+
   return (
     <div className="fixed inset-0 pointer-events-none z-[99999] overflow-hidden">
-      {/* Outer Circle with Smooth Trail Delay (Expands to solid filled circle on hover) */}
+      {/* Outer Circle */}
       <motion.div
         style={{
           x: trailX,
           y: trailY,
         }}
         animate={{
-          scale: isHovered ? 2.2 : 1,
-          backgroundColor: isHovered ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0)",
-          borderColor: isHovered ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 0.85)",
+          scale,
+          backgroundColor,
+          borderColor,
         }}
         transition={{
           scale: { type: "spring", stiffness: 400, damping: 25 },
           backgroundColor: { duration: 0.15 },
           borderColor: { duration: 0.15 },
         }}
-        className="absolute -top-4 -left-4 w-8 h-8 rounded-full border border-white/85 mix-blend-difference"
+        className={`absolute -top-4 -left-4 w-8 h-8 rounded-full border ${
+          isInvert ? "mix-blend-difference" : isTransparent ? "backdrop-blur-[2px] mix-blend-normal" : "mix-blend-difference"
+        }`}
       />
 
-      {/* Inner Central Dot (Instant tracking, fades out on hover) */}
+      {/* Inner Central Dot */}
       <motion.div
         style={{
           x: mouseX,
           y: mouseY,
         }}
         animate={{
-          scale: isHovered ? 0 : 1,
-          opacity: isHovered ? 0 : 1,
+          scale: isHovered ? (isTransparent ? 0.5 : 0) : 1,
+          opacity: isHovered ? (isTransparent ? 0.6 : 0) : 1,
         }}
         transition={{ duration: 0.12 }}
         className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-white mix-blend-difference"

@@ -4,7 +4,7 @@ import { NAV_ITEMS } from '../../constants'
 
 const Navbar = () => {
   const isIconOnly = useMediaQuery({
-    query: '(max-width: 414px)',
+    query: '(max-width: 810px)',
   })
 
   const isMobile = useMediaQuery({

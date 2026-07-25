@@ -1,18 +1,21 @@
 import React, { useState, useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import Button from './Button';
+import { useMediaQuery } from 'react-responsive';
 
 // ── Replace these three values with your EmailJS credentials ──────────────────
-const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Contact = () => {
   const formRef = useRef(null);
-  const [focused,  setFocused]  = useState(null);
-  const [status,   setStatus]   = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [focused, setFocused] = useState(null);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
+
+  const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,33 +46,35 @@ const Contact = () => {
         <span className="rule-dot"></span>
         <span className="rule-dot"></span>
       </div>
-      <div className="contact-container">
+      <div className={isMobile768 ? "w-full flex flex-col items-start" : "contact-container"}>
         {/* Left Side Info */}
-        <div className="contact-info">
-          <span className="contact-eyebrow">CONTACT</span>
-          <h2 className="contact-title">
+        <div className={isMobile768 ? "w-full flex flex-col items-start px-5" : "contact-info"}>
+          <span className={`contact-eyebrow ${isMobile768 ? '!ml-0' : ''}`}>CONTACT</span>
+          <h2 className={`contact-title ${isMobile768 ? '!mt-2 !mr-0 !ml-0 !h-auto !w-full !mb-6' : ''}`}>
             <span className="pink-text">HAVE A</span>
             <span className="white-text">QUESTION IN MIND?</span>
           </h2>
 
-          <div className="contact-connect-box">
-            <div className="rule-line">
-              <span className="rule-dot"></span>
-              <span className="rule-dot"></span>
+          {!isMobile768 && (
+            <div className="contact-connect-box">
+              <div className="rule-line">
+                <span className="rule-dot"></span>
+                <span className="rule-dot"></span>
+              </div>
+              <span className="contact-connect-label">LET'S CONNECT</span>
+              <a href="mailto:hyperspace.wcoe@gmail.com" className="contact-email">
+                Contact Us
+              </a>
+              <div className="rule-line">
+                <span className="rule-dot"></span>
+                <span className="rule-dot"></span>
+              </div>
             </div>
-            <span className="contact-connect-label">LET'S CONNECT</span>
-            <a href="mailto:hyperspace.wcoe@gmail.com" className="contact-email">
-              Contact Us
-            </a>
-            <div className="rule-line">
-              <span className="rule-dot"></span>
-              <span className="rule-dot"></span>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Right Side Form */}
-        <div className="contact-form-wrapper">
+        <div className={isMobile768 ? "w-full mt-2" : "contact-form-wrapper"}>
           <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
             <div className="contact-grid-container">
               {/* Row 1: Name */}
@@ -87,7 +92,7 @@ const Contact = () => {
               </div>
 
               {/* Row 2: Email & Phone */}
-              <div className={`form-group border-r border-light-grey ${focused === 'email' ? 'contact-field--active' : ''}`}>
+              <div className={`form-group ${isMobile768 ? 'contact-grid-full' : 'border-r border-light-grey'} ${focused === 'email' ? 'contact-field--active' : ''}`}>
                 <label htmlFor="form-email">EMAIL</label>
                 <input
                   type="email"
@@ -99,7 +104,7 @@ const Contact = () => {
                   onBlur={() => setFocused(null)}
                 />
               </div>
-              <div className={`form-group ${focused === 'phone' ? 'contact-field--active' : ''}`}>
+              <div className={`form-group ${isMobile768 ? 'contact-grid-full' : ''} ${focused === 'phone' ? 'contact-field--active' : ''}`}>
                 <label htmlFor="form-phone">PHONE</label>
                 <input
                   type="tel"
@@ -140,7 +145,7 @@ const Contact = () => {
 
             <Button
               label={status === 'loading' ? 'SENDING…' : 'SEND REQUEST'}
-              className='bottom-0 mt-24'
+              className={isMobile768 ? '!relative !left-0 !w-full mt-12' : 'bottom-0 mt-24'}
               disabled={status === 'loading'}
             />
           </form>
