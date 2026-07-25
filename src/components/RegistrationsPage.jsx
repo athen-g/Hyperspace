@@ -7,6 +7,7 @@ import Footer from './Footer';
 import { eventsOngoing } from '../../constants/events';
 import { registrationQuestions } from '../../constants/registration';
 import RegSelect from './ui/RegSelect';
+import { useMediaQuery } from 'react-responsive';
 
 /* ─── Reusable animated field wrapper ─── */
 function Field({ children, className = '' }) {
@@ -19,6 +20,7 @@ function Field({ children, className = '' }) {
 
 export default function RegistrationsPage() {
     const { slug } = useParams();
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
     /* Resolve the event */
     const event = eventsOngoing.find((e) => e.slug === slug) ?? eventsOngoing[0];
@@ -56,40 +58,41 @@ export default function RegistrationsPage() {
         );
 
     return (
-        <section id="registration">
+        <section id="registration" className="relative z-10">
             <Header />
             <BackgroundLines />
 
             {/* ── Hero header (mirrors EventsOngoingTemplate) ── */}
-            <div className="relative z-10 w-[93.056%] mx-auto mt-[90px] mb-0 border border-r-0 border-[#666666] bg-[#0e0e0e]">
-                <div className="flex justify-between items-center px-[60px] pt-[55px] pb-[45px] border-b border-[#2D2D2D]">
+            <div className={`relative z-10 border border-r-0 border-[#666666] bg-[#0e0e0e] ${isMobile768 ? 'w-[93.056%] mx-auto mt-[120px] mb-8' : 'w-[93.056%] mx-auto mt-[90px] mb-0'
+                }`}>
+                <div className={`flex ${isMobile768 ? 'flex-col items-start gap-4 p-5' : 'justify-between items-center px-[60px] pt-[55px] pb-[45px]'} border-b border-[#2D2D2D]`}>
                     <h1
                         className="
-              max-w-[760px]
               font-host
               text-white
-              text-[clamp(44px,6vw,128px)]
               font-extrabold
               uppercase
               leading-[0.88]
               tracking-[-0.03em]
+              text-[clamp(32px,8vw,128px)]
+              max-w-[760px]
+              text-left
             "
                     >
                         {event.name}
                     </h1>
 
                     <div
-                        className="
-              max-w-[450px]
-              text-right
+                        className={`
               font-mono
               text-[13px]
               font-medium
               uppercase
               tracking-[0.11em]
-              leading-[1.1]
+              leading-[1.3]
               text-white
-            "
+              ${isMobile768 ? 'text-left max-w-full text-white/80' : 'max-w-[450px] text-right'}
+            `}
                     >
                         {event.tagline}
                     </div>
@@ -97,19 +100,23 @@ export default function RegistrationsPage() {
             </div>
 
             {/* ── Registration section ── */}
-            <div className="relative z-10 w-[93.056%] mx-auto mb-[120px] py-[60px] px-[60px]">
+            <div className={`relative z-10 w-[93.056%] mx-auto ${isMobile768 ? 'mb-12 py-6 px-0' : 'mb-[120px] py-[60px] px-[60px]'
+                }`}>
 
                 {/* Section label */}
-                <p className="reg-section-label">REGISTRATION</p>
+                <p className={`reg-section-label ${isMobile768 ? '!text-[30px] mb-4' : ''}`}>REGISTRATION</p>
 
-                {/* Liquid-glass form card */}
-                <div className="reg-glass-card">
+                {/* Form card container */}
+                <div className={`relative max-w-[925px] mx-auto rounded-3xl transition-colors duration-300 ${isMobile768
+                    ? '!p-5 bg-[#0e0e0e] border border-[#666666]'
+                    : 'reg-glass-card'
+                    }`}>
 
                     <form onSubmit={handleSubmit} noValidate>
 
                         {/* ── Row 1: Name (full width) ── */}
                         <Field>
-                            <label className="reg-label" htmlFor="reg-name">NAME</label>
+                            <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-name">NAME</label>
                             <input
                                 id="reg-name"
                                 name="name"
@@ -120,14 +127,14 @@ export default function RegistrationsPage() {
                                 onChange={handleChange}
                                 onFocus={() => setFocused('name')}
                                 onBlur={() => setFocused(null)}
-                                className={`reg-input ${focused === 'name' ? 'reg-input--active' : ''}`}
+                                className={`reg-input ${focused === 'name' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                             />
                         </Field>
 
                         {/* ── Row 2: Email + Contact ── */}
-                        <div className="reg-row-2">
+                        <div className={isMobile768 ? 'flex flex-col gap-4 mb-[32px]' : 'reg-row-2'}>
                             <Field>
-                                <label className="reg-label" htmlFor="reg-email">EMAIL</label>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-email">EMAIL</label>
                                 <input
                                     id="reg-email"
                                     name="email"
@@ -138,12 +145,12 @@ export default function RegistrationsPage() {
                                     onChange={handleChange}
                                     onFocus={() => setFocused('email')}
                                     onBlur={() => setFocused(null)}
-                                    className={`reg-input ${focused === 'email' ? 'reg-input--active' : ''}`}
+                                    className={`reg-input ${focused === 'email' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                 />
                             </Field>
 
                             <Field>
-                                <label className="reg-label" htmlFor="reg-contact">CONTACT NO.</label>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-contact">CONTACT NO.</label>
                                 <input
                                     id="reg-contact"
                                     name="contact"
@@ -154,15 +161,15 @@ export default function RegistrationsPage() {
                                     onChange={handleChange}
                                     onFocus={() => setFocused('contact')}
                                     onBlur={() => setFocused(null)}
-                                    className={`reg-input ${focused === 'contact' ? 'reg-input--active' : ''}`}
+                                    className={`reg-input ${focused === 'contact' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                 />
                             </Field>
                         </div>
 
                         {/* ── Row 3: Class + Division ── */}
-                        <div className="reg-row-2">
+                        <div className={isMobile768 ? 'flex flex-col gap-4 mb-[32px]' : 'reg-row-2'}>
                             <Field>
-                                <label className="reg-label" htmlFor="reg-class">CLASS</label>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-class">CLASS</label>
                                 <RegSelect
                                     id="reg-class"
                                     name="class"
@@ -170,6 +177,7 @@ export default function RegistrationsPage() {
                                     onChange={handleChange}
                                     onFocus={() => setFocused('class')}
                                     onBlur={() => setFocused(null)}
+                                    className={isMobile768 ? '!text-[14px]' : ''}
                                 >
                                     <option value="COMP">COMP</option>
                                     <option value="ENTC">ENTC</option>
@@ -179,7 +187,7 @@ export default function RegistrationsPage() {
                             </Field>
 
                             <Field>
-                                <label className="reg-label" htmlFor="reg-division">DIVISION</label>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-division">DIVISION</label>
                                 <RegSelect
                                     id="reg-division"
                                     name="division"
@@ -187,6 +195,7 @@ export default function RegistrationsPage() {
                                     onChange={handleChange}
                                     onFocus={() => setFocused('division')}
                                     onBlur={() => setFocused(null)}
+                                    className={isMobile768 ? '!text-[14px]' : ''}
                                 >
                                     {['1', '2', '3', '4'].map((d) => (
                                         <option key={d} value={d}>{d}</option>
@@ -198,7 +207,7 @@ export default function RegistrationsPage() {
                         {/* ── Dynamic questions ── */}
                         {questions.map((q) => (
                             <Field key={q.id}>
-                                <label className="reg-label" htmlFor={`reg-${q.id}`}>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor={`reg-${q.id}`}>
                                     {q.label}
                                 </label>
 
@@ -210,6 +219,7 @@ export default function RegistrationsPage() {
                                         onChange={handleChange}
                                         onFocus={() => setFocused(q.id)}
                                         onBlur={() => setFocused(null)}
+                                        className={isMobile768 ? '!text-[14px]' : ''}
                                     >
                                         <option value="">{q.placeholder}</option>
                                         {q.options?.map((opt) => (
@@ -226,15 +236,15 @@ export default function RegistrationsPage() {
                                         onChange={handleChange}
                                         onFocus={() => setFocused(q.id)}
                                         onBlur={() => setFocused(null)}
-                                        className={`reg-input reg-textarea ${focused === q.id ? 'reg-input--active' : ''}`}
+                                        className={`reg-input reg-textarea ${focused === q.id ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                     />
                                 )}
                             </Field>
                         ))}
 
                         {/* ── Submit ── */}
-                        <div className="reg-submit-row">
-                            <button type="submit" className="reg-submit-btn">
+                        <div className={`reg-submit-row ${isMobile768 ? '!mt-8 flex justify-start' : ''}`}>
+                            <button type="submit" className={`reg-submit-btn ${isMobile768 ? '!w-full flex items-center justify-between px-4' : ''}`}>
                                 <span className="reg-submit-btn__text">SEND REQUEST</span>
                                 <span className="reg-submit-btn__arrow">→</span>
                             </button>

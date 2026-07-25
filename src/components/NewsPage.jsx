@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import { NEWS_ITEMS } from '../../constants/news'
@@ -28,14 +29,7 @@ const getContent = (article) =>
     ? article.content
     : buildContentFromLegacy(article)
 
-/* Groups a flat content array into renderable sections:
-   - the leading image (if any) + the paragraphs right after it become
-     the centered "hero" block
-   - every image after that becomes a "zigzag" block, alternating sides,
-     paired with the paragraph immediately following it (the rest of
-     that run of paragraphs flows full width underneath)
-   - any paragraphs with no adjacent image become a plain full-width
-     "standalone" block                                                */
+/* Groups a flat content array into renderable sections */
 const buildLayoutBlocks = (content) => {
   const blocks = []
   let i = 0
@@ -119,6 +113,7 @@ function CornerFrame() {
 const NewsPage = () => {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' })
   const bodyRef = useRef(null)
   const [progress, setProgress] = useState(0)
 
@@ -181,17 +176,17 @@ const NewsPage = () => {
   return (
     <>
       <Header />
-      <main className="tx-page">
+      <main className="tx-page relative z-10">
         <BackgroundLines />
 
-        <div className="tx-page__content mt-[92px]">
+        <div className={`tx-page__content ${isMobile768 ? 'mt-[110px]' : 'mt-[92px]'}`}>
           {/* ---------------- Masthead ---------------- */}
-          <section className="tx-masthead ml-[40px]">
+          <section className={`tx-masthead ${isMobile768 ? '!ml-0 !px-4 !pt-6 !pb-4' : 'ml-[40px]'}`}>
             <div className="tx-eyebrow">
               Transmission {String(index + 1).padStart(3, '0')} — {category}
             </div>
-            <h1 className="tx-title">{title}</h1>
-            <div className="tx-masthead__meta">
+            <h1 className={`tx-title ${isMobile768 ? '!text-[36px] !pl-[10px] leading-tight' : ''}`}>{title}</h1>
+            <div className={`tx-masthead__meta ${isMobile768 ? '!text-[14px] !gap-2' : ''}`}>
               <span>{date}</span>
               <span className="tx-meta-dot" />
               <span>{reading.label}</span>
@@ -199,35 +194,37 @@ const NewsPage = () => {
           </section>
 
           {/* ---------------- Spine + Article ---------------- */}
-          <section className="tx-body" ref={bodyRef}>
-            <div className="tx-spine">
-              <div className="tx-spine__track">
-                <div className="tx-spine__fill" style={{ height: `${progress * 100}%` }} />
-                <div className="tx-spine__playhead" style={{ top: `${progress * 100}%` }}>
-                  <span className="tx-spine__time">{formatTime(progress * reading.totalSeconds)}</span>
+          <section className={`tx-body ${isMobile768 ? '!grid-cols-1 !px-4 !py-4' : ''}`} ref={bodyRef}>
+            {!isMobile768 && (
+              <div className="tx-spine">
+                <div className="tx-spine__track">
+                  <div className="tx-spine__fill" style={{ height: `${progress * 100}%` }} />
+                  <div className="tx-spine__playhead" style={{ top: `${progress * 100}%` }}>
+                    <span className="tx-spine__time">{formatTime(progress * reading.totalSeconds)}</span>
+                  </div>
                 </div>
+                <div className="tx-spine__total">{formatTime(reading.totalSeconds)}</div>
               </div>
-              <div className="tx-spine__total">{formatTime(reading.totalSeconds)}</div>
-            </div>
+            )}
 
-            <article className="tx-article">
+            <article className={`tx-article ${isMobile768 ? '!p-0 !max-w-full' : ''}`}>
               {layoutBlocks.map((block, i) => {
                 if (block.kind === 'hero') {
                   return (
                     <div key={i}>
                       {block.image && (
-                        <div className="tx-frame tx-frame--hero">
+                        <div className={`tx-frame tx-frame--hero ${isMobile768 ? '!w-full !mb-6' : ''}`}>
                           <CornerFrame />
                           <img src={block.image.src} alt={block.image.alt || title} />
                         </div>
                       )}
                       {block.paragraphs.length > 0 && (
-                        <div className="tx-copy tx-copy--hero">
+                        <div className={`tx-copy tx-copy--hero ${isMobile768 ? ' !p-[10px] !text-[16px] !mb-6' : ''}`}>
                           {block.paragraphs.map((p, j) => (
-                            <ScrollRevealText 
-                              key={j} 
-                              text={p.text} 
-                              className="tx-copy__paragraph" 
+                            <ScrollRevealText
+                              key={j}
+                              text={p.text}
+                              className="tx-copy__paragraph"
                             />
                           ))}
                         </div>
@@ -241,31 +238,30 @@ const NewsPage = () => {
                   return (
                     <div key={i}>
                       <div
-                        className={`tx-zigzag ${block.reverse ? 'tx-zigzag--reverse' : ''} ${
-                          hasText ? '' : 'tx-zigzag--solo'
-                        }`}
+                        className={`tx-zigzag ${block.reverse ? 'tx-zigzag--reverse' : ''} ${hasText ? '' : 'tx-zigzag--solo'
+                          } ${isMobile768 ? '!grid-cols-1 !gap-4 !mb-6' : ''}`}
                       >
                         <div className="tx-zigzag__media">
-                          <div className="tx-frame">
+                          <div className={`tx-frame ${isMobile768 ? '!w-full !mb-2' : ''}`}>
                             <CornerFrame />
                             <img src={block.image.src} alt={block.image.alt || title} />
                           </div>
                         </div>
                         {hasText && (
                           <div className="tx-zigzag__text">
-                            <ScrollRevealText 
-                              className="tx-copy"
-                              text={block.lead.text} 
+                            <ScrollRevealText
+                              className={`tx-copy ${isMobile768 ? '! !p-[10px] !text-[16px] !mb-4' : ''}`}
+                              text={block.lead.text}
                             />
                           </div>
                         )}
                       </div>
                       {block.rest.length > 0 && (
-                        <div className="tx-copy">
+                        <div className={`tx-copy ${isMobile768 ? '! !p-[10px] !text-[16px] !mb-6' : ''}`}>
                           {block.rest.map((p, j) => (
-                            <p 
+                            <p
                               key={j}
-                              text = {p.text} 
+                              text={p.text}
                               className='tex-copy__paragraph'
                             />
                           ))}
@@ -277,11 +273,11 @@ const NewsPage = () => {
 
                 // standalone paragraph run — no adjacent image
                 return (
-                  <div key={i} className="tx-copy">
+                  <div key={i} className={`tx-copy ${isMobile768 ? '! !p-[10px] !text-[16px] !mb-6' : ''}`}>
                     {block.paragraphs.map((p, j) => (
-                      <ScrollRevealText 
+                      <ScrollRevealText
                         key={j}
-                        text = {p.text} 
+                        text={p.text}
                       />
                     ))}
                   </div>

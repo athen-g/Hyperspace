@@ -7,6 +7,7 @@ import { BLOGS } from '../../constants/index'
 import Contact from './Contact'
 import Footer from './Footer'
 import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive'
 
 const hoverArrowVariants = {
     initial: { x: 0, y: 0 },
@@ -24,24 +25,33 @@ const hoverArrowVariants = {
 
 const Blog = () => {
     const navigate = useNavigate();
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
+
     return (
         <>
             <Header />
-            <section id="#blog" className='mt-[67.5px]'>
+            <section id="#blog" className={`relative z-10 ${isMobile768 ? 'mt-[110px]' : 'mt-[67.5px]'}`}>
                 <BackgroundLines />
-                <div className="ml-[3.472%] w-[93.056%] max-lg:ml-4 max-lg:w-[calc(100%-2rem)] relative z-10">
-                    <div className="flex items-end justify-between p-30 pb-0">
+                <div className={`relative z-10 ${isMobile768 ? 'w-[93.056%] mx-auto' : 'ml-[3.472%] w-[93.056%]'}`}>
+                    <div className={`flex ${isMobile768 ? 'flex-col items-start gap-4 p-4 pb-0' : 'items-end justify-between p-30 pb-0'}`}>
                         <div className="title">
                             <p className="text-accent-pink">FROM</p>
                             OUR TEAM
                         </div>
-                        <span className="uppercase font-mono text-[13px] font-normal tracking-[0.02em] leading-[1] max-w-[250px] text-left text-white">OUR EXPERIENCE. EVERY DECISION. EVERY THOUGHT. NOW EXPLAINED.</span>
+                        <span className={`uppercase font-mono text-[13px] font-normal tracking-[0.02em] leading-[1.3] text-left text-white ${
+                            isMobile768 ? 'max-w-full text-white/80' : 'max-w-[250px]'
+                        }`}>
+                            OUR EXPERIENCE. EVERY DECISION. EVERY THOUGHT. NOW EXPLAINED.
+                        </span>
                     </div>
-                    <div className="blog-home-grid mt-8 border-light-grey border border-b-0">
+
+                    <div className={`mt-8 border-light-grey border border-b-0 ${
+                        isMobile768 ? 'flex flex-col w-full' : 'blog-home-grid'
+                    }`}>
                         {BLOGS.map(({ id, tag, date, title, route, slug }) => (
                             <motion.div
                                 key={id}
-                                className="blog-card"
+                                className={`blog-card ${isMobile768 ? '!h-auto min-h-[220px] !px-5 !py-6 border-b border-light-grey' : ''}`}
                                 initial="initial"
                                 whileHover="hover"
                                 onClick={() => {
@@ -62,7 +72,7 @@ const Blog = () => {
                                         />
                                     </div>
                                 </div>
-                                <span className="blog-desc">{title}</span>
+                                <span className={`blog-desc ${isMobile768 ? '!text-[20px] !mt-6' : ''}`}>{title}</span>
                             </motion.div>
                         ))}
                     </div>
