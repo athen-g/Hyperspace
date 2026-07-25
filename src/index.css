@@ -76,8 +76,18 @@ html {
   @apply scroll-smooth;
 }
 
+@media (pointer: fine) {
+
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+}
+
+html,
 body {
-  @apply bg-bg-base text-text-primary font-body antialiased relative;
+  @apply bg-bg-base text-text-primary font-body antialiased relative overflow-x-hidden w-full max-w-full;
   font-size: clamp(1rem, 1.1vw, 1.125rem);
   line-height: 1.75;
 }
@@ -225,7 +235,7 @@ body::before {
 }
 
 .navbar {
-  @apply fixed bottom-[50px] left-[568px] w-[783px] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[18px] px-3;
+  @apply fixed bottom-[50px] left-1/2 -translate-x-1/2 w-[783px] max-w-[calc(100vw-32px)] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[18px] px-3;
 }
 
 .navbar__pill {
@@ -237,17 +247,20 @@ body::before {
   @apply flex items-center justify-center gap-2 flex-1 w-full min-w-fit px-4 py-3 text-white no-underline font-bold font-sans tracking-[0.02em] whitespace-nowrap cursor-pointer relative z-[1] transition-colors duration-[160ms] ease-out text-[20px];
 }
 
-.navbar__item--active {
-  @apply text-black;
+.navbar__item--active,
+.navbar__item--active:hover,
+.navbar__item--active:focus-visible {
+  color: black !important;
 }
 
-.navbar__item:hover,
-.navbar__item:focus-visible {
+.navbar__item:not(.navbar__item--active):hover,
+.navbar__item:not(.navbar__item--active):focus-visible {
   @apply text-white;
 }
 
-.navbar__item--active .navbar__icon {
-  filter: invert(1) brightness(0);
+.navbar__item--active .navbar__icon,
+.navbar__item--active:hover .navbar__icon {
+  filter: invert(1) brightness(0) !important;
 }
 
 .navbar__icon {
@@ -279,31 +292,13 @@ body::before {
   transform: translateY(0);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 810px) {
   .navbar {
-    @apply bottom-[50px] left-1/2 -translate-x-1/2 w-[312px] min-w-[312px] h-[56px] px-2;
+    @apply bottom-[40px] w-[280px] max-w-[calc(100vw-24px)] h-[56px] px-2;
   }
 
   .navbar__item {
-    @apply px-3 py-2 gap-[6px] text-[14px];
-  }
-
-  .navbar__icon {
-    @apply w-5 h-5;
-  }
-
-  .navbar__label {
-    @apply text-[14px];
-  }
-}
-
-@media (max-width: 414px) {
-  .navbar {
-    @apply w-[312px] px-2;
-  }
-
-  .navbar__item {
-    @apply px-[10px] py-2 gap-0;
+    @apply px-2 py-2 gap-0 min-w-0;
   }
 
   .navbar__icon {
@@ -438,7 +433,7 @@ body::before {
 }
 
 .about-section {
-  @apply w-[93.056%] ml-[53px] mt-8 mb-16 border-b border-light-grey p-8 font-host z-10;
+  @apply w-[93.056%] ml-[20px] mt-8 mb-16 border-b border-light-grey p-8 pr-0 font-host z-10 max-md:ml-[20px] max-md:p-4 max-md:pr-0;
 }
 
 .about-title {
@@ -458,6 +453,77 @@ body::before {
 .impact-title {
   @apply text-white text-[55px] tracking-[1px] font-[900] uppercase z-10 relative mb-20 ml-8 w-180 mt-30;
   max-width: 76.12%;
+}
+
+@media (max-width: 768px) {
+
+  .impact-title,
+  .impact-title div,
+  .impact-title span {
+    font-size: 34px !important;
+    line-height: 1.3 !important;
+  }
+
+  .impact-title {
+    width: 95% !important;
+    max-width: 100% !important;
+    margin-left: 1rem !important;
+    margin-top: 2rem !important;
+    margin-bottom: 2.5rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .impact {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .impact-title,
+  .impact-title div,
+  .impact-title span {
+    font-size: 24px !important;
+    line-height: 1.35 !important;
+  }
+
+  .impact-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .impact-card {
+    grid-row: auto !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    border-b: 1px solid var(--color-light-grey) !important;
+    padding: 2.25rem 1.25rem 2.25rem 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.85rem !important;
+  }
+
+  .impact-card .card-number {
+    font-size: 4.5rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .impact-card .card-subtitle {
+    font-size: 15px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .impact-card .card-content {
+    font-size: 13.5px !important;
+    color: #888888 !important;
+    line-height: 1.45 !important;
+    max-width: 280px !important;
+  }
 }
 
 .impact-grid {
@@ -616,6 +682,82 @@ body::before {
   transition: opacity 0.25s ease, color 0.25s ease;
 }
 
+@media (max-width: 768px) {
+  #brands {
+    padding: 24px 0 !important;
+  }
+
+  .brand-title {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.5rem !important;
+    margin: 2rem 3.472% !important;
+    width: 93.056% !important;
+  }
+
+  .brand-title .title,
+  .brand-title .title span {
+    font-size: 42px !important;
+    line-height: 1.05 !important;
+  }
+
+  .brand-title .subtitle {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    max-width: 100% !important;
+  }
+
+  .brand-content {
+    display: flex !important;
+    flex-direction: column !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  .brand-content-head-col {
+    width: 93.056% !important;
+    padding-top: 0 !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .brand-content-head {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .brand-list-area {
+    width: 93.056% !important;
+    margin-left: 3.472% !important;
+  }
+
+  .brand-rows {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .brand-list-content {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0.75rem 0 !important;
+  }
+
+  .brand-list-title {
+    font-size: 20px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .brand-list-date {
+    font-size: 15px !important;
+    padding-right: 0 !important;
+  }
+}
+
 .brand-list-date {
   @apply font-host text-[16px] tracking-[0.04em] uppercase text-right pr-10;
   color: rgba(255, 255, 255, 0.5);
@@ -643,6 +785,91 @@ body::before {
 .events-section {
   position: relative;
   padding-bottom: 120px;
+}
+
+@media (max-width: 768px) {
+  .events-section {
+    padding-bottom: 60px !important;
+  }
+
+  .events-section .relative.pt-40,
+  .events-section .relative.pt-60 {
+    padding-top: 2.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .events-conducted-title {
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 93.056% !important;
+    height: auto !important;
+    margin: 0 auto 2.5rem auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .events-conducted-label {
+    font-size: 38px !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .events-card-list {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .event-card-wrap,
+  .event-card-wrap--odd,
+  .event-card-wrap--even {
+    margin-left: 3.472% !important;
+    width: 93.056% !important;
+    padding-bottom: 2.5rem !important;
+    transform: none !important;
+  }
+
+  .event-card {
+    width: 100% !important;
+    margin-top: 100px !important;
+    border-bottom: 0.5px solid var(--color-bg-light-grey) !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  .event-card__info {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    padding-top: 1rem !important;
+  }
+
+  .event-card__name {
+    font-size: 26px !important;
+    line-height: 1.15 !important;
+    width: 100% !important;
+  }
+
+  .event-card__tags {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .events-section .button {
+    width: 93.056% !important;
+    margin-left: 3.472% !important;
+    margin-right: 3.472% !important;
+    position: relative !important;
+    bottom: auto !important;
+    left: 0 !important;
+    transform: none !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 2rem !important;
+  }
 }
 
 .events-conducted-title {
@@ -830,6 +1057,62 @@ body::before {
   padding: 20px;
 }
 
+@media (max-width: 768px) {
+  #\#blog_home {
+    margin-top: 120px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .blog-home-container {
+    margin-top: 1.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  .blog-home-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .blog-home-card {
+    width: 100% !important;
+    height: 306px !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    border: 1px solid var(--color-bg-light-grey) !important;
+    border-bottom: none !important;
+    padding: 1.5rem 1.25rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .blog-home-card:last-child {
+    border-bottom: 1px solid var(--color-bg-light-grey) !important;
+  }
+
+  .blog-home-card:nth-child(1) {
+    background-color: #161616 !important;
+    padding: 1.75rem 1.25rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .blog-home-content-head {
+    margin-bottom: 2.5rem !important;
+  }
+
+  .blog-desc {
+    margin-top: 2.5rem !important;
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+  }
+
+  .icon-circle {
+    background-color: transparent !important;
+    border: none !important;
+  }
+}
+
 
 .blog-home-content-head {
   @apply flex items-center justify-start gap-3 mb-47;
@@ -868,7 +1151,7 @@ body::before {
 }
 
 .quote-testimonials {
-  @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center ml-[200px] tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
+  @apply text-[22px] font-semibold leading-[1.4] max-w-[451px] text-center mx-auto tracking-[0.01em] text-white font-host max-lg:text-[22px] mt-12 mb-20 relative z-10;
 }
 
 

@@ -4,12 +4,15 @@ import gsap from 'gsap'
 import { SplitText, ScrollTrigger } from 'gsap/all';
 import { useGSAP } from '@gsap/react';
 import Button from './Button';
+import { useMediaQuery } from 'react-responsive';
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const Brands = () => {
     const [hoveredId, setHoveredId] = useState(null);
     const photoRef = useRef(null);
+
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
     useGSAP(() => {
         const titleSplit = new SplitText('.title', { type: 'lines' });
@@ -18,7 +21,7 @@ const Brands = () => {
         const scrollTimeline = gsap.timeline({
             scrollTrigger: {
                 trigger: '#brands',
-                start: 'top center',
+                start: '5% center',
             }
         });
 
@@ -26,7 +29,14 @@ const Brands = () => {
             .from(titleSplit.lines, {
                 opacity: 0,
                 yPercent: 100,
-                duration: 1.8,
+                duration: 1,
+                stagger: 0.05,
+                ease: 'expo.out',
+            })
+            .from(subtitleSplit.lines, {
+                opacity: 0,
+                yPercent: 100,
+                duration: 0.5,
                 stagger: 0.05,
                 ease: 'expo.out',
             })
@@ -54,27 +64,42 @@ const Brands = () => {
     }
 
     return (
-        <section id="brands">
-            <div className="brand-title">
-                <div className="title flex flex-col"><span className="top"><span className="text-accent-pink">BRANDS</span> WE'VE </span> <span className="text-accent-pink">WORKED</span> WITH</div>
-                <div className="subtitle">WE COLLABORATE WITH COMPANIES AND BRANDS WHO CARE ABOUT THOUGHTFUL DIGITAL PRESENCE AND THE GROWTH OF XR DEVELOPMENT IN INDIA. EACH EVENT IS SHAPED AND BUILD WITH THE SUPPORT OF SUCH BRANDS.</div>
-            </div>
-            <div className="brand-content border-b pb-40 border-[#666666]">
-                <div className="brand-content-head-col flex flex-col items-start gap-6">
-                    <div className="brand-content-head">The goal is always the same: <span className="text-white">
-                        events that communicate clearly with the audience and leaves a lasting impression.</span></div>
-                    <Button
-                        className="!relative !left-0 !w-full mt-6"
-                        label='CONTACT US'
-                        onClick={() => {
-                            const el = document.getElementById('contact');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                    />
+        <section id="brands" className={isMobile768 ? '!px-6 py-6' : ''}>
+            <div className={`brand-title ${isMobile768 ? '!ml-[3.472%] !mr-[3.472%]' : ''}`}>
+                <div className="title flex flex-col">
+                    <span className="top">
+                        <span className="text-accent-pink">BRANDS</span> WE'VE
+                    </span>
+                    <span>
+                        <span className="text-accent-pink">WORKED</span> WITH
+                    </span>
                 </div>
+                <div className="subtitle">
+                    WE COLLABORATE WITH COMPANIES AND BRANDS WHO CARE ABOUT THOUGHTFUL DIGITAL PRESENCE AND THE GROWTH OF XR DEVELOPMENT IN INDIA. EACH EVENT IS SHAPED AND BUILD WITH THE SUPPORT OF SUCH BRANDS.
+                </div>
+            </div>
 
-                <div className={`brand-list-area${hoveredId ? ' has-hover' : ''}`}>
+            <div className="brand-content border-b pb-40 border-[#666666]">
+                {/* Desktop layout order vs Mobile layout order */}
+                {!isMobile768 && (
+                    <div className="brand-content-head-col flex flex-col items-start gap-6">
+                        <div className="brand-content-head">
+                            The goal is always the same: <span className="text-white">
+                                events that communicate clearly with the audience and leaves a lasting impression.
+                            </span>
+                        </div>
+                        <Button
+                            className="!relative !left-0 !w-full mt-6"
+                            label='CONTACT US'
+                            onClick={() => {
+                                const el = document.getElementById('contact');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        />
+                    </div>
+                )}
 
+                <div className={`brand-list-area${hoveredId ? ' has-hover' : ''} ${isMobile768 ? '!ml-[3.472%] !mr-[3.472%]' : ''}`}>
                     <div className="brand-list-photo" ref={photoRef}>
                         {hoveredBrand?.photo
                             ? <img src={hoveredBrand.photo} alt={hoveredBrand.name} className="w-full h-full object-cover" />
@@ -97,8 +122,27 @@ const Brands = () => {
                             </div>
                         ))}
                     </div>
-
                 </div>
+
+                {isMobile768 && (
+                    <div className="brand-content-head-col flex flex-col items-start gap-6 mt-8 !ml-[3.472%] !mr-[3.472%]">
+                        <div className="brand-content-head !px-0">
+                            The goal is always the same: <span className="text-white">
+                                events that communicate clearly with the audience and leaves a lasting impression.
+                            </span>
+                        </div>
+                        <div className="w-full relative -ml-[3.472%] w-[calc(100%+6.944%)]">
+                            <Button
+                                className="!relative !left-0 !w-full mt-4"
+                                label='CONTACT US'
+                                onClick={() => {
+                                    const el = document.getElementById('contact');
+                                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </section>
     )

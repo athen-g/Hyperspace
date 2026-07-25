@@ -11,6 +11,9 @@ import gsap from 'gsap';
 const About = () => {
 
     const isMobile = useMediaQuery({ query: ('max-width: 414px') });
+    const isDesktop = useMediaQuery({ query: ('(min-width: 1025px)') });
+    const isMobile600 = useMediaQuery({ query: ('(max-width: 600px)') });
+
     useGSAP(() => {
         const lineSplit = new SplitText('.impact-title', { type: 'lines' });
 
@@ -31,18 +34,20 @@ const About = () => {
                 stagger: 0.05
             });
 
-        const scrollTimeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: '#about',
-                start: 'top center',
-                end: 'bottom top',
-                scrub: true
-            }
-        })
+        if (isDesktop) {
+            const scrollTimeline = gsap.timeline({
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top center',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            })
 
-        scrollTimeline
-            .to('.butterfly', { y: -100 }, 0)
-            .to('.face', { y: -200 }, 0);
+            scrollTimeline
+                .to('.butterfly', { y: -100 }, 0)
+                .to('.face', { y: -200 }, 0);
+        }
 
         document.querySelectorAll('.card-number').forEach((el) => {
             const raw = (el.dataset.value || '').trim();
@@ -106,37 +111,48 @@ const About = () => {
                     <div className="about-main-sub">OF 18 ENTHUSIASTS</div>
                 </div>
             </div>
-            <div className="about-section">
-                <div className="flex gap-4">
-                    <span className="about-title">ABOUT </span><span className=' about-title-us text-white text-[96px] tracking-[1px] font-extrabold'>US</span>
+            <div className={`about-section flex flex-col gap-8 md:gap-12 !ml-[20px] !pr-0 ${isMobile ? '!w-[calc(100%-20px)] !p-4 !pr-0' : ''}`}>
+                <div className="flex gap-4 items-baseline">
+                    <span className={`about-title ${isMobile600 ? '!text-[40px]' : ''}`}>ABOUT </span>
+                    <span className={`about-title-us text-white tracking-[1px] font-extrabold ${isMobile600 ? '!text-[40px]' : 'text-[96px]'}`}>US</span>
                 </div>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <span className="text-accent-pink font-host font-bold text-[40px] relative z-10">WHAT IS AN SIG?</span>
+
+                {/* Section 1: WHAT IS AN SIG? */}
+                <div className="flex items-center justify-between gap-8">
+                    <div className="w-full">
+                        <span className={`text-accent-pink font-host font-bold relative z-10 block mb-4 ${isMobile600 ? '!text-[32px]' : 'text-[40px]'}`}>
+                            WHAT IS AN SIG?
+                        </span>
                         <ScrollRevealText
-                            className="about-text-content z-10 relative"
+                            className={`about-text-content z-10 relative ${isMobile600 ? '!text-[24px] !leading-8' : ''}`}
                             text="An sig is a special interest group consisting of talents who are eager to learn about specific topics. these groups are responsible for conducting events, spreading knowledge and awareness about those topics."
                         />
                     </div>
-                    <img src={face} alt="Face" className='w-120 z-10 mr-10 mb-16 face' />
+                    {isDesktop && (
+                        <img src={face} alt="Face" className='w-120 z-10 mr-10 mb-16 face shrink-0' />
+                    )}
                 </div>
-                <div className="flex flex-row-reverse gap-45">
-                    <div>
-                        <span className="text-accent-pink font-host font-bold text-[40px] relative z-10">WHAT IS HYPERSPACE?</span>
+
+                {/* Section 2: WHAT IS HYPERSPACE? */}
+                <div className="flex flex-row-reverse mr-[53px] gap-8 items-center justify-between">
+                    <div className="w-full">
+                        <span className={`text-accent-pink font-host text-right font-bold relative z-10 block mb-4 ${isMobile600 ? '!text-[32px]' : 'text-[40px]'}`}>
+                            WHAT IS HYPERSPACE?
+                        </span>
                         <ScrollRevealText
-                            className="about-text-content z-10 relative"
+                            className={`about-text-content text-right z-10 relative ${isMobile600 ? '!text-[24px] !leading-8' : ''}`}
                             text="Hyperspace SIG is an XR Special Interest Group(SIG) based in MESWCOE in Pune, India. It consists of talents who are enthusiastic and passionate about Artificial Reality (AR), Virtual Reality (VR), Mixed Reality (MR) and Extended Reality (XR)."
                         />
                     </div>
-                    {isMobile
-                        ? null
-                        : <img src={butterfly} alt="Butterfly" className='w-120 z-10 ml-16 mb-20 butterfly' />}
+                    {isDesktop && (
+                        <img src={butterfly} alt="Butterfly" className='w-120 z-10 ml-16 mb-20 butterfly shrink-0' />
+                    )}
                 </div>
 
             </div>
 
             <div className="impact">
-                <div className="impact-title">OUR GROUP DOESN’T JUST LOOK GOOD - IT <span className='text-accent-pink'>PERFORMS.</span> HERE’S THE <span className='text-accent-pink'>IMPACT</span> BEHIND EVERY <span className="text-accent-pink">EVENT.</span></div>
+                <div className={`impact-title ${isMobile ? '!text-[24px] !leading-snug !ml-4 !w-[92%]' : ''}`}>OUR GROUP DOESN’T JUST LOOK GOOD - IT <span className='text-accent-pink'>PERFORMS.</span> HERE’S THE <span className='text-accent-pink'>IMPACT</span> BEHIND EVERY <span className="text-accent-pink">EVENT.</span></div>
                 <div className="impact-grid">
                     <div className="impact-card">
                         <span className="impact-dot"></span>

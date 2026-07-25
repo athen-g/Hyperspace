@@ -10,9 +10,8 @@ const RollButton = ({ label, onClick, withDivider }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`group flex-1 border-t border-t-light-grey py-5 transition-colors duration-300 hover:border-t-white hover:border-t-[2px] hover:cursor-pointer ${
-      withDivider ? 'border-r border-r-light-grey' : ''
-    }`}
+    className={`group flex-1 border-t border-t-light-grey py-5 transition-colors duration-300 hover:border-t-white hover:border-t-[2px] hover:cursor-pointer ${withDivider ? 'border-r border-r-light-grey' : ''
+      }`}
   >
     <span className="relative mx-auto block h-[16px] w-fit overflow-hidden">
       <span className="block font-mono text-[13px] tracking-[0.25em] text-white/50 transition-transform duration-500 ease-out group-hover:-translate-y-full ">
@@ -114,11 +113,10 @@ const Testimonials = () => {
               {testimonials.map((t, index) => (
                 <span
                   key={t.id}
-                  className={`rounded-full transition-all duration-300 ${
-                    index === currentIndex
+                  className={`rounded-full transition-all duration-300 ${index === currentIndex
                       ? 'h-[6px] w-[6px] bg-white'
                       : 'h-[5px] w-[5px] bg-white/25'
-                  }`}
+                    }`}
                 />
               ))}
             </div>

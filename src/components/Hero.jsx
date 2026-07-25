@@ -2,8 +2,11 @@ import { useGSAP } from '@gsap/react';
 import { BackgroundPathsDemo } from './ui/BackgroundPaths';
 import { SplitText } from 'gsap/all';
 import gsap from 'gsap';
+import { useMediaQuery } from 'react-responsive';
 
 export default function Hero() {
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+
   useGSAP(() => {
     const titleSplit = new SplitText('.hero-title', { type: 'chars, words' });
     const subtitleSplit = new SplitText('.hero-subtitle', { type: 'chars, words' });
@@ -20,9 +23,8 @@ export default function Hero() {
       opacity: 0,
       stagger: 0.1
     });
-  }
+  });
 
-  )
   return (
     <>
       <section id="home" className="blog-hero">
@@ -31,9 +33,14 @@ export default function Hero() {
         <div className="hero-fade-bottom"></div>
         <div className="hero-name">
           <span className="hero-title">HYPERSPACE</span>
-          <span className="hero-subtitle">XR SIG</span>
+          <span
+            className="hero-subtitle"
+            style={isMobile ? { top: '44%' } : undefined}
+          >
+            XR SIG
+          </span>
         </div>
       </section>
     </>
-  )
+  );
 }

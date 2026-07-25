@@ -200,7 +200,7 @@ const EventPageTemplate = () => {
               {event.plan}
             </p>
           </div>
-          
+
 
         </div>
 

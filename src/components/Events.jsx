@@ -1,11 +1,14 @@
 import React from 'react'
 import { EVENTS_COMING_SOON, EVENTS_CONDUCTED } from '../../constants/index'
 import { eventsOngoing } from '../../constants/events'
-import { SplitText } from 'gsap/all'
+import { SplitText, ScrollTrigger } from 'gsap/all'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Button from './Button'
 import { useNavigate } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive';
+
+gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const EventImage = ({ thumbnail, bthumbnail, alt }) => {
   const containerRef = React.useRef(null);
@@ -151,13 +154,21 @@ const EventImage = ({ thumbnail, bthumbnail, alt }) => {
 const Events = () => {
 
   const navigate = useNavigate();
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   useGSAP(() => {
     const titleSplit = new SplitText('.events-conducted-label', { type: 'lines' });
     const timeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#events',
-        start: 'top center'
+        start: '10% center',
+      }
+    });
+    const scrolltimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#events',
+        start: '10% center',
+        scrub: true,
       }
     });
 
@@ -169,6 +180,9 @@ const Events = () => {
         stagger: 0.05,
         ease: 'expo.out'
       });
+
+    scrolltimeline
+      .to('.event-card', { y: -100 }, 0)
   })
 
   return (
@@ -219,8 +233,6 @@ const Events = () => {
               </div>
             ))}
           </div>
-
-          <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] my-[80px]" />
         </div>
       )}
 
@@ -238,7 +250,7 @@ const Events = () => {
               key={event.id}
               className={`event-card-wrap cursor-pointer ${index % 2 === 0 ? 'event-card-wrap--odd' : 'event-card-wrap--even'}`}
               onClick={() => {
-                  navigate(`/events/${event.slug}`);
+                navigate(`/events/${event.slug}`);
               }}
             >
               <div className="event-card">
@@ -271,7 +283,7 @@ const Events = () => {
         />
       </div>
 
-      <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] my-[80px]" />
+      <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-0 mb-[80px]" />
 
       <div className="relative pt-60">
         <div className="events-conducted-title">
@@ -320,7 +332,7 @@ const Events = () => {
         }}
       />
 
-      <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[140px]" />
+      <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[100px]" />
 
     </section>
   )
