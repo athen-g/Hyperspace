@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive'
 import Header from './Header'
 import BackgroundLines from './ui/BackgroundLines'
 import { NEWS_ITEMS, CATEGORIES } from '../../constants/news'
@@ -18,6 +19,7 @@ function PlaceholderIcon() {
 
 export default function News() {
     const navigate = useNavigate()
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' })
     const [activeCategory, setActiveCategory] = useState('All')
     const revealRefs = useRef([])
     revealRefs.current = []
@@ -112,7 +114,7 @@ export default function News() {
                                 className="news-featured news-reveal"
                                 onClick={() => goToArticle(featured.slug)}
                             >
-                                <div className="news-featured__media">
+                                <div className={`news-featured__media ${isMobile768 ? '!min-h-0 !h-auto' : ''}`}>
                                     {featured.thumbnail ? (
                                         <img
                                             src={featured.thumbnail}

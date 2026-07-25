@@ -10,6 +10,7 @@ import { eventsOngoing } from '../../constants/events'
 import Contact from './Contact'
 import Footer from './Footer'
 import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -57,7 +58,7 @@ const PillTitle = ({ displayNum, name, pillBgRef, pillTextRef }) => {
 }
 
 const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false, pillBgRef, pillTextRef, imageRef }) => {
-
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
     const navigate = useNavigate();
 
     if (!event) return null
@@ -76,7 +77,7 @@ const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false,
                     ? 'bg-neutral-950/60 border-green-500/20 hover:border-green-500/35 max-w-3xl min-h-[420px] md:min-h-[480px]'
                     : isComingSoon
                         ? 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-2xl min-h-[220px] md:min-h-[260px]'
-                        : 'bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-[1320px] min-h-[480px] md:h-full'
+                        : `bg-neutral-950/60 border-white/10 hover:border-white/20 max-w-[1320px] ${isMobile768 ? 'h-auto' : 'min-h-[480px] md:h-full'}`
                 } ${event.route ? 'cursor-pointer' : ''}`}
         >
             {/* Registrations Open Badge — only for ongoing cards, pinned at the very top */}
@@ -130,12 +131,14 @@ const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false,
                 {(!isComingSoon || isOngoing) && thumbnail && (
                     <div
                         ref={imageRef}
-                        className="w-full flex-1 min-h-0 rounded-2xl overflow-hidden relative bg-neutral-900/60 border border-white/5 shadow-2xl mt-1"
+                        className={`w-full rounded-2xl overflow-hidden relative bg-neutral-900/60 border border-white/5 shadow-2xl mt-1 ${
+                            isMobile768 ? 'h-auto flex-none' : 'flex-1 min-h-0'
+                        }`}
                     >
                         <img
                             src={thumbnail}
                             alt={name}
-                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
+                            className={`w-full ${isMobile768 ? 'h-auto object-contain block' : 'h-full object-cover'} transition-transform duration-700 hover:scale-102`}
                         />
                         <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/10 h-8 w-8 rounded-full flex items-center justify-center pointer-events-none">
                             <div className={`w-2.5 h-2.5 rounded-full opacity-90 ${isOngoing ? 'bg-green-500' : 'bg-accent-pink'}`} />
@@ -153,6 +156,7 @@ const EventCard = ({ event, displayNum, isComingSoon = false, isOngoing = false,
 // --- MAIN EVENTS PAGE COMPONENT ---
 
 const EventsPage = () => {
+    const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
     const scrollRef = useRef(null)
     const stageRef = useRef(null)
     const videoWrapRef = useRef(null)
@@ -641,8 +645,17 @@ const EventsPage = () => {
                             })}
                         </div>
                     </div>
-                    <div className="font-host text-[80px] font-extrabold tracking-[0.05em] leading-[1.1em] text-[#ABABAB] relative py-[200px]">
-                        <span className='ml-[950px] mr-0'>AND <span className='text-white'>MANY MORE...</span></span>
+                    <div
+                        className={`font-host font-extrabold tracking-[0.05em] leading-[1.1em] relative ${
+                            isMobile768
+                                ? 'text-center w-full py-16 flex items-center justify-center'
+                                : 'text-[80px] text-[#ABABAB] py-[200px]'
+                        }`}
+                        style={isMobile768 ? { fontSize: 'clamp(1.75rem, 8vw, 2.75rem)' } : {}}
+                    >
+                        <span className={isMobile768 ? 'text-white text-center inline-block whitespace-nowrap' : 'ml-[950px] mr-0'}>
+                            AND <span className={isMobile768 ? 'text-accent-pink' : 'text-white'}>MANY</span> MORE...
+                        </span>
                     </div>
                 </div>
             </section>

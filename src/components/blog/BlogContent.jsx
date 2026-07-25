@@ -1,5 +1,6 @@
 import React from 'react';
 import { parseInlineMarkup } from './blogContentUtils';
+import { useMediaQuery } from 'react-responsive';
 
 /**
  * Renders the article body from a list of content blocks. Supported
@@ -16,19 +17,22 @@ import { parseInlineMarkup } from './blogContentUtils';
  * To write a new blog post you only ever add objects to this array —
  * no component code changes needed.
  */
-const BlogContent = ({ blocks = [] }) => (
-  <>
-    {blocks.map((block, i) => {
-      switch (block.type) {
-        case 'heading':
-          return (
-            <h2 id={block.id} key={block.id}>
-              {block.text}
-            </h2>
-          );
+const BlogContent = ({ blocks = [] }) => {
+  const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
-        case 'paragraph':
-          return <p key={i}>{parseInlineMarkup(block.text)}</p>;
+  return (
+    <>
+      {blocks.map((block, i) => {
+        switch (block.type) {
+          case 'heading':
+            return (
+              <h2 id={block.id} key={block.id} className={isMobile768 ? '!px-[10px]' : ''}>
+                {block.text}
+              </h2>
+            );
+
+          case 'paragraph':
+            return <p key={i} className={isMobile768 ? '!p-[10px]' : ''}>{parseInlineMarkup(block.text)}</p>;
 
         case 'pullQuote':
           return (
@@ -116,6 +120,7 @@ const BlogContent = ({ blocks = [] }) => (
       }
     })}
   </>
-);
+  );
+};
 
 export default BlogContent;

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useMediaQuery } from 'react-responsive';
 
 import Header from '../Header';
 import BackgroundLines from '../ui/BackgroundLines';
@@ -18,6 +19,7 @@ import { getHeadingsFromContent } from './blogContentUtils';
  */
 const BlogPostLayout = ({ post }) => {
   const headings = getHeadingsFromContent(post.content);
+  const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
   useEffect(() => {
     // Scroll to top when the post is rendered
@@ -63,9 +65,11 @@ const BlogPostLayout = ({ post }) => {
         <Header />
         <BackgroundLines />
 
-        <BlogHero hero={post.hero} />
+        <div className={isMobile768 ? 'mt-[110px]' : ''}>
+          <BlogHero hero={post.hero} />
+        </div>
 
-        <div className="blog-body">
+        <div className={`blog-body ${isMobile768 ? '!grid-cols-1 !px-4 !py-6 !gap-8' : ''}`}>
           <article className="blog-main">
             {post.tags?.map((tag) => (
               <span className="tag-pill" key={tag}>
@@ -76,7 +80,7 @@ const BlogPostLayout = ({ post }) => {
             <BlogContent blocks={post.content} />
           </article>
 
-          <aside className="blog-sidebar">
+          <aside className={`blog-sidebar ${isMobile768 ? '!static !w-full' : ''}`}>
             <div className="glass-card-elevated">
               <div className="sidebar-label">Contents</div>
               <ul className="toc-list" id="tocList">
