@@ -16,7 +16,6 @@ import NewsPage from "./components/NewsPage";
 import EventRouter from "./components/EventRouter";
 import RegistrationsPage from "./components/RegistrationsPage";
 import TeamPage from "./components/TeamPage";
-import AdminPage from "./components/AdminPage";
 import PageTransition from "./components/ui/PageTransition";
 import CustomCursor from "./components/ui/CustomCursor";
 
@@ -54,46 +53,6 @@ function App() {
       <CustomCursor />
       <div className="reading-progress" ref={progressRef}></div>
 
-      <Routes>
-        {/* Landing */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<Navigate to="/" replace />} />
-
-        {/* Events */}
-        <Route path="/events" element={<EventsPage />} />
-        <Route
-          path="/events/:slug"
-          element={<EventRouter />}
-        />
-
-        {/* Registration */}
-        {/* <Route
-          path="/register/:slug"
-          element={<RegistrationPage />}
-        /> */}
-
-        {/* Blogs */}
-        <Route path="/blogs" element={<Blog />} />
-        <Route path="/blogs/:slug" element={<BlogPage />} />
-
-        {/* Team */}
-        <Route path="/team" element={<TeamPage />} />
-
-        {/* News */}
-        <Route
-          path="/news"
-          element={
-            <News />
-          }
-        />
-        <Route path="/news/:slug" element={<NewsPage />} />
-
-        <Route path="/register/:slug" element={<RegistrationsPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-
-        {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           {/* Landing */}
