@@ -7,9 +7,8 @@ const corsHeaders = {
 }
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
-// TODO: Replace with your actual verified domain on Resend
-const FROM_EMAIL = 'Hyperspace XR <events@hyperspacexr.club>'
-const SITE_DOMAIN = 'https://hyperspacexr.club'
+const FROM_EMAIL = 'Hyperspace XR <events@hyperspacesig.tech>'
+const SITE_DOMAIN = 'https://hyperspacesig.tech'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
