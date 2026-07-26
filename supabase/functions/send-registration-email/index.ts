@@ -53,12 +53,7 @@ Deno.serve(async (req) => {
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
 
-    // Generate QR code as base64 data URI
-    const qrDataUrl: string = await QRCode.toDataURL(qrPayload, {
-      width: 256,
-      margin: 2,
-      color: { dark: '#000000', light: '#ffffff' },
-    })
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrPayload)}`
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
@@ -135,7 +130,7 @@ Deno.serve(async (req) => {
                   <td align="center">
                     <p style="margin:0 0 16px;font-size:13px;color:#666;letter-spacing:1px;text-transform:uppercase;">Your Entry QR Code</p>
                     <div style="display:inline-block;background:#ffffff;padding:16px;border-radius:12px;">
-                      <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="display:block;" />
+                      <img src="${qrImageUrl}" width="200" height="200" alt="QR Code" style="display:block;" />
                     </div>
                     <p style="margin:16px 0 0;font-size:13px;color:#555;line-height:1.6;">
                       Show this QR code at the event entrance for check-in.<br/>
