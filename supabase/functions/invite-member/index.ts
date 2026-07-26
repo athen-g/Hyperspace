@@ -1,0 +1,98 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+
+    // 1. Verify the caller is super_admin
+    const authHeader = req.headers.get('Authorization')
+    const jwt = authHeader?.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt)
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const { data: member } = await supabase
+      .from('core_members')
+      .select('id, role')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .single()
+
+    if (!member || member.role !== 'super_admin') {
+      return new Response(
+        JSON.stringify({ error: 'Only super_admin can invite members' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 2. Parse payload
+    const { email, name, role } = await req.json()
+
+    if (!email || !name || !role) {
+      return new Response(
+        JSON.stringify({ error: 'Missing email, name, or role' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const validRoles = ['super_admin', 'core', 'volunteer']
+    if (!validRoles.includes(role)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 3. Invite user via Supabase Auth Admin API
+    const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email)
+
+    if (inviteError) {
+      return new Response(
+        JSON.stringify({ error: inviteError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 4. Insert core_members row
+    const { error: memberError } = await supabase.from('core_members').insert({
+      user_id: invited.user.id,
+      name,
+      role,
+    })
+
+    if (memberError) {
+      return new Response(
+        JSON.stringify({ error: 'User invited but failed to create member profile', details: memberError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    return new Response(
+      JSON.stringify({ success: true }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (err) {
+    console.error('Unexpected error:', err)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+})

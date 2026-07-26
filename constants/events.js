@@ -1,4 +1,5 @@
 import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
+import commenceSynchronization from '../src/assets/images/event-backdrops/commence-syncronization.png'
 // Format:-
 // {
 //     id: ,
@@ -23,12 +24,13 @@ const eventsOngoing = [
     id: 1,
     name: 'COMMENCE SYNCHRONIZATION',
     slug: 'commence-synchronization',
-    thumbnail: renderCreation,
+    thumbnail: commenceSynchronization,
     tags: [
       'INTRODUCTION TO NEW STUDENTS',
       'FUTURE XR KNOWLEDGE',
       'HANDS-ON EXPERIENCE',
     ],
+
     tagline: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
     pagesubtitle: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
     overview: 'Why so impatient? Details coming soon!',
