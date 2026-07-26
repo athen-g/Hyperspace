@@ -245,7 +245,7 @@ export default function RegistrationsPage() {
                         {/* ── Submit ── */}
                         <div className={`reg-submit-row ${isMobile768 ? '!mt-8 flex justify-start' : ''}`}>
                             <button type="submit" className={`reg-submit-btn ${isMobile768 ? '!w-full flex items-center justify-between px-4' : ''}`}>
-                                <span className="reg-submit-btn__text">SEND REQUEST</span>
+                                <span className="reg-submit-btn__text">REGISTER NOW</span>
                                 <span className="reg-submit-btn__arrow">→</span>
                             </button>
                         </div>

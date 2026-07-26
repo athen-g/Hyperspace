@@ -108,10 +108,11 @@ const Brands = () => {
                     </div>
 
                     <div className="brand-rows">
-                        {BRANDS.map(({ id, name, date }) => (
+                        {BRANDS.map(({ id, name, date, link }) => (
                             <div
                                 key={id}
                                 className={`brand-list-content${hoveredId === id ? ' is-hovered' : ''}`}
+                                onClick={() => link && window.open(link, '_blank', 'noopener,noreferrer')}
                             >
                                 <span
                                     className="brand-list-title"

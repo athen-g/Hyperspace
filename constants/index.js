@@ -2,7 +2,8 @@ import homeIcon from '../src/assets/icons/home.svg'
 import aboutIcon from '../src/assets/icons/about.svg'
 import eventsIcon from '../src/assets/icons/events.svg'
 import contactIcon from '../src/assets/icons/contact.svg'
-import brandDemo from '../src/assets/images/brand-1.webp'
+import brand1 from '../src/assets/images/brands-showcase/firebirdvr.png'
+import brand2 from '../src/assets/images/brands-showcase/guruvrai.png'
 import initiateCalibration from '../src/assets/images/event-backdrops/initiate-calibration.jpg'
 import activateImmersion from '../src/assets/images/event-backdrops/activate-immersion.png'
 import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
@@ -37,12 +38,8 @@ const NAV_ITEMS = [
 ];
 
 const BRANDS = [
-  { id: '1', name: 'FIREBIRD VR', photo: brandDemo, date: 'August 2025' },
-  { id: '2', name: 'FOSTER HEALTH', photo: brandDemo, date: 'November 2025' },
-  { id: '3', name: 'HAVEN & CO.', photo: '', date: 'July 2025' },
-  { id: '4', name: 'SOLVRA SYSTEMS', photo: '', date: 'January 2026' },
-  { id: '5', name: 'COOPLA', photo: '', date: 'March 2026' },
-  { id: '6', name: 'UNIMARK', photo: '', date: 'July 2025' },
+  { id: '1', name: 'FIREBIRD VR', photo: brand1, date: 'August 2026', link: 'https://firebirdvr.com/' },
+  { id: '2', name: 'GURUVR AI', photo: brand2, date: 'August 2026', link: 'https://guruvr.ai/LandingPage' },
 ]
 
 const EVENTS_CONDUCTED = [
@@ -81,7 +78,7 @@ const EVENTS_CONDUCTED = [
       The event concluded with its most anticipated segment—a live Virtual Reality demonstration and hands-on experience. Before entering the virtual environment, participants were guided through the proper use of VR headsets and navigation within immersive applications. Students then experienced the team's Smart India Hackathon project firsthand before taking part in a thrilling virtual roller coaster simulation. For many attendees, this was their first interaction with a VR headset, making the experience both memorable and transformative. Behind the scenes, the organizing team ensured smooth execution through efficient queue management, fixed experience durations, and proper headset sanitization, allowing every participant to safely experience the technology.
 
       More than just an introductory event, Initiate Calibration established the vision and identity of Hyperspace as a platform dedicated to fostering curiosity, innovation, and technical excellence in the field of Extended Reality. It successfully introduced students to immersive technologies, demonstrated their real-world impact through practical examples, and inspired the next generation of XR developers, researchers, and innovators to explore the limitless possibilities of the digital world.`,
-    albumLink: '"https://drive.google.com'
+    albumLink: 'https://drive.google.com/drive/folders/16iI3MrsTmjGCnzyEFRUswiQO5J17mrJj?usp=drive_link'
   },
   {
     id: 2,
@@ -118,7 +115,7 @@ const EVENTS_CONDUCTED = [
       The event concluded with a formal vote of thanks recognizing the contributions of the guest speaker, faculty members, attendees, and the entire Hyperspace SIG organizing team. To maintain enthusiasm for future activities, the Vice President concluded the session by introducing the next Hyperspace SIG event and highlighting the exciting learning opportunities that students could look forward to.
 
       Overall, Activate Immersion successfully connected classroom learning with industry practices, equipping students with practical knowledge, career direction, and a deeper appreciation of the expanding XR landscape. The event strengthened Hyperspace SIG's vision of fostering innovation, technical excellence, and immersive technology awareness among aspiring engineers.`,
-    albumLink: '"https://drive.google.com'
+    albumLink: 'https://drive.google.com/drive/folders/1wpldaN6wkPjuT9k_MCgXjJ-IuhiJaAgo?usp=drive_link'
   },
   {
     id: 3,
@@ -155,7 +152,7 @@ const EVENTS_CONDUCTED = [
       On the second day, the workshop continued from where the previous session had concluded. Participants refined their projects with the assistance of mentors, while the technical team provided live demonstrations and one-on-one guidance whenever required. To keep the atmosphere lively and rewarding, the organizers also hosted a Kahoot quiz during the break, with small prizes awarded to the top performers. This combination of technical instruction and interactive activities kept students engaged while reinforcing the concepts they had learned.
 
       Following the completion of the workshop, the organizing team gathered participant feedback to evaluate the event's strengths and identify areas for improvement. The insights collected became valuable input for planning future workshops and the anticipated hackathon series. By combining practical Unity development, collaborative learning, and thoughtful event execution, Render Creation successfully equipped participants with foundational game development skills while establishing a stronger and more capable Hyperspace SIG community`,
-    albumLink: '"https://drive.google.com'
+    albumLink: 'https://drive.google.com/drive/folders/1ElmY1VGCLGVcfkcw8sKwxJ2ktHfIEa1R?usp=drive_link'
   },
 ]
 const EVENTS_COMING_SOON = [
@@ -247,11 +244,69 @@ const EVENTS_COMING_SOON = [
 const EVENTS = [...EVENTS_CONDUCTED, ...EVENTS_COMING_SOON];
 
 const BLOGS_HOME = [
-  { id: 1, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide', slug: 'developing-games-with-unity-hub-beginners-guide', },
+  { id: 1, title: 'GAME DEVELOPMENT', date: 'JULY 31, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide', slug: 'developing-games-with-unity-hub-beginners-guide', },
   { id: 2, title: 'DESIGN JOURNAL', date: 'MAY 30, 2026', desc: 'Crafting Visual Identity: From Blank Canvas to Brand Universe', slug: 'crafting-visual-identity' },
-  { id: 3, title: 'GAME DEVELOPMENT', date: 'MAY 22, 2026', desc: 'Developing Games With Unity Hub: Beginner’s Guide', slug: 'developing-games-with-unity-hub-beginners-guide', },
+  { id: 3, title: 'Management Tips', date: 'JULY 31, 2026', desc: 'How To Plan Events', slug: 'managin-to-plan-events', },
 ]
 
+const BLOGS = [
+  {
+    id: 1,
+    tag: 'GAME DEVELOPMENT',
+    date: 'JULY 31, 2026',
+    title: 'Developing Games With Unity Hub: Beginner’s Guide',
+    slug: 'developing-games-with-unity-hub-beginners-guide',
+  },
+  {
+    id: 2,
+    tag: 'Design Journal',
+    date: 'MAY 30, 2026',
+    title: 'Crafting Visual Identity: From Blank Canvas to Brand Universe',
+    slug: 'crafting-visual-identity',
+  },
+  {
+    id: 3,
+    tag: 'Management Tips',
+    date: 'JULY 31, 2026',
+    title: 'How To Plan Events: A Comprehensive Report on the Way We Plan Our Events',
+    slug: 'managin-to-plan-events',
+  },
+  {
+    id: 4,
+    tag: '3D DESIGN',
+    date: 'JULY 31, 2026',
+    title: 'Designing The Assets That Define The Identity of a Game',
+    slug: '3d-design-assets',
+  },
+  {
+    id: 5,
+    tag: '3D DESIGN',
+    date: 'JULY 31, 2026',
+    title: 'Blender Tutorial: A Simple Tool to Build Complex Assets',
+    slug: '3d-design-blender-tutorial',
+  },
+  {
+    id: 6,
+    tag: 'MARKETING & MEDIA',
+    date: 'JULY 31, 2026',
+    title: 'Why Offline Marketing Works Better For Us In This Digital World: An Detailed File on Physical Advertising',
+    slug: 'offline-marketing-vs-online-marketing',
+  },
+  {
+    id: 7,
+    tag: 'Management Team',
+    date: 'JULY 31, 2026',
+    title: 'Turning Pratical Labs to an Cozy Workshop Environment: An Hyperspace Workshop Exclusive',
+    slug: 'practical-lab-to-fun-environment',
+  },
+  {
+    id: 8,
+    tag: 'Design Journal',
+    date: 'JULY 31, 2026',
+    title: 'Designing A Website: A Premium Web Development Report',
+    slug: 'hyperspace-web-development',
+  },
+]
 const testimonials = [
   {
     id: 1,
@@ -305,64 +360,6 @@ const FAQ_C = [
   { id: 7, question: 'How many domains does Hyperspace cover?', answer: "Hyperspace covers almost everything under Extended Reality - Augmented Reality, Virtual Reality, Mixed Reality. We also have workshops or events that train students in 3D Game Development, Asset Building, 3D Render Designs, and Environment Building." },
 ]
 
-const BLOGS = [
-  {
-    id: 1,
-    tag: 'GAME DEVELOPMENT',
-    date: 'MAY 22, 2026',
-    title: 'Developing Games With Unity Hub: Beginner’s Guide',
-    slug: 'developing-games-with-unity-hub-beginners-guide',
-  },
-  {
-    id: 2,
-    tag: 'Design Journal',
-    date: 'MAY 30, 2026',
-    title: 'Crafting Visual Identity: From Blank Canvas to Brand Universe',
-    slug: 'crafting-visual-identity',
-  },
-  {
-    id: 3,
-    tag: 'Management Tips',
-    date: 'MAY 22, 2026',
-    title: 'How To Plan Events',
-    slug: 'managin-to-plan-events',
-  },
-  {
-    id: 4,
-    tag: 'Management Tips',
-    date: 'MAY 22, 2026',
-    title: 'How To Plan Events',
-    slug: 'managin-to-plan-events',
-  },
-  {
-    id: 5,
-    tag: 'Management Tips',
-    date: 'MAY 22, 2026',
-    title: 'How To Plan Events',
-    slug: 'managin-to-plan-events',
-  },
-  {
-    id: 6,
-    tag: 'Management Tips',
-    date: 'MAY 22, 2026',
-    title: 'How To Plan Events',
-    slug: 'managin-to-plan-events',
-  },
-  {
-    id: 7,
-    tag: 'Management Tips',
-    date: 'MAY 22, 2026',
-    title: 'How To Plan Events',
-    slug: 'managin-to-plan-events',
-  },
-  {
-    id: 8,
-    tag: 'Design Journal',
-    date: 'MAY 30, 2026',
-    title: 'Crafting Visual Identity: From Blank Canvas to Brand Universe',
-    slug: 'crafting-visual-identity',
-  },
-]
 
 export {
   NAV_ITEMS,
