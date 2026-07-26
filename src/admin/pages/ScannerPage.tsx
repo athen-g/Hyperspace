@@ -70,59 +70,65 @@ export default function ScannerPage() {
     if (todayEvent) setSelectedEventId(todayEvent.id)
   }, [events])
 
+  // Handle initializing/clearing the camera scanner safely after DOM mounting
+  useEffect(() => {
+    if (scanning) {
+      const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false)
+      scanner.render(async (decodedText) => {
+        if (processingRef.current) return
+        processingRef.current = true
+
+        try {
+          // Extract token from URL or use raw value
+          let token = decodedText
+          try {
+            const url = new URL(decodedText)
+            token = url.searchParams.get('token') ?? decodedText
+          } catch (_) { /* not a URL, use raw */ }
+
+          const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
+
+          if (error) throw error
+
+          setResult(data)
+          playBeep(!!data.success)
+
+          // Auto-reset after 3 seconds
+          setTimeout(() => {
+            setResult(null)
+            processingRef.current = false
+          }, 3000)
+        } catch (err) {
+          playBeep(false)
+          setResult({ error: 'Scan failed. Please try again.' })
+          setTimeout(() => { setResult(null); processingRef.current = false }, 2000)
+        }
+      }, () => { /* error callback */ })
+      scannerRef.current = scanner
+    } else {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {})
+        scannerRef.current = null
+      }
+    }
+  }, [scanning])
+
   const startScanner = () => {
-    if (scannerRef.current) return
     setScanning(true)
     setResult(null)
-    const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false)
-    scanner.render(async (decodedText) => {
-      if (processingRef.current) return
-      processingRef.current = true
-
-      try {
-        // Extract token from URL or use raw value
-        let token = decodedText
-        try {
-          const url = new URL(decodedText)
-          token = url.searchParams.get('token') ?? decodedText
-        } catch (_) { /* not a URL, use raw */ }
-
-        const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
-
-        if (error) throw error
-
-        setResult(data)
-        if (data.success) {
-          playBeep(true)
-        } else {
-          playBeep(false)
-        }
-
-        // Auto-reset after 3 seconds
-        setTimeout(() => {
-          setResult(null)
-          processingRef.current = false
-        }, 3000)
-      } catch (err) {
-        playBeep(false)
-        setResult({ error: 'Scan failed. Please try again.' })
-        setTimeout(() => { setResult(null); processingRef.current = false }, 2000)
-      }
-    }, () => { /* error callback */ })
-    scannerRef.current = scanner
   }
 
   const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {})
-      scannerRef.current = null
-    }
     setScanning(false)
     setResult(null)
     processingRef.current = false
   }
 
-  useEffect(() => () => stopScanner(), [])
+  useEffect(() => () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear().catch(() => {})
+    }
+  }, [])
 
   const isSuccess = result && 'success' in result && result.success
   const isAlreadyScanned = result && 'error' in result && result.error === 'already_scanned'
