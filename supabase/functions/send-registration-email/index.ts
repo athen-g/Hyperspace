@@ -53,7 +53,8 @@ Deno.serve(async (req) => {
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
 
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrPayload)}`
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=200`
+    console.log('Generated QR URL:', qrImageUrl)
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
