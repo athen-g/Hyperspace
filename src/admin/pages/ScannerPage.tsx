@@ -3,7 +3,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useEvents } from '../../hooks/useEvent'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 type ScanResult = { success: true; studentName: string; eventTitle: string; registrationNo: string } | { error: 'already_scanned'; scannedAt: string } | { error: string }
 
@@ -30,6 +30,38 @@ export default function ScannerPage() {
   const [result, setResult] = useState<ScanResult | null>(null)
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const processingRef = useRef(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Handle auto-scanning from URL query parameters
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (token && !processingRef.current) {
+      processingRef.current = true
+
+      // Clean URL parameters
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('token')
+      setSearchParams(newParams, { replace: true })
+
+      const processToken = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
+          if (error) throw error
+          setResult(data)
+          playBeep(!!data.success)
+          setTimeout(() => {
+            setResult(null)
+            processingRef.current = false
+          }, 3000)
+        } catch (err) {
+          playBeep(false)
+          setResult({ error: 'Scan failed. Please try again.' })
+          setTimeout(() => { setResult(null); processingRef.current = false }, 2000)
+        }
+      }
+      processToken()
+    }
+  }, [searchParams, setSearchParams])
 
   // Auto-select today's event
   useEffect(() => {
