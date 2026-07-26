@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Html5QrcodeScanner } from 'html5-qrcode'
+import { Html5Qrcode } from 'html5-qrcode'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useEvents } from '../../hooks/useEvent'
@@ -28,7 +28,7 @@ export default function ScannerPage() {
   const [selectedEventId, setSelectedEventId] = useState('')
   const [scanning, setScanning] = useState(false)
   const [result, setResult] = useState<ScanResult | null>(null)
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null)
+  const scannerRef = useRef<Html5Qrcode | null>(null)
   const processingRef = useRef(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -73,42 +73,54 @@ export default function ScannerPage() {
   // Handle initializing/clearing the camera scanner safely after DOM mounting
   useEffect(() => {
     if (scanning) {
-      const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false)
-      scanner.render(async (decodedText) => {
-        if (processingRef.current) return
-        processingRef.current = true
-
-        try {
-          // Extract token from URL or use raw value
-          let token = decodedText
-          try {
-            const url = new URL(decodedText)
-            token = url.searchParams.get('token') ?? decodedText
-          } catch (_) { /* not a URL, use raw */ }
-
-          const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
-
-          if (error) throw error
-
-          setResult(data)
-          playBeep(!!data.success)
-
-          // Auto-reset after 3 seconds
-          setTimeout(() => {
-            setResult(null)
-            processingRef.current = false
-          }, 3000)
-        } catch (err) {
-          playBeep(false)
-          setResult({ error: 'Scan failed. Please try again.' })
-          setTimeout(() => { setResult(null); processingRef.current = false }, 2000)
-        }
-      }, () => { /* error callback */ })
+      const scanner = new Html5Qrcode('qr-reader')
       scannerRef.current = scanner
+
+      // Programmatically start camera scanning immediately (triggers native browser prompt)
+      scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: 250 },
+        async (decodedText) => {
+          if (processingRef.current) return
+          processingRef.current = true
+
+          try {
+            // Extract token from URL or use raw value
+            let token = decodedText
+            try {
+              const url = new URL(decodedText)
+              token = url.searchParams.get('token') ?? decodedText
+            } catch (_) { /* not a URL, use raw */ }
+
+            const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
+
+            if (error) throw error
+
+            setResult(data)
+            playBeep(!!data.success)
+
+            // Auto-reset after 3 seconds
+            setTimeout(() => {
+              setResult(null)
+              processingRef.current = false
+            }, 3000)
+          } catch (err) {
+            playBeep(false)
+            setResult({ error: 'Scan failed. Please try again.' })
+            setTimeout(() => { setResult(null); processingRef.current = false }, 2000)
+          }
+        },
+        () => { /* verbose scanner errors ignored */ }
+      ).catch(err => {
+        console.error('Camera access error:', err)
+        toast.error('Failed to open camera. Check permissions.')
+        setScanning(false)
+      })
     } else {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {})
-        scannerRef.current = null
+        scannerRef.current.stop().catch(() => {}).then(() => {
+          scannerRef.current = null
+        })
       }
     }
   }, [scanning])
@@ -126,7 +138,7 @@ export default function ScannerPage() {
 
   useEffect(() => () => {
     if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {})
+      scannerRef.current.stop().catch(() => {})
     }
   }, [])
 
