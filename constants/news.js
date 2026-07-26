@@ -43,14 +43,14 @@ Industry experts believe the convergence of artificial intelligence, cloud compu
     ]
   },
   {
-    id: 'optics-lab-4ms',
-    category: 'Research',
-    date: 'Jun 02, 2026',
-    title: 'Inside the Optics Lab: Cutting Latency to 4ms',
+    id: 'meta-smart-glasses',
+    category: 'Product',
+    date: 'July 22, 2026',
+    title: 'Meta takes steps to prevent misuse of Smart Glasses ',
     excerpt:
-      'A look at the waveguide redesign that shaved motion-to-photon latency below the perceptual threshold.',
+      'Meta implements new policies on Instagram and Smart Glasses to prevent users from misusing and stalking people. ',
     thumbnail: poster2,
-    slug: 'inside-the-optical-lab',
+    slug: 'meta-smart-glasses-misuse',
     content: [
       {
         type: 'image',
@@ -58,9 +58,11 @@ Industry experts believe the convergence of artificial intelligence, cloud compu
       },
       {
         type: 'paragraph',
-        text: `The year 2026 has emerged as a landmark period for augmented reality (AR) and virtual reality (VR), marking the transition of immersive technologies from niche innovations to everyday tools. Rapid advancements in lightweight headsets, AI-powered spatial computing, improved display technology, and faster wireless connectivity have made AR and VR experiences more accessible than ever before. As device prices continue to decline and content ecosystems expand, consumers are increasingly adopting immersive technologies for work, education, entertainment, shopping, and communication. What was once considered futuristic is now becoming a practical part of daily life, transforming how people interact with both digital and physical environments.
-
-Businesses across multiple industries are embracing AR and VR to improve productivity and reduce operational costs. Manufacturing companies are using augmented reality to guide technicians through complex assembly and maintenance procedures, reducing errors and improving efficiency. In healthcare, virtual reality is revolutionizing medical training by allowing students and professionals to practice surgeries in realistic, risk-free environments. Hospitals are also exploring VR-based therapy to assist patients with rehabilitation, pain management, and mental health treatment. Architects and real estate developers are leveraging immersive 3D walkthroughs, enabling clients to explore buildings long before construction begins.`,
+        text: `Meta has introduced a new Instagram rule as it cracks down on misuse of smart glasses. Adam Mosseri, the head of Instagram, addressed the ongoing privacy concerns around camera-equipped smart glasses, including the Meta Ray-Ban, warning that users who post harassing content recorded with them could face a ban from the platform. 
+        
+        “We don’t want people surreptitiously taking videos of other people, harassing them, and then posting them on our platform. So we’re trying to fight that in any way we can” said Mosseri. 
+        
+        Accounts being found misusing the glasses will get suspended or banned. Meta has already banned multiple high-profile accounts with over a million followers. `,
       },
       {
         type: 'image',
@@ -68,13 +70,11 @@ Businesses across multiple industries are embracing AR and VR to improve product
       },
       {
         type: 'paragraph',
-        text: `Education has witnessed one of the most significant transformations through immersive technology. Schools, colleges, and universities are integrating virtual classrooms and interactive simulations into their curricula, allowing students to explore historical landmarks, conduct scientific experiments, or visualize complex engineering concepts in three dimensions. AR-powered learning materials make lessons more engaging by overlaying digital information onto textbooks and laboratory equipment, helping students understand concepts more effectively while encouraging collaborative learning.`,
+        text: `This isn’t the first action Meta has taken against bad actors, a few days ago Meta announced that tampering with the recording light will cause the camera to be permanently disabled. Also covering the light will stop the camera from working. `,
       },
       {
         type: 'paragraph',
-        text: `The entertainment industry continues to drive consumer adoption through increasingly immersive gaming, live events, and storytelling experiences. Modern VR games offer lifelike graphics, realistic physics, and multiplayer social environments that blur the line between virtual and physical worlds. Concerts, sporting events, museums, and theme parks are also incorporating AR and VR experiences to create deeper audience engagement. Meanwhile, retailers are enabling customers to virtually try on clothing, preview furniture inside their homes, and interact with products using AR before making purchasing decisions, resulting in greater customer confidence and satisfaction.
-
-Industry experts believe the convergence of artificial intelligence, cloud computing, 5G connectivity, and spatial computing will further accelerate innovation over the next decade. AI-powered assistants are making virtual environments more intelligent and personalized, while cloud rendering allows high-quality immersive experiences to run on lighter, more affordable devices. As developers continue building practical applications and governments invest in digital infrastructure, AR and VR are expected to become essential components of modern workplaces, education systems, healthcare services, and everyday consumer experiences. If current trends continue, 2026 may be remembered as the year immersive technology truly entered the mainstream, laying the foundation for the next generation of human-computer interaction.`,
+        text: `Overall, this is a step in the right direction that Meta is taking to ensure user safety and protecting people from stalking attempts. `,
       },
     ]
   },

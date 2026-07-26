@@ -433,7 +433,7 @@ body::before {
 }
 
 .about-section {
-  @apply w-[93.056%] ml-[20px] mt-8 mb-16 border-b border-light-grey p-8 pr-0 font-host z-10 max-md:ml-[20px] max-md:p-4 max-md:pr-0;
+  @apply w-[93.056%] ml-[3.472%] mt-8 mb-16 border-b border-light-grey p-8 pr-0 font-host z-10 max-md:ml-[3.472%] max-md:p-4 max-md:pr-0;
 }
 
 .about-title {
@@ -657,7 +657,7 @@ body::before {
 .brand-list-photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -671,7 +671,7 @@ body::before {
   display: grid;
   grid-template-columns: 26.12fr 23.88fr;
   align-items: center;
-  cursor: default;
+  cursor: pointer;
 }
 
 .brand-list-title {

@@ -111,7 +111,7 @@ const About = () => {
                     <div className="about-main-sub">OF 18 ENTHUSIASTS</div>
                 </div>
             </div>
-            <div className={`about-section flex flex-col gap-8 md:gap-12 !ml-[20px] !pr-0 ${isMobile ? '!w-[calc(100%-20px)] !p-4 !pr-0' : ''}`}>
+            <div className={`about-section flex flex-col gap-8 md:gap-12 !ml-[3.472%] !pr-0 ${isMobile ? '!w-[calc(100%-3.472%)] !p-4 !pr-0' : ''}`}>
                 <div className="flex gap-4 items-baseline">
                     <span className={`about-title ${isMobile600 ? '!text-[40px]' : ''}`}>ABOUT </span>
                     <span className={`about-title-us text-white tracking-[1px] font-extrabold ${isMobile600 ? '!text-[40px]' : 'text-[96px]'}`}>US</span>
