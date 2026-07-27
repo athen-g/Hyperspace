@@ -104,15 +104,15 @@ export default function EventOngoingTemplate() {
 
         {/* Metadata Table */}
         <div className={`relative z-10 ${isMobile768
-            ? 'w-[93.056%] mx-auto my-8 bg-[#0e0e0e]'
-            : 'w-[93.056%] ml-[435px] max-w-[1406px] mb-[75px]'
+          ? 'w-[93.056%] mx-auto my-8 bg-[#0e0e0e]'
+          : 'w-[93.056%] ml-[435px] max-w-[1406px] mb-[75px]'
           }`}>
 
           <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'ml-[520px] border-b border-light-grey'}>
 
             {[
               ["DATE:", event.date],
-              ["AUDIENCE:", event.total_seats],
+              ["AUDIENCE:", event.audience || event.total_seats],
               ["TYPE:", event.type],
               [
                 "TAGS:",
@@ -163,7 +163,7 @@ export default function EventOngoingTemplate() {
             <div className={isMobile768 ? "w-[93.056%] mx-auto mb-10 p-4" : "w-[93.056%] mx-auto mb-24 p-20"}>
               <h2 className={`font-host font-extrabold uppercase leading-[0.95] text-[#E91E63] ${isMobile768 ? 'text-[44px] max-w-full text-left' : 'text-[clamp(44px,6vw,90px)] max-w-[700px]'
                 }`}>
-                SCHEDULE FOR THE WORKSHOP
+                {event.scheduleLabel || 'SCHEDULE FOR THE WORKSHOP'}
               </h2>
             </div>
 
@@ -282,41 +282,25 @@ export default function EventOngoingTemplate() {
           <div className={
             isMobile768
               ? 'w-[93.056%] mx-auto p-10 relative z-10 mb-12 flex flex-col gap-6 bg-[#0e0e0e] border border-light-grey'
-              : 'relative z-10 w-[93.056%] mx-auto py-[100px]'
+              : 'w-[93.056%] mx-auto py-[140px] relative z-10 mb-50'
           }>
-            {isMobile768 ? (
-              <>
-                <div className="flex flex-col leading-[0.85]">
-                  <span className="font-host font-extrabold uppercase text-[#8A8A8A] text-[50px]">
-                    THE
-                  </span>
-                  <span className="font-host font-extrabold uppercase text-accent-pink text-[50px]">
-                    PLAN
-                  </span>
-                </div>
-                <div className="pt-2 mt-2 w-full">
-                  <p className="font-host text-white text-[14px] leading-[1.4] tracking-[-0.01em] whitespace-pre-line">
-                    {event.plan}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="flex gap-100 items-end m-50">
-                <div className="lg:col-span-5 flex flex-col leading-[0.85]">
-                  <span className="font-host font-extrabold uppercase text-[#8A8A8A] text-[clamp(64px,8vw,140px)]">
-                    THE
-                  </span>
-                  <span className="font-host font-extrabold uppercase text-white text-[clamp(64px,8vw,140px)]">
-                    PLAN
-                  </span>
-                </div>
-                <div className="lg:col-span-7 pt-4 lg:pt-12">
-                  <p className="font-host text-white text-[clamp(16px,1.4vw,24px)] leading-[1.4] tracking-tight whitespace-pre-line text-left">
-                    {event.plan}
-                  </p>
-                </div>
-              </div>
-            )}
+
+            <div className={isMobile768 ? 'flex flex-col leading-[0.85]' : 'flex flex-col leading-[0.85] ml-40'}>
+              <span className={`font-host font-extrabold uppercase text-[#8A8A8A] ${isMobile768 ? 'text-[50px]' : 'text-[clamp(64px,6vw,120px)]'}`}>
+                THE
+              </span>
+
+              <span className={`font-host font-extrabold uppercase text-accent-pink ${isMobile768 ? 'text-[50px]' : 'text-white text-[clamp(64px,6vw,120px)]'}`}>
+                PLAN
+              </span>
+            </div>
+
+            <div className={isMobile768 ? 'pt-2 mt-2 w-full' : 'max-w-[1200px] pt-[20px] mt-20 ml-120'}>
+              <p className="font-host text-white text-[14px] md:text-[clamp(18px,1.2vw,22px)] leading-[1.4] tracking-[-0.01em] whitespace-pre-line text-left">
+                {event.plan}
+              </p>
+            </div>
+
           </div>
         )}
 
@@ -338,12 +322,16 @@ export default function EventOngoingTemplate() {
                 </span>
               </a>
             ) : (
-              <a href="#" className="header-roll-link decoration-[#E91E63]">
-                <span className="header-roll-link__stack">
+              <span
+                title="Rulebook not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
                   <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE RULEBOOK</span>
-                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE RULEBOOK</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
                 </span>
-              </a>
+              </span>
             )}
 
             {!isMobile768 && <span>|</span>}
@@ -356,12 +344,16 @@ export default function EventOngoingTemplate() {
                 </span>
               </a>
             ) : (
-              <a href="#" className="header-roll-link decoration-[#E91E63]">
-                <span className="header-roll-link__stack">
+              <span
+                title="Brochure not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
                   <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE INFORMATION BROCHURE</span>
-                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE INFORMATION BROCHURE</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
                 </span>
-              </a>
+              </span>
             )}
           </div>
         </div>
