@@ -103,6 +103,7 @@ export default function RegistrationsPage() {
                     branch: form.branch,
                     year: parseInt(form.year),
                     prn: form.prn,
+                    division: form.division,
                     newsletter_opt_in: form.newsletter,
                     event_id: event.id,
                     custom_field_data: customData

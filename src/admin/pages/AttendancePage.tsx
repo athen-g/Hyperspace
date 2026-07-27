@@ -11,16 +11,26 @@ export default function AttendancePage() {
     exportToXLSX(attendance.map(a => ({
       'Reg No.': a.registration_no,
       'Name': a.student_name,
-      'Email': a.student_email,
-      'Scanned At': format(new Date(a.scanned_at), 'dd MMM yyyy HH:mm'),
-      'Scanned By': a.scanned_by_name,
+      'College': a.student_college ?? '',
+      'PRN': a.student_prn ?? '',
+      'Year': a.student_year ?? '',
+      'Branch': a.student_branch ?? '',
+      'Division': a.student_division ?? '',
     })), `attendance-${eventId}`)
   }
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Reg No.', 'Name', 'Email', 'Scanned At', 'Scanned By'],
-      attendance.map(a => [a.registration_no, a.student_name, a.student_email, format(new Date(a.scanned_at), 'dd MMM HH:mm'), a.scanned_by_name]) as (string | number | null)[][],
+      ['Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division'],
+      attendance.map(a => [
+        a.registration_no,
+        a.student_name,
+        a.student_college ?? '',
+        a.student_prn ?? '',
+        a.student_year ?? '',
+        a.student_branch ?? '',
+        a.student_division ?? ''
+      ]) as (string | number | null)[][],
       `Attendance — ${attendance[0]?.event_title ?? ''}`,
       `attendance-${eventId}`
     )
