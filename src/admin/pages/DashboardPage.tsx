@@ -75,8 +75,8 @@ export default function DashboardPage() {
       {/* Upcoming events */}
       <div style={{ marginBottom: '40px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#e5e5e5', margin: '0 0 16px' }}>Upcoming Events</h2>
-        <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead>
               <tr>
                 <th style={thStyle}>Event</th>
@@ -111,8 +111,8 @@ export default function DashboardPage() {
       {/* Recent registrations */}
       <div>
         <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#e5e5e5', margin: '0 0 16px' }}>Recent Registrations</h2>
-        <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '650px' }}>
             <thead>
               <tr>
                 <th style={thStyle}>Reg No.</th>
