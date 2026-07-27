@@ -299,6 +299,8 @@ body::before {
 @media (max-width: 810px) {
   .navbar {
     @apply bottom-[40px] w-[280px] max-w-[calc(100vw-24px)] h-[56px] px-2;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .navbar__item {
@@ -316,6 +318,13 @@ body::before {
 
 .navbar__item:focus-visible {
   @apply outline-2 outline-accent-cyan outline-offset-2;
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 .about-main-background {
@@ -349,6 +358,12 @@ body::before {
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .animate-float-orb {
+    animation: none !important;
+  }
 }
 
 @utility bg-blog-hero-radial {
@@ -1217,6 +1232,13 @@ body::before {
 .blog-page-wrapper .blog-hero-orb-3 {
   @apply w-[300px] h-[300px] bg-[#c8006466] top-[40%] right-[30%] opacity-20;
   animation-delay: -2s;
+}
+
+@media (max-width: 768px) {
+  .blog-page-wrapper .blog-hero-orb {
+    animation: none !important;
+    filter: blur(60px) !important;
+  }
 }
 
 @keyframes floatOrb {
