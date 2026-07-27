@@ -102,7 +102,7 @@ export async function exportToPDF(
 ) {
   const toastId = toast.loading('Generating premium PDF report...')
   try {
-    const doc = new jsPDF({ orientation: 'landscape' })
+    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' })
 
     // 1. Load Custom Fonts (Non-blocking fallback)
     await Promise.all([
