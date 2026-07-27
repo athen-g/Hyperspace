@@ -115,10 +115,6 @@ body::before {
   @apply w-full max-w-full m-0 min-h-[100svh] flex flex-col;
 }
 
-.reading-progress {
-  @apply fixed top-16 left-0 h-[2px] bg-gradient-to-r from-accent-pink to-accent-cyan z-[999] w-0 transition-[width] duration-100 ease-linear;
-}
-
 .blog-hero {
   @apply relative min-h-[90vh] flex flex-col justify-end pt-16 overflow-hidden bg-[#08080F];
 }
@@ -1598,12 +1594,6 @@ body::before {
 .blog-page-wrapper .footer-wordmark-sub {
   @apply font-display font-semibold tracking-[0.3em] uppercase text-white/[0.045] text-right;
   font-size: clamp(1.5rem, 3.5vw, 3.5rem);
-}
-
-/* Reading progress bar */
-.blog-page-wrapper .reading-progress {
-  @apply fixed top-16 left-0 h-[2px] z-[999] w-0 transition-[width] duration-100 ease-linear;
-  background: linear-gradient(90deg, var(--color-accent-pink), var(--color-accent-cyan));
 }
 
 /* ============================================================

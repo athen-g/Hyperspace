@@ -38,37 +38,12 @@ import ScanRedirect from "./admin/pages/ScanRedirect";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
-  const progressRef = useRef(null);
   const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-
-      const progress =
-        docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-
-      if (progressRef.current) {
-        progressRef.current.style.width = `${progress}%`;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   return (
     <>
       <Toaster position="top-right" toastOptions={{ style: { background: '#1a1a1a', color: '#e5e5e5', border: '1px solid #333' } }} />
       <CustomCursor />
-      <div className="reading-progress" ref={progressRef}></div>
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
