@@ -3,6 +3,9 @@ import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useRegistrations } from '../../hooks/useRegistrations'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
+import { useAuth } from '../../hooks/useAuth'
+import { supabase } from '../../lib/supabase'
+import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
 
 type RegDetail = Database['public']['Views']['registration_details']['Row']
@@ -11,14 +14,23 @@ const PAGE_SIZE = 50
 
 export default function RegistrationsPage() {
   const { eventId } = useParams<{ eventId: string }>()
-  const { registrations, loading } = useRegistrations(eventId ?? '')
+  const { registrations, loading, refetch } = useRegistrations(eventId ?? '')
+  const { member } = useAuth()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
+
+  // College inline editing state
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null)
+  const [editCollegeValue, setEditCollegeValue] = useState('')
+  const [savingCollege, setSavingCollege] = useState(false)
+
+  const isAuthorizedToEdit = member?.role === 'super_admin' || member?.role === 'core'
 
   const filtered = useMemo(() =>
     registrations.filter(r =>
       r.student_name.toLowerCase().includes(search.toLowerCase()) ||
       r.student_email.toLowerCase().includes(search.toLowerCase()) ||
+      (r.student_college && r.student_college.toLowerCase().includes(search.toLowerCase())) ||
       r.registration_no.toLowerCase().includes(search.toLowerCase())
     ), [registrations, search])
 
@@ -49,6 +61,35 @@ export default function RegistrationsPage() {
     )
   }
 
+  const handleStartEditCollege = (r: RegDetail) => {
+    if (!isAuthorizedToEdit || !r.student_id) return
+    setEditingStudentId(r.student_id)
+    setEditCollegeValue(r.student_college ?? '')
+  }
+
+  const handleSaveCollege = async (studentId: string) => {
+    if (!editCollegeValue.trim()) {
+      toast.error('College name cannot be empty')
+      return
+    }
+    setSavingCollege(true)
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({ college: editCollegeValue.trim() })
+        .eq('id', studentId)
+
+      if (error) throw error
+      toast.success('College updated successfully!')
+      setEditingStudentId(null)
+      refetch() // Reload registrations with updated details
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update college')
+    } finally {
+      setSavingCollege(false)
+    }
+  }
+
   const thStyle: React.CSSProperties = { padding: '12px 16px', textAlign: 'left', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', fontWeight: 500, borderBottom: '1px solid #1a1a1a', whiteSpace: 'nowrap' }
   const tdStyle: React.CSSProperties = { padding: '12px 16px', fontSize: '13px', color: '#aaa', borderBottom: '1px solid #111', whiteSpace: 'nowrap' }
 
@@ -68,7 +109,7 @@ export default function RegistrationsPage() {
 
       {/* Search */}
       <input
-        placeholder="Search by name, email, or reg no..."
+        placeholder="Search by name, email, college or reg no..."
         value={search}
         onChange={e => { setSearch(e.target.value); setPage(0) }}
         style={{ width: '100%', maxWidth: '400px', padding: '10px 14px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', fontSize: '13px', outline: 'none', marginBottom: '16px', boxSizing: 'border-box' }}
@@ -95,7 +136,51 @@ export default function RegistrationsPage() {
                 <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{r.registration_no}</td>
                 <td style={{ ...tdStyle, color: '#e5e5e5' }}>{r.student_name}</td>
                 <td style={tdStyle}>{r.student_email}</td>
-                <td style={tdStyle}>{r.student_college ?? '—'}</td>
+                <td style={tdStyle}>
+                  {editingStudentId === r.student_id ? (
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        value={editCollegeValue}
+                        onChange={e => setEditCollegeValue(e.target.value)}
+                        disabled={savingCollege}
+                        style={{
+                          background: '#111',
+                          border: '1px solid #333',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          padding: '4px 8px',
+                          fontSize: '13px',
+                          outline: 'none'
+                        }}
+                      />
+                      <button
+                        onClick={() => handleSaveCollege(r.student_id!)}
+                        disabled={savingCollege}
+                        style={{ background: 'transparent', border: 'none', color: '#4ade80', cursor: 'pointer', fontSize: '14px' }}
+                      >
+                        ✔
+                      </button>
+                      <button
+                        onClick={() => setEditingStudentId(null)}
+                        disabled={savingCollege}
+                        style={{ background: 'transparent', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
+                      >
+                        ✖
+                      </button>
+                    </div>
+                  ) : (
+                    <span 
+                      onClick={() => handleStartEditCollege(r)}
+                      style={{ 
+                        cursor: isAuthorizedToEdit ? 'pointer' : 'default',
+                        borderBottom: isAuthorizedToEdit ? '1px dotted #555' : 'none'
+                      }}
+                      title={isAuthorizedToEdit ? 'Click to edit college name' : ''}
+                    >
+                      {r.student_college ?? '—'}
+                    </span>
+                  )}
+                </td>
                 <td style={tdStyle}>{r.student_year ?? '—'}</td>
                 <td style={tdStyle}>{format(new Date(r.registered_at), 'dd MMM, HH:mm')}</td>
                 <td style={tdStyle}>
