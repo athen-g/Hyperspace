@@ -206,6 +206,8 @@ export interface Database {
           student_college: string | null
           student_branch: string | null
           student_year: number | null
+          student_prn: string | null
+          newsletter_opt_in: boolean
           event_id: string
           event_title: string
           event_date: string
