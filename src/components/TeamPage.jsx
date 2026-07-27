@@ -43,17 +43,7 @@ export default function TeamPage() {
             }
         }
 
-        let lastTime = 0;
-        const fps = window.innerWidth < 768 ? 30 : 60;
-        const fpsInterval = 1000 / fps;
-
-        function draw(time = performance.now()) {
-            animId = requestAnimationFrame(draw)
-
-            const elapsed = time - lastTime
-            if (lastTime && elapsed < fpsInterval) return
-            lastTime = time - (elapsed % fpsInterval)
-
+        function draw() {
             ctx.clearRect(0, 0, W, H)
             particles.forEach(p => {
                 p.pulse += p.pulseSpeed
@@ -88,6 +78,8 @@ export default function TeamPage() {
                     }
                 }
             }
+
+            animId = requestAnimationFrame(draw)
         }
 
         resize()

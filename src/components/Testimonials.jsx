@@ -60,16 +60,6 @@ const Testimonials = () => {
           duration: 0.7,
           stagger: 0.02,
           ease: 'power3.out',
-          onStart() {
-            split.words.forEach(word => {
-              if (word) word.style.willChange = 'transform, opacity';
-            });
-          },
-          onComplete() {
-            split.words.forEach(word => {
-              if (word) word.style.willChange = 'auto';
-            });
-          }
         }
       )
 
@@ -78,7 +68,7 @@ const Testimonials = () => {
         splitRef.current = null
       }
     },
-    { scope: quoteRef, dependencies: [currentIndex], revertOnUpdate: true }
+    { dependencies: [currentIndex], revertOnUpdate: true }
   )
 
   return (
