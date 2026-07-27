@@ -55,7 +55,7 @@ function App() {
     if (isInviteUrl) {
       // Listen for the session to be established, then redirect to setup password
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
+        if (session && !window.location.pathname.includes("/admin/register")) {
           navigate("/admin/register", { replace: true });
         }
       });
