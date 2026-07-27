@@ -235,7 +235,7 @@ body::before {
 }
 
 .navbar {
-  @apply fixed bottom-[50px] left-1/2 -translate-x-1/2 w-[783px] max-w-[calc(100vw-32px)] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[6px] md:backdrop-blur-[18px] px-3;
+  @apply fixed bottom-[50px] left-1/2 -translate-x-1/2 w-[783px] max-w-[calc(100vw-32px)] h-16 z-[1001] flex items-center justify-around bg-navbar-bg border border-navbar-border rounded-full backdrop-blur-[18px] px-3;
 }
 
 .navbar__pill {
@@ -4461,10 +4461,4 @@ body::before {
   .team-page .members-grid {
     grid-template-columns: 1fr;
   }
-}
-
-/* Optimize offscreen rendering with content-visibility */
-section:not(#home):not(#hero):not(.blog-hero) {
-  content-visibility: auto;
-  contain-intrinsic-size: 0 500px;
 }
