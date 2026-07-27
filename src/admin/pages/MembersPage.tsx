@@ -3,17 +3,28 @@ import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
 
-type CoreMember = Database['public']['Tables']['core_members']['Row']
+type CoreMemberDetail = {
+  id: string
+  user_id: string
+  name: string
+  role: string
+  is_active: boolean
+  created_at: string
+  invited_at: string | null
+  last_sign_in_at: string | null
+  confirmation_sent_at: string | null
+  email: string | null
+}
 
 export default function MembersPage() {
-  const [members, setMembers] = useState<CoreMember[]>([])
+  const [members, setMembers] = useState<CoreMemberDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
   const [inviteForm, setInviteForm] = useState({ email: '', name: '', role: 'volunteer' })
   const [inviting, setInviting] = useState(false)
 
   const fetchMembers = async () => {
-    const { data } = await supabase.from('core_members').select('*').order('created_at')
+    const { data } = await supabase.from('core_member_details' as any).select('*').order('created_at')
     setMembers(data ?? [])
     setLoading(false)
   }
@@ -41,7 +52,7 @@ export default function MembersPage() {
     }
   }
 
-  const toggleActive = async (member: CoreMember) => {
+  const toggleActive = async (member: CoreMemberDetail) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('core_members') as any).update({ is_active: !member.is_active }).eq('id', member.id)
     if (error) { toast.error(error.message); return }
@@ -49,12 +60,65 @@ export default function MembersPage() {
     fetchMembers()
   }
 
-  const updateRole = async (member: CoreMember, role: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('core_members') as any).update({ role: role as CoreMember['role'] }).eq('id', member.id)
-    if (error) { toast.error(error.message); return }
-    toast.success(`Role updated`)
-    fetchMembers()
+  const handleResendInvite = async (member: CoreMemberDetail) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('invite-member', {
+        body: { action: 'resend', email: member.email }
+      })
+      if (error) throw error
+      if (data.success) {
+        toast.success(`Invitation resent to ${member.email}!`)
+        fetchMembers()
+      } else {
+        toast.error(data.error ?? 'Resend failed')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Resend failed')
+    }
+  }
+
+  const handleDeleteInvite = async (member: CoreMemberDetail) => {
+    if (!confirm(`Are you sure you want to delete the invitation for ${member.name}?`)) return
+    try {
+      const { data, error } = await supabase.functions.invoke('invite-member', {
+        body: { action: 'delete', userId: member.user_id }
+      })
+      if (error) throw error
+      if (data.success) {
+        toast.success(`Invitation deleted.`)
+        fetchMembers()
+      } else {
+        toast.error(data.error ?? 'Delete failed')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Delete failed')
+    }
+  }
+
+  const getStatus = (m: CoreMemberDetail) => {
+    if (m.last_sign_in_at) {
+      return m.is_active ? 'Active' : 'Inactive'
+    }
+    if (!m.invited_at) return 'Pending'
+    const inviteDate = new Date(m.invited_at)
+    const diffHours = (new Date().getTime() - inviteDate.getTime()) / (1000 * 60 * 60)
+    return diffHours > 24 ? 'Expired' : 'Pending'
+  }
+
+  const statusBadgeStyle = (status: string): React.CSSProperties => {
+    const base = { padding: '3px 10px', borderRadius: '20px', fontSize: '11px', display: 'inline-block' }
+    switch (status) {
+      case 'Active':
+        return { ...base, background: '#0a2a0a', color: '#4ade80', border: '1px solid #166534' }
+      case 'Inactive':
+        return { ...base, background: '#1a1a1a', color: '#555', border: '1px solid #2a2a2a' }
+      case 'Pending':
+        return { ...base, background: '#2a220a', color: '#facc15', border: '1px solid #713f12' }
+      case 'Expired':
+        return { ...base, background: '#2a0a0a', color: '#f87171', border: '1px solid #991b1b' }
+      default:
+        return base
+    }
   }
 
   const inputStyle: React.CSSProperties = { width: '100%', padding: '10px 14px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }
@@ -85,28 +149,39 @@ export default function MembersPage() {
           </thead>
           <tbody>
             {loading && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {members.map(m => (
-              <tr key={m.id}>
-                <td style={{ ...tdStyle, color: '#e5e5e5', fontWeight: 500 }}>{m.name}</td>
-                <td style={tdStyle}>
-                  <select value={m.role} onChange={e => updateRole(m, e.target.value)} style={{ ...inputStyle, width: 'auto', padding: '4px 10px' }}>
-                    <option value="volunteer">Volunteer</option>
-                    <option value="core">Core</option>
-                    <option value="super_admin">Super Admin</option>
-                  </select>
-                </td>
-                <td style={tdStyle}>
-                  <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', background: m.is_active ? '#0a2a0a' : '#1a1a1a', color: m.is_active ? '#4ade80' : '#555', border: `1px solid ${m.is_active ? '#166534' : '#2a2a2a'}` }}>
-                    {m.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td style={tdStyle}>
-                  <button onClick={() => toggleActive(m)} style={{ padding: '4px 12px', background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', color: '#888', cursor: 'pointer', fontSize: '12px' }}>
-                    {m.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {members.map(m => {
+              const status = getStatus(m)
+              return (
+                <tr key={m.id}>
+                  <td style={{ ...tdStyle, color: '#e5e5e5', fontWeight: 500 }}>{m.name}</td>
+                  <td style={{ ...tdStyle, textTransform: 'capitalize' }}>{m.role.replace('_', ' ')}</td>
+                  <td style={tdStyle}>
+                    <span style={statusBadgeStyle(status)}>
+                      {status}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>
+                    {(status === 'Active' || status === 'Inactive') && (
+                      <button onClick={() => toggleActive(m)} style={{ padding: '4px 12px', background: 'transparent', border: '1px solid #2a2a2a', borderRadius: '6px', color: '#888', cursor: 'pointer', fontSize: '12px' }}>
+                        {m.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
+                    )}
+                    {(status === 'Pending' || status === 'Expired') && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {status === 'Expired' && (
+                          <button onClick={() => handleResendInvite(m)} style={{ padding: '4px 12px', background: 'transparent', border: '1px solid #166534', borderRadius: '6px', color: '#4ade80', cursor: 'pointer', fontSize: '12px' }}>
+                            Resend
+                          </button>
+                        )}
+                        <button onClick={() => handleDeleteInvite(m)} style={{ padding: '4px 12px', background: 'transparent', border: '1px solid #991b1b', borderRadius: '6px', color: '#f87171', cursor: 'pointer', fontSize: '12px' }}>
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
