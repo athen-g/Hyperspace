@@ -301,6 +301,10 @@ export default function RegistrationsPage() {
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Year of Study</label>
                 <div style={{ color: '#aaa', fontSize: '14px', marginTop: '4px' }}>{selectedReg.student_year ?? '—'}</div>
               </div>
+              <div>
+                <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Division</label>
+                <div style={{ color: '#aaa', fontSize: '14px', marginTop: '4px' }}>{selectedReg.student_division ?? '—'}</div>
+              </div>
 
               <div>
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Status</label>
