@@ -7,7 +7,7 @@ import { useEvents } from '../../hooks/useEvent'
 const inputStyle: React.CSSProperties = { width: '100%', padding: '10px 14px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', marginBottom: '6px' }
 
-const emptyForm = { name: '', email: '', phone: '', college: '', branch: '', year: '1' }
+const emptyForm = { name: '', email: '', phone: '', college: "MES's Wadia College of Engineering", branch: '', year: '1', division: '' }
 
 export default function WalkInPage() {
   const { eventId } = useParams<{ eventId: string }>()
@@ -77,7 +77,21 @@ export default function WalkInPage() {
             </select>
           </div>
           <div><label style={labelStyle}>College</label><input style={inputStyle} value={form.college} onChange={f('college')} /></div>
-          <div><label style={labelStyle}>Branch</label><input style={inputStyle} value={form.branch} onChange={f('branch')} /></div>
+          <div><label style={labelStyle}>Branch</label>
+            <select style={inputStyle} value={form.branch} onChange={f('branch')}>
+              <option value="">— SELECT BRANCH —</option>
+              <option value="Computer Engineering">Computer Engineering</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+              <option value="Electronics & Telecommunications">Electronics & Telecommunications</option>
+              <option value="Automation & Robotics">Automation & Robotics</option>
+            </select>
+          </div>
+          <div><label style={labelStyle}>Division</label>
+            <select style={inputStyle} value={form.division} onChange={f('division')}>
+              <option value="">— SELECT DIVISION —</option>
+              {['1', '2', '3', '4'].map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
         </div>
 
         <button

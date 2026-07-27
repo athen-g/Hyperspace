@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
 
     // 2. Parse body
     const body = await req.json()
-    const { name, email, phone, college, branch, year, event_id, custom_field_data } = body
+    const { name, email, phone, college, branch, year, division, event_id, custom_field_data } = body
 
     if (!name || !email || !event_id) {
       return new Response(
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     // 3. Upsert student (bypass deadline/capacity for walk-ins)
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .upsert({ name, email, phone, college, branch, year }, { onConflict: 'email' })
+      .upsert({ name, email, phone, college, branch, year, division }, { onConflict: 'email' })
       .select('id')
       .single()
 
