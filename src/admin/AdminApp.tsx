@@ -13,21 +13,9 @@ export default function AdminApp() {
   }
 
   return (
-    <div className="admin-layout" style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: '#0a0a0a',
-      color: '#e5e5e5',
-      fontFamily: 'Inter, system-ui, sans-serif',
-    }}>
+    <div className="admin-layout">
       <AdminNav />
-      <main style={{
-        flex: 1,
-        marginLeft: '240px',
-        padding: '32px',
-        overflowY: 'auto',
-        minHeight: '100vh',
-      }}>
+      <main className="admin-main">
         <Outlet />
       </main>
     </div>
