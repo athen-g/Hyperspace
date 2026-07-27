@@ -24,9 +24,41 @@ export default function MembersPage() {
   const [inviting, setInviting] = useState(false)
 
   const fetchMembers = async () => {
-    const { data } = await supabase.from('core_member_details' as any).select('*').order('created_at')
-    setMembers(data ?? [])
-    setLoading(false)
+    try {
+      const { data: dbMembers, error: dbError } = await supabase.from('core_members').select('*').order('created_at')
+      if (dbError) throw dbError
+
+      let authUsersMap: Record<string, any> = {}
+      try {
+        const { data: funcData, error: funcError } = await supabase.functions.invoke('invite-member', {
+          body: { action: 'list' }
+        })
+        if (!funcError && funcData?.success && funcData.users) {
+          funcData.users.forEach((u: any) => {
+            authUsersMap[u.id] = u
+          })
+        }
+      } catch (e) {
+        console.error('Failed to load invitation metadata:', e)
+      }
+
+      const combined = (dbMembers ?? []).map((m: any) => {
+        const authInfo = authUsersMap[m.user_id] || {}
+        return {
+          ...m,
+          email: authInfo.email || null,
+          invited_at: authInfo.invited_at || null,
+          last_sign_in_at: authInfo.last_sign_in_at || null,
+          confirmation_sent_at: authInfo.confirmation_sent_at || null
+        }
+      })
+
+      setMembers(combined)
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load members')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useState(() => { fetchMembers() })
