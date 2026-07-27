@@ -25,7 +25,8 @@ export default function TeamPage() {
 
         function initParticles() {
             particles = []
-            const count = Math.floor((W * H) / 18000)
+            const isMobile = window.innerWidth < 768
+            const count = Math.floor((W * H) / (isMobile ? 36000 : 18000))
             for (let i = 0; i < count; i++) {
                 const c = COLORS[Math.floor(Math.random() * COLORS.length)]
                 particles.push({
@@ -42,7 +43,17 @@ export default function TeamPage() {
             }
         }
 
-        function draw() {
+        let lastTime = 0;
+        const fps = window.innerWidth < 768 ? 30 : 60;
+        const fpsInterval = 1000 / fps;
+
+        function draw(time = performance.now()) {
+            animId = requestAnimationFrame(draw)
+
+            const elapsed = time - lastTime
+            if (lastTime && elapsed < fpsInterval) return
+            lastTime = time - (elapsed % fpsInterval)
+
             ctx.clearRect(0, 0, W, H)
             particles.forEach(p => {
                 p.pulse += p.pulseSpeed
@@ -59,23 +70,24 @@ export default function TeamPage() {
                 if (p.y > H) p.y = 0
             })
 
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x
-                    const dy = particles[i].y - particles[j].y
-                    const dist = Math.sqrt(dx * dx + dy * dy)
-                    if (dist < 80) {
-                        ctx.beginPath()
-                        ctx.moveTo(particles[i].x, particles[i].y)
-                        ctx.lineTo(particles[j].x, particles[j].y)
-                        ctx.strokeStyle = `rgba(233,30,99,${0.04 * (1 - dist / 80)})`
-                        ctx.lineWidth = 0.5
-                        ctx.stroke()
+            // Only calculate and draw connection lines on non-mobile devices to save CPU/GPU cycles
+            if (window.innerWidth >= 768) {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x
+                        const dy = particles[i].y - particles[j].y
+                        const dist = Math.sqrt(dx * dx + dy * dy)
+                        if (dist < 80) {
+                            ctx.beginPath()
+                            ctx.moveTo(particles[i].x, particles[i].y)
+                            ctx.lineTo(particles[j].x, particles[j].y)
+                            ctx.strokeStyle = `rgba(233,30,99,${0.04 * (1 - dist / 80)})`
+                            ctx.lineWidth = 0.5
+                            ctx.stroke()
+                        }
                     }
                 }
             }
-
-            animId = requestAnimationFrame(draw)
         }
 
         resize()
