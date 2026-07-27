@@ -147,10 +147,10 @@ export async function exportToPDF(
     doc.setTextColor(0, 0, 0)
     doc.text("HYPERSPACE", centerX, 32, { align: 'center' })
 
-    // 6. XR SIG below right end of HYPERSPACE in Times Italic (Black color)
+    // 6. XR SIG below right end of HYPERSPACE in Times Normal (Black color)
     const hyperspaceWidth = doc.getTextWidth("HYPERSPACE")
     const rightEndX = centerX + (hyperspaceWidth / 2)
-    doc.setFont('times', 'italic')
+    doc.setFont('times', 'normal')
     doc.setFontSize(14)
     doc.setTextColor(0, 0, 0)
     doc.text("XR SIG", rightEndX, 39, { align: 'right' })

@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useAttendance } from '../../hooks/useAttendance'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
-import logoUrl from '../../assets/icons/logo.svg'
+import logoUrl from '../../assets/icons/logo.png'
 import clogoUrl from '../../assets/icons/clogo.png'
 
 export default function AttendancePage() {
