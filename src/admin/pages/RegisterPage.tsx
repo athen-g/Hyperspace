@@ -41,12 +41,6 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
 
-      const { error: activeError } = await supabase
-        .from('core_members')
-        .update({ is_active: true } as any)
-        .eq('user_id', session.user.id)
-      if (activeError) throw activeError
-
       toast.success('Account setup complete! Welcome to the Admin Portal.')
       navigate('/admin/dashboard')
     } catch (err: any) {
