@@ -1,5 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import QRCode from 'https://esm.sh/qrcode'
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import QRCode from 'npm:qrcode'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
