@@ -37,13 +37,15 @@ import ProtectedRoute from "./admin/components/ProtectedRoute";
 import ScanRedirect from "./admin/pages/ScanRedirect";
 import { supabase } from "./lib/supabase";
 
-// Check if this page load is due to a Supabase invitation link redirect
-// We capture this synchronously at module load time before Supabase Auth has a chance to strip the hash parameters.
-const isInviteUrl = typeof window !== 'undefined' && (
-  window.location.hash.includes('type=invite') ||
-  window.location.search.includes('type=invite') ||
-  window.location.href.includes('type=invite')
-);
+// Capture if this page load is due to a Supabase invitation link redirect
+// We store this in sessionStorage synchronously at module load time before Supabase Auth strips the parameters.
+if (typeof window !== 'undefined') {
+  const hash = window.location.hash;
+  const search = window.location.search;
+  if (hash.includes('type=invite') || search.includes('type=invite')) {
+    sessionStorage.setItem('pending_invite_redirect', 'true');
+  }
+}
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -52,10 +54,12 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isInviteUrl) {
+    const hasPendingInvite = sessionStorage.getItem('pending_invite_redirect') === 'true';
+    if (hasPendingInvite) {
       // Listen for the session to be established, then redirect to setup password
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (session && !window.location.pathname.includes("/admin/register")) {
+        if (session) {
+          sessionStorage.removeItem('pending_invite_redirect');
           navigate("/admin/register", { replace: true });
         }
       });
@@ -63,10 +67,12 @@ function App() {
     }
   }, [navigate]);
 
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   return (
     <>
       <Toaster position="top-right" toastOptions={{ style: { background: '#1a1a1a', color: '#e5e5e5', border: '1px solid #333' } }} />
-      <CustomCursor />
+      {!isAdminPage && <CustomCursor />}
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
