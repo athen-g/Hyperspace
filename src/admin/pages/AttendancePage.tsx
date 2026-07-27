@@ -2,13 +2,16 @@ import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useAttendance } from '../../hooks/useAttendance'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
+import logoUrl from '../../assets/icons/logo.svg'
+import clogoUrl from '../../assets/icons/clogo.png'
 
 export default function AttendancePage() {
   const { eventId } = useParams<{ eventId: string }>()
   const { attendance, loading } = useAttendance(eventId ?? '')
 
   const handleExportXLSX = () => {
-    exportToXLSX(attendance.map(a => ({
+    exportToXLSX(attendance.map((a, index) => ({
+      'Sr. No.': index + 1,
       'Reg No.': a.registration_no,
       'Name': a.student_name,
       'College': a.student_college ?? '',
@@ -21,8 +24,9 @@ export default function AttendancePage() {
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division'],
-      attendance.map(a => [
+      ['Sr. No.', 'Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division'],
+      attendance.map((a, index) => [
+        index + 1,
         a.registration_no,
         a.student_name,
         a.student_college ?? '',
@@ -31,8 +35,10 @@ export default function AttendancePage() {
         a.student_branch ?? '',
         a.student_division ?? ''
       ]) as (string | number | null)[][],
-      `Attendance — ${attendance[0]?.event_title ?? ''}`,
-      `attendance-${eventId}`
+      attendance[0]?.event_title ?? 'Event',
+      `attendance-${eventId}`,
+      logoUrl,
+      clogoUrl
     )
   }
 
