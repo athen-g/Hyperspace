@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 
@@ -23,6 +23,7 @@ import CustomCursor from "./components/ui/CustomCursor";
 // Admin imports
 import AdminApp from "./admin/AdminApp";
 import LoginPage from "./admin/pages/LoginPage";
+import RegisterPage from "./admin/pages/RegisterPage";
 import DashboardPage from "./admin/pages/DashboardPage";
 import AdminEventsPage from "./admin/pages/EventsPage";
 import EventDetailPage from "./admin/pages/EventDetailPage";
@@ -35,10 +36,29 @@ import AuditLogPage from "./admin/pages/AuditLogPage";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
 import ScanRedirect from "./admin/pages/ScanRedirect";
 
+import { supabase } from "./lib/supabase";
+
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 function App() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Intercept invite session redirects from Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const hash = window.location.hash;
+      const isInvite = hash.includes("type=invite") || window.location.href.includes("type=invite");
+      
+      if (isInvite && session) {
+        // Clear hash from URL and redirect to registration setup page
+        window.location.hash = "";
+        navigate("/admin/register", { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <>
@@ -79,10 +99,10 @@ function App() {
           {/* QR Deep Link */}
           <Route path="/scan" element={<ScanRedirect />} />
 
-          {/* Admin Portal */}
           <Route path="/admin" element={<AdminApp />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
             <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="events" element={<ProtectedRoute><AdminEventsPage /></ProtectedRoute>} />
             <Route path="events/:eventId" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
