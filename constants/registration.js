@@ -14,12 +14,6 @@ const registrationQuestions = {
             options: ['YES — QUITE A BIT', 'YES — A LITTLE', 'NO — COMPLETE BEGINNER'],
             placeholder: '—',
         },
-        {
-            id: 'expectations',
-            label: 'WHAT DO YOU EXPECT TO LEARN OR GAIN FROM THIS EVENT?',
-            type: 'textarea',
-            placeholder: 'Your expectations…',
-        },
     ],
     // Fallback used when no slug matches
     default: [

@@ -37,10 +37,16 @@ export default function RegistrationsPage() {
         name: '',
         email: '',
         contact: '',
-        class: 'COMP',
-        division: '1',
+        prn: '',
+        year: '',
+        branch: '',
+        division: '',
+        newsletter: false,
         ...Object.fromEntries(questions.map((q) => [q.id, ''])),
     });
+
+    const handleCheckbox = (e) =>
+        setForm((prev) => ({ ...prev, [e.target.name]: e.target.checked }));
 
     const [focused, setFocused] = useState(null);
 
@@ -71,7 +77,7 @@ export default function RegistrationsPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!event) return;
-        if (!form.name || !form.email || !form.contact) {
+        if (!form.name || !form.email || !form.contact || !form.prn || !form.year || !form.branch || !form.division) {
             toast.error('Please fill in all required fields.');
             return;
         }
@@ -92,9 +98,11 @@ export default function RegistrationsPage() {
                     name: form.name,
                     email: form.email,
                     phone: form.contact,
-                    college: 'Hyperspace College', // Default or custom
-                    branch: form.class,
-                    year: parseInt(form.division),
+                    college: 'Pimpri Chinchwad College of Engineering',
+                    branch: form.branch,
+                    year: parseInt(form.year),
+                    prn: form.prn,
+                    newsletter_opt_in: form.newsletter,
                     event_id: event.id,
                     custom_field_data: customData
                 }
@@ -257,7 +265,7 @@ export default function RegistrationsPage() {
 
                             {/* ── Row 1: Name (full width) ── */}
                             <Field>
-                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-name">NAME</label>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-name">FULL NAME *</label>
                                 <input
                                     id="reg-name"
                                     name="name"
@@ -275,7 +283,7 @@ export default function RegistrationsPage() {
                             {/* ── Row 2: Email + Contact ── */}
                             <div className={isMobile768 ? 'flex flex-col gap-4 mb-[32px]' : 'reg-row-2'}>
                                 <Field>
-                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-email">EMAIL</label>
+                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-email">EMAIL ADDRESS *</label>
                                     <input
                                         id="reg-email"
                                         name="email"
@@ -291,7 +299,7 @@ export default function RegistrationsPage() {
                                 </Field>
 
                                 <Field>
-                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-contact">CONTACT NO.</label>
+                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-contact">CONTACT NO. *</label>
                                     <input
                                         id="reg-contact"
                                         name="contact"
@@ -307,43 +315,81 @@ export default function RegistrationsPage() {
                                 </Field>
                             </div>
 
-                            {/* ── Row 3: Class + Division ── */}
+                            {/* ── Row 3: PRN ── */}
+                            <Field>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-prn">PRN *</label>
+                                <input
+                                    id="reg-prn"
+                                    name="prn"
+                                    type="text"
+                                    placeholder="F24000000"
+                                    value={form.prn}
+                                    onChange={handleChange}
+                                    onFocus={() => setFocused('prn')}
+                                    onBlur={() => setFocused(null)}
+                                    className={`reg-input ${focused === 'prn' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
+                                />
+                            </Field>
+
+                            {/* ── Row 4: Year + Branch ── */}
                             <div className={isMobile768 ? 'flex flex-col gap-4 mb-[32px]' : 'reg-row-2'}>
                                 <Field>
-                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-class">CLASS</label>
+                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-year">CURRENT YEAR OF STUDY *</label>
                                     <RegSelect
-                                        id="reg-class"
-                                        name="class"
-                                        value={form.class}
+                                        id="reg-year"
+                                        name="year"
+                                        value={form.year}
                                         onChange={handleChange}
-                                        onFocus={() => setFocused('class')}
+                                        onFocus={() => setFocused('year')}
                                         onBlur={() => setFocused(null)}
                                         className={isMobile768 ? '!text-[14px]' : ''}
                                     >
-                                        <option value="COMP">COMP</option>
-                                        <option value="ENTC">ENTC</option>
-                                        <option value="MECH">MECH</option>
-                                        <option value="CIVIL">A&R</option>
+                                        <option value="">— SELECT YEAR —</option>
+                                        <option value="1">FIRST YEAR</option>
+                                        <option value="2">SECOND YEAR</option>
+                                        <option value="3">THIRD YEAR</option>
+                                        <option value="4">FOURTH YEAR (FINAL YEAR)</option>
                                     </RegSelect>
                                 </Field>
 
                                 <Field>
-                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-division">DIVISION</label>
+                                    <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-branch">BRANCH *</label>
                                     <RegSelect
-                                        id="reg-division"
-                                        name="division"
-                                        value={form.division}
+                                        id="reg-branch"
+                                        name="branch"
+                                        value={form.branch}
                                         onChange={handleChange}
-                                        onFocus={() => setFocused('division')}
+                                        onFocus={() => setFocused('branch')}
                                         onBlur={() => setFocused(null)}
                                         className={isMobile768 ? '!text-[14px]' : ''}
                                     >
-                                        {['1', '2', '3', '4'].map((d) => (
-                                            <option key={d} value={d}>{d}</option>
-                                        ))}
+                                        <option value="">— SELECT BRANCH —</option>
+                                        <option value="Computer Engineering">COMPUTER ENGINEERING</option>
+                                        <option value="Mechanical Engineering">MECHANICAL ENGINEERING</option>
+                                        <option value="Electronics & Telecommunications">ELECTRONICS &amp; TELECOMMUNICATIONS</option>
+                                        <option value="Automation & Robotics">AUTOMATION &amp; ROBOTICS</option>
                                     </RegSelect>
                                 </Field>
                             </div>
+
+                            {/* ── Row 5: Division ── */}
+                            <Field>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-division">DIVISION *</label>
+                                <RegSelect
+                                    id="reg-division"
+                                    name="division"
+                                    value={form.division}
+                                    onChange={handleChange}
+                                    onFocus={() => setFocused('division')}
+                                    onBlur={() => setFocused(null)}
+                                    className={isMobile768 ? '!text-[14px]' : ''}
+                                >
+                                    <option value="">— SELECT DIVISION —</option>
+                                    {['1', '2', '3', '4'].map((d) => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </RegSelect>
+                            </Field>
 
                             {/* ── Dynamic questions ── */}
                             {questions.map((q) => (
@@ -382,6 +428,48 @@ export default function RegistrationsPage() {
                                     )}
                                 </Field>
                             ))}
+
+                            {/* ── Newsletter opt-in ── */}
+                            <div className={`flex items-start gap-3 ${isMobile768 ? 'mb-6 mt-2' : 'mb-8 mt-4'}`}>
+                                <div
+                                    id="reg-newsletter-box"
+                                    onClick={() => setForm(prev => ({ ...prev, newsletter: !prev.newsletter }))}
+                                    role="checkbox"
+                                    aria-checked={form.newsletter}
+                                    tabIndex={0}
+                                    onKeyDown={e => (e.key === ' ' || e.key === 'Enter') && setForm(prev => ({ ...prev, newsletter: !prev.newsletter }))}
+                                    className="reg-checkbox-box"
+                                    style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        minWidth: '20px',
+                                        border: `1.5px solid ${form.newsletter ? '#E91E63' : '#555'}`,
+                                        borderRadius: '4px',
+                                        background: form.newsletter ? '#E91E63' : 'transparent',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease',
+                                        marginTop: '2px',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    {form.newsletter && (
+                                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                                            <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <label
+                                    htmlFor="reg-newsletter-box"
+                                    onClick={() => setForm(prev => ({ ...prev, newsletter: !prev.newsletter }))}
+                                    className={`font-mono uppercase tracking-[0.05em] text-[#ABABAB] cursor-pointer select-none ${isMobile768 ? 'text-[11px]' : 'text-[12px]'}`}
+                                    style={{ lineHeight: 1.5 }}
+                                >
+                                    SUBSCRIBE TO THE HYPERSPACE XR NEWSLETTER — BE THE FIRST TO KNOW ABOUT UPCOMING EVENTS, WORKSHOPS, AND OPPORTUNITIES.
+                                </label>
+                            </div>
 
                             {/* ── Submit ── */}
                             <div className={`reg-submit-row ${isMobile768 ? '!mt-8 flex justify-start' : ''}`}>
