@@ -12,9 +12,6 @@ export default function AttendancePage() {
       'Reg No.': a.registration_no,
       'Name': a.student_name,
       'Email': a.student_email,
-      'College': a.student_college ?? '',
-      'Branch': a.student_branch ?? '',
-      'Year': a.student_year ?? '',
       'Scanned At': format(new Date(a.scanned_at), 'dd MMM yyyy HH:mm'),
       'Scanned By': a.scanned_by_name,
     })), `attendance-${eventId}`)
@@ -22,9 +19,9 @@ export default function AttendancePage() {
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Reg No.', 'Name', 'Email', 'College', 'Scanned At', 'Scanned By'],
-      attendance.map(a => [a.registration_no, a.student_name, a.student_email, a.student_college ?? '', format(new Date(a.scanned_at), 'dd MMM HH:mm'), a.scanned_by_name]) as (string | number | null)[][],
-      `Attendance \u2014 ${attendance[0]?.event_title ?? ''}`,
+      ['Reg No.', 'Name', 'Email', 'Scanned At', 'Scanned By'],
+      attendance.map(a => [a.registration_no, a.student_name, a.student_email, format(new Date(a.scanned_at), 'dd MMM HH:mm'), a.scanned_by_name]) as (string | number | null)[][],
+      `Attendance — ${attendance[0]?.event_title ?? ''}`,
       `attendance-${eventId}`
     )
   }
@@ -54,20 +51,18 @@ export default function AttendancePage() {
               <th style={thStyle}>Reg No.</th>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Email</th>
-              <th style={thStyle}>College</th>
               <th style={thStyle}>Scanned At</th>
               <th style={thStyle}>Scanned By</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && attendance.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
+            {loading && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && attendance.length === 0 && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
             {attendance.map(a => (
               <tr key={a.id}>
                 <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{a.registration_no}</td>
                 <td style={{ ...tdStyle, color: '#e5e5e5' }}>{a.student_name}</td>
                 <td style={tdStyle}>{a.student_email}</td>
-                <td style={tdStyle}>{a.student_college ?? '—'}</td>
                 <td style={tdStyle}>{format(new Date(a.scanned_at), 'dd MMM yyyy, HH:mm:ss')}</td>
                 <td style={tdStyle}>{a.scanned_by_name}</td>
               </tr>
