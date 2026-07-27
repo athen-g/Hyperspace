@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
 
     // 2. Parse body
     const body = await req.json()
-    const { name, email, phone, college, branch, year, division, event_id, custom_field_data } = body
+    const { name, email, phone, college, branch, year, prn, division, event_id, custom_field_data } = body
 
     if (!name || !email || !event_id) {
       return new Response(
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     // 3. Upsert student (bypass deadline/capacity for walk-ins)
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .upsert({ name, email, phone, college, branch, year, division }, { onConflict: 'email' })
+      .upsert({ name, email, phone, college, branch, year, prn, division }, { onConflict: 'email' })
       .select('id')
       .single()
 
@@ -76,6 +76,21 @@ Deno.serve(async (req) => {
       .single()
 
     if (existing) {
+      // Auto-mark attendance even if they were already registered but not scanned in yet
+      const { data: attCheck } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('registration_id', existing.id)
+        .single()
+
+      if (!attCheck) {
+        await supabase.from('attendance').insert({
+          registration_id: existing.id,
+          scanned_by: member.id,
+          scanned_at: new Date().toISOString()
+        })
+      }
+
       return new Response(
         JSON.stringify({ alreadyRegistered: true, registrationNo: existing.registration_no }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -103,6 +118,19 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: 'Failed to create registration', code: 'REGISTRATION_ERROR' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // Auto-mark attendance for the new registration
+    const { error: attendanceError } = await supabase
+      .from('attendance')
+      .insert({
+        registration_id: registration.id,
+        scanned_by: member.id,
+        scanned_at: new Date().toISOString()
+      })
+
+    if (attendanceError) {
+      console.error('Failed to auto-mark attendance for walk-in:', attendanceError)
     }
 
     // 6. Log the walk-in action explicitly
