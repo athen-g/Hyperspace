@@ -43,8 +43,53 @@ Deno.serve(async (req) => {
     }
 
     // 2. Parse payload
-    const { email, name, role } = await req.json()
+    const { action = 'invite', email, name, role, userId } = await req.json()
 
+    const origin = req.headers.get('origin') || 'https://hyperspacesig.tech'
+
+    if (action === 'delete') {
+      if (!userId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing userId' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
+      if (deleteError) {
+        return new Response(
+          JSON.stringify({ error: deleteError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (action === 'resend') {
+      if (!email) {
+        return new Response(
+          JSON.stringify({ error: 'Missing email' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${origin}/`
+      })
+      if (inviteError) {
+        return new Response(
+          JSON.stringify({ error: inviteError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Standard Invite logic
     if (!email || !name || !role) {
       return new Response(
         JSON.stringify({ error: 'Missing email, name, or role' }),
@@ -61,7 +106,9 @@ Deno.serve(async (req) => {
     }
 
     // 3. Invite user via Supabase Auth Admin API
-    const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email)
+    const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${origin}/`
+    })
 
     if (inviteError) {
       return new Response(
