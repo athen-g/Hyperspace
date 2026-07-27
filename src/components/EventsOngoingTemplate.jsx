@@ -163,7 +163,7 @@ export default function EventOngoingTemplate() {
             <div className={isMobile768 ? "w-[93.056%] mx-auto mb-10 p-4" : "w-[93.056%] mx-auto mb-24 p-20"}>
               <h2 className={`font-host font-extrabold uppercase leading-[0.95] text-[#E91E63] ${isMobile768 ? 'text-[44px] max-w-full text-left' : 'text-[clamp(44px,6vw,90px)] max-w-[700px]'
                 }`}>
-                SCHEDULE FOR THE WORKSHOP
+                {event.scheduleLabel || 'SCHEDULE FOR THE WORKSHOP'}
               </h2>
             </div>
 
