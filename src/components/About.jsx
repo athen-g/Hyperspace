@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { BackgroundPathsDemo } from './ui/BackgroundPaths'
 import face from '../assets/images/about-left1.png';
 import butterfly from '../assets/images/about-right1.png';
@@ -7,8 +7,10 @@ import { useMediaQuery } from 'react-responsive';
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/all';
 import gsap from 'gsap';
+import { mm, BREAKPOINTS } from '../lib/gsapConfig';
 
 const About = () => {
+    const containerRef = useRef(null);
 
     const isMobile = useMediaQuery({ query: ('max-width: 414px') });
     const isDesktop = useMediaQuery({ query: ('(min-width: 1025px)') });
@@ -22,7 +24,7 @@ const About = () => {
                 trigger: '#about',
                 start: '10% center'
             }
-        })
+        });
 
         aboutTimeline
             .from(lineSplit.lines, {
@@ -34,7 +36,8 @@ const About = () => {
                 stagger: 0.05
             });
 
-        if (isDesktop) {
+        // Use global matchMedia for parallax on desktop
+        mm.add(BREAKPOINTS.desktop, () => {
             const scrollTimeline = gsap.timeline({
                 scrollTrigger: {
                     trigger: '#about',
@@ -42,14 +45,28 @@ const About = () => {
                     end: 'bottom top',
                     scrub: true
                 }
-            })
+            });
 
             scrollTimeline
                 .to('.butterfly', { y: -100 }, 0)
                 .to('.face', { y: -200 }, 0);
-        }
+        });
 
-        document.querySelectorAll('.card-number').forEach((el) => {
+        // Use global matchMedia for mobile parallax (lighter effect, keeps the feel)
+        mm.add(BREAKPOINTS.mobile, () => {
+            const scrollTimeline = gsap.timeline({
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top center',
+                    end: 'bottom top',
+                    scrub: false, // no scrub on mobile, just a simple reveal or light trigger
+                }
+            });
+            // Keep animations cheap on mobile
+        });
+
+        const cards = containerRef.current.querySelectorAll('.card-number');
+        cards.forEach((el) => {
             const raw = (el.dataset.value || '').trim();
             const match = raw.match(/^(\d+)(.*)$/);
             if (!match) return;
@@ -76,23 +93,23 @@ const About = () => {
                     el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
                 }
             })
-                .to(obj, {
-                    val: target,
-                    duration: 0.6,
-                    ease: 'power4.out',
-                    onUpdate() {
-                        el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
-                    },
-                    onComplete() {
-                        el.textContent = raw;
-                    }
-                });
+            .to(obj, {
+                val: target,
+                duration: 0.6,
+                ease: 'power4.out',
+                onUpdate() {
+                    el.textContent = String(Math.floor(obj.val)).padStart(2, '0') + suffix;
+                },
+                onComplete() {
+                    el.textContent = raw;
+                }
+            });
         });
 
-    })
+    }, { scope: containerRef });
 
     return (
-        <section id="about" className='about'>
+        <section ref={containerRef} id="about" className='about'>
             <div className="about-main-background">
                 <div className="about-main-content">
                     <div className="about-main-head">LOCATION</div>

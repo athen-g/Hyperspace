@@ -8,7 +8,10 @@ import { useMediaQuery } from 'react-responsive';
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
+import { mm, BREAKPOINTS } from '../lib/gsapConfig';
+
 const Brands = () => {
+    const containerRef = useRef(null);
     const [hoveredId, setHoveredId] = useState(null);
     const photoRef = useRef(null);
 
@@ -25,22 +28,42 @@ const Brands = () => {
             }
         });
 
-        scrollTimeline
-            .from(titleSplit.lines, {
-                opacity: 0,
-                yPercent: 100,
-                duration: 1,
-                stagger: 0.05,
-                ease: 'expo.out',
-            })
-            .from(subtitleSplit.lines, {
-                opacity: 0,
-                yPercent: 100,
-                duration: 0.5,
-                stagger: 0.05,
-                ease: 'expo.out',
-            })
-    });
+        mm.add(BREAKPOINTS.desktop, () => {
+            scrollTimeline
+                .from(titleSplit.lines, {
+                    opacity: 0,
+                    yPercent: 100,
+                    duration: 1,
+                    stagger: 0.05,
+                    ease: 'expo.out',
+                })
+                .from(subtitleSplit.lines, {
+                    opacity: 0,
+                    yPercent: 100,
+                    duration: 0.5,
+                    stagger: 0.05,
+                    ease: 'expo.out',
+                });
+        });
+
+        mm.add(BREAKPOINTS.mobile, () => {
+            scrollTimeline
+                .from(titleSplit.lines, {
+                    opacity: 0,
+                    yPercent: 50,
+                    duration: 0.5,
+                    stagger: 0.03,
+                    ease: 'power2.out',
+                })
+                .from(subtitleSplit.lines, {
+                    opacity: 0,
+                    yPercent: 30,
+                    duration: 0.3,
+                    stagger: 0.02,
+                    ease: 'power2.out',
+                });
+        });
+    }, { scope: containerRef });
 
     const hoveredBrand = BRANDS.find(b => b.id === hoveredId)
 
@@ -64,7 +87,7 @@ const Brands = () => {
     }
 
     return (
-        <section id="brands" className={isMobile768 ? '!px-6 py-6' : ''}>
+        <section ref={containerRef} id="brands" className={isMobile768 ? '!px-6 py-6' : ''}>
             <div className={`brand-title ${isMobile768 ? '!ml-[3.472%] !mr-[3.472%]' : ''}`}>
                 <div className="title flex flex-col">
                     <span className="top">
