@@ -146,14 +146,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 9. Send confirmation email (best-effort, don't fail registration if it errors)
-    try {
-      await supabase.functions.invoke('send-registration-email', {
-        body: { registrationId: registration.id },
-      })
-    } catch (_e) {
-      console.error('Email send failed (non-fatal):', _e)
-    }
+    // 9. Send confirmation email in the background (don't block response to client)
+    supabase.functions.invoke('send-registration-email', {
+      body: { registrationId: registration.id },
+    }).catch((_e) => {
+      console.error('Background email send invocation failed:', _e)
+    })
 
     return new Response(
       JSON.stringify({ success: true, registrationNo: regNo, studentId: student.id }),
