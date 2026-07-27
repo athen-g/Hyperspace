@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     )
 
     const body = await req.json()
-    const { name, email, phone, college, branch, year, event_id, custom_field_data } = body
+    const { name, email, phone, college, branch, year, prn, newsletter_opt_in, event_id, custom_field_data } = body
 
     // 1. Validate required fields
     if (!name || !email || !event_id) {
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         // Upsert student first before adding to waitlist
         const { data: student } = await supabase
           .from('students')
-          .upsert({ name, email, phone, college, branch, year }, { onConflict: 'email' })
+          .upsert({ name, email, phone, college, branch, year, prn, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
           .select('id')
           .single()
 
@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
     // 4. Upsert student
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .upsert({ name, email, phone, college, branch, year }, { onConflict: 'email' })
+      .upsert({ name, email, phone, college, branch, year, prn, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
       .select('id')
       .single()
 
@@ -135,7 +135,18 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 8. Send confirmation email (best-effort, don't fail registration if it errors)
+    // 8. Handle newsletter opt-in (best-effort)
+    if (newsletter_opt_in) {
+      try {
+        await supabase
+          .from('newsletter_subscribers')
+          .upsert({ email, name }, { onConflict: 'email' })
+      } catch (_e) {
+        console.error('Newsletter upsert failed (non-fatal):', _e)
+      }
+    }
+
+    // 9. Send confirmation email (best-effort, don't fail registration if it errors)
     try {
       await supabase.functions.invoke('send-registration-email', {
         body: { registrationId: registration.id },

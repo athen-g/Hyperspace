@@ -163,7 +163,7 @@ export default function EventOngoingTemplate() {
             <div className={isMobile768 ? "w-[93.056%] mx-auto mb-10 p-4" : "w-[93.056%] mx-auto mb-24 p-20"}>
               <h2 className={`font-host font-extrabold uppercase leading-[0.95] text-[#E91E63] ${isMobile768 ? 'text-[44px] max-w-full text-left' : 'text-[clamp(44px,6vw,90px)] max-w-[700px]'
                 }`}>
-                SCHEDULE FOR THE WORKSHOP
+                {event.scheduleLabel || 'SCHEDULE FOR THE WORKSHOP'}
               </h2>
             </div>
 
@@ -322,12 +322,16 @@ export default function EventOngoingTemplate() {
                 </span>
               </a>
             ) : (
-              <a href="#" className="header-roll-link decoration-[#E91E63]">
-                <span className="header-roll-link__stack">
+              <span
+                title="Rulebook not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
                   <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE RULEBOOK</span>
-                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE RULEBOOK</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
                 </span>
-              </a>
+              </span>
             )}
 
             {!isMobile768 && <span>|</span>}
@@ -340,12 +344,16 @@ export default function EventOngoingTemplate() {
                 </span>
               </a>
             ) : (
-              <a href="#" className="header-roll-link decoration-[#E91E63]">
-                <span className="header-roll-link__stack">
+              <span
+                title="Brochure not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
                   <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE INFORMATION BROCHURE</span>
-                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE INFORMATION BROCHURE</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
                 </span>
-              </a>
+              </span>
             )}
           </div>
         </div>
