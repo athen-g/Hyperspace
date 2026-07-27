@@ -61,7 +61,10 @@ Deno.serve(async (req) => {
     }
 
     // 3. Invite user via Supabase Auth Admin API
-    const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email)
+    const origin = req.headers.get('origin') || 'https://hyperspacesig.tech'
+    const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${origin}/`
+    })
 
     if (inviteError) {
       return new Response(
