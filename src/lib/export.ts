@@ -102,7 +102,7 @@ export async function exportToPDF(
 ) {
   const toastId = toast.loading('Generating premium PDF report...')
   try {
-    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' })
+    const doc = new jsPDF('l', 'mm', 'a4')
 
     // 1. Load Custom Fonts (Non-blocking fallback)
     await Promise.all([
@@ -116,7 +116,7 @@ export async function exportToPDF(
     try {
       logoBase64 = await imageUrlToPngBase64(logoUrl)
     } catch (err) {
-      console.warn('Failed to load logo.svg:', err)
+      console.warn('Failed to load logo.png:', err)
     }
     try {
       clogoBase64 = await imageUrlToPngBase64(clogoUrl)
@@ -124,54 +124,60 @@ export async function exportToPDF(
       console.warn('Failed to load clogo.png:', err)
     }
 
-    // 3. Draw Header Logos
-    if (logoBase64) {
-      doc.addImage(logoBase64, 'PNG', 14, 10, 24, 24)
+    const drawHeader = (docInstance: jsPDF) => {
+      // Draw Header Logos
+      if (logoBase64) {
+        docInstance.addImage(logoBase64, 'PNG', 14, 10, 24, 24)
+      }
+      if (clogoBase64) {
+        docInstance.addImage(clogoBase64, 'PNG', 297 - 14 - 24, 10, 24, 24)
+      }
+
+      const centerX = 297 / 2
+
+      // Above HYPERSPACE: Wadia College Header in Quicksand (Black color)
+      setSafeFont(docInstance, 'Quicksand', 'normal')
+      docInstance.setFontSize(11)
+      docInstance.setTextColor(0, 0, 0)
+      docInstance.text("WADIA COLLEGE OF ENGINEERING'S", centerX, 14, { align: 'center' })
+      docInstance.text("DEPARTMENT OF COMPUTER ENGINEERING", centerX, 19, { align: 'center' })
+
+      // HYPERSPACE in Mokoto (Black color)
+      setSafeFont(docInstance, 'Mokoto', 'normal')
+      docInstance.setFontSize(30)
+      docInstance.setTextColor(0, 0, 0)
+      docInstance.text("HYPERSPACE", centerX, 32, { align: 'center' })
+
+      // XR SIG below right end of HYPERSPACE in Times Normal (Black color)
+      const hyperspaceWidth = docInstance.getTextWidth("HYPERSPACE")
+      const rightEndX = centerX + (hyperspaceWidth / 2)
+      docInstance.setFont('times', 'normal')
+      docInstance.setFontSize(14)
+      docInstance.setTextColor(0, 0, 0)
+      docInstance.text("XR SIG", rightEndX, 39, { align: 'right' })
+
+      // Event Title
+      docInstance.setFont('helvetica', 'bold')
+      docInstance.setFontSize(14)
+      docInstance.text(eventTitle, centerX, 52, { align: 'center' })
+
+      // "Attendance" Label
+      docInstance.setFont('helvetica', 'normal')
+      docInstance.setFontSize(12)
+      docInstance.text("Attendance Report", centerX, 58, { align: 'center' })
     }
-    if (clogoBase64) {
-      doc.addImage(clogoBase64, 'PNG', 297 - 14 - 24, 10, 24, 24)
-    }
 
-    const centerX = 297 / 2
-
-    // 4. Above HYPERSPACE: Wadia College Header in Quicksand (Black color)
-    setSafeFont(doc, 'Quicksand', 'normal')
-    doc.setFontSize(11)
-    doc.setTextColor(0, 0, 0)
-    doc.text("WADIA COLLEGE OF ENGINEERING'S", centerX, 14, { align: 'center' })
-    doc.text("DEPARTMENT OF COMPUTER ENGINEERING", centerX, 19, { align: 'center' })
-
-    // 5. HYPERSPACE in Mokoto (Black color)
-    setSafeFont(doc, 'Mokoto', 'normal')
-    doc.setFontSize(30)
-    doc.setTextColor(0, 0, 0)
-    doc.text("HYPERSPACE", centerX, 32, { align: 'center' })
-
-    // 6. XR SIG below right end of HYPERSPACE in Times Normal (Black color)
-    const hyperspaceWidth = doc.getTextWidth("HYPERSPACE")
-    const rightEndX = centerX + (hyperspaceWidth / 2)
-    doc.setFont('times', 'normal')
-    doc.setFontSize(14)
-    doc.setTextColor(0, 0, 0)
-    doc.text("XR SIG", rightEndX, 39, { align: 'right' })
-
-    // 7. Event Title
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.text(eventTitle, centerX, 52, { align: 'center' })
-
-    // 8. "Attendance" Label
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(12)
-    doc.text("Attendance Report", centerX, 58, { align: 'center' })
-
-    // 9. Table starting below header area
+    // 3. Table starting below header area with header repeating on subsequent pages
     autoTable(doc, {
       head: [columns],
       body: rows as (string | number)[][],
       startY: 64,
+      margin: { top: 64, bottom: 15 },
       styles: { fontSize: 8 },
       headStyles: { fillColor: [30, 30, 30] },
+      didDrawPage: (data) => {
+        drawHeader(doc)
+      }
     })
 
     doc.save(`${filename}.pdf`)
