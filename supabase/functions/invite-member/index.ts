@@ -45,6 +45,8 @@ Deno.serve(async (req) => {
     // 2. Parse payload
     const { action = 'invite', email, name, role, userId } = await req.json()
 
+    const origin = req.headers.get('origin') || 'https://hyperspacesig.tech'
+
     if (action === 'list') {
       const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
       if (listError) {
@@ -141,6 +143,7 @@ Deno.serve(async (req) => {
       user_id: invited.user.id,
       name,
       role,
+      is_active: false, // Not active/verified until they register/setup password
     })
 
     if (memberError) {

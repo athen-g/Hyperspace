@@ -35,8 +35,17 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No active invitation session found')
+
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
+
+      const { error: activeError } = await supabase
+        .from('core_members')
+        .update({ is_active: true } as any)
+        .eq('user_id', session.user.id)
+      if (activeError) throw activeError
 
       toast.success('Account setup complete! Welcome to the Admin Portal.')
       navigate('/admin/dashboard')
