@@ -67,12 +67,10 @@ function App() {
     }
   }, [navigate]);
 
-  const isAdminPage = location.pathname.startsWith('/admin');
-
   return (
     <>
       <Toaster position="top-right" toastOptions={{ style: { background: '#1a1a1a', color: '#e5e5e5', border: '1px solid #333' } }} />
-      {!isAdminPage && <CustomCursor />}
+      <CustomCursor />
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
