@@ -48,6 +48,19 @@ export function exportToXLSX(rows: Record<string, unknown>[], filename: string) 
   XLSX.writeFile(wb, `${filename}.xlsx`)
 }
 
+function setSafeFont(doc: jsPDF, fontName: string, fontStyle = 'normal', fallback = 'helvetica') {
+  try {
+    const fonts = doc.getFontList()
+    if (fonts[fontName]) {
+      doc.setFont(fontName, fontStyle)
+    } else {
+      doc.setFont(fallback, fontStyle)
+    }
+  } catch (e) {
+    doc.setFont(fallback, fontStyle)
+  }
+}
+
 export async function exportToPDF(
   columns: string[],
   rows: (string | number | null)[][],
@@ -56,67 +69,71 @@ export async function exportToPDF(
   logoUrl: string,
   clogoUrl: string
 ) {
-  const doc = new jsPDF({ orientation: 'landscape' })
+  try {
+    const doc = new jsPDF({ orientation: 'landscape' })
 
-  // 1. Load Custom Fonts
-  await loadAndRegisterFont(doc, '/fonts/Mokoto.ttf', 'Mokoto')
-  await loadAndRegisterFont(doc, 'https://cdn.jsdelivr.net/fontsource/fonts/quicksand@latest/latin-400-normal.ttf', 'Quicksand')
+    // 1. Load Custom Fonts
+    await loadAndRegisterFont(doc, '/fonts/Mokoto.ttf', 'Mokoto')
+    await loadAndRegisterFont(doc, 'https://cdn.jsdelivr.net/fontsource/fonts/quicksand@latest/latin-400-normal.ttf', 'Quicksand')
 
-  // 2. Load Logos
-  const logoBase64 = await imageUrlToBase64(logoUrl)
-  const clogoBase64 = await imageUrlToBase64(clogoUrl)
+    // 2. Load Logos
+    const logoBase64 = await imageUrlToBase64(logoUrl)
+    const clogoBase64 = await imageUrlToBase64(clogoUrl)
 
-  // 3. Draw Header Logos
-  if (logoBase64) {
-    const format = logoUrl.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG'
-    doc.addImage(logoBase64, format, 14, 10, 24, 24)
+    // 3. Draw Header Logos
+    if (logoBase64) {
+      const format = logoUrl.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG'
+      doc.addImage(logoBase64, format, 14, 10, 24, 24)
+    }
+    if (clogoBase64) {
+      doc.addImage(clogoBase64, 'PNG', 297 - 14 - 24, 10, 24, 24)
+    }
+
+    const centerX = 297 / 2
+
+    // 4. Above HYPERSPACE: Wadia College Header in Quicksand (Black color)
+    setSafeFont(doc, 'Quicksand', 'normal')
+    doc.setFontSize(11)
+    doc.setTextColor(0, 0, 0)
+    doc.text("WADIA COLLEGE OF ENGINEERING'S", centerX, 14, { align: 'center' })
+    doc.text("DEPARTMENT OF COMPUTER ENGINEERING", centerX, 19, { align: 'center' })
+
+    // 5. HYPERSPACE in Mokoto (Black color)
+    setSafeFont(doc, 'Mokoto', 'normal')
+    doc.setFontSize(30)
+    doc.setTextColor(0, 0, 0)
+    doc.text("HYPERSPACE", centerX, 32, { align: 'center' })
+
+    // 6. XR SIG below right end of HYPERSPACE in Times Italic (Black color)
+    const hyperspaceWidth = doc.getTextWidth("HYPERSPACE")
+    const rightEndX = centerX + (hyperspaceWidth / 2)
+    doc.setFont('times', 'italic')
+    doc.setFontSize(14)
+    doc.setTextColor(0, 0, 0)
+    doc.text("XR SIG", rightEndX, 39, { align: 'right' })
+
+    // 7. Event Title
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(14)
+    doc.text(eventTitle, centerX, 52, { align: 'center' })
+
+    // 8. "Attendance" Label
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(12)
+    doc.text("Attendance Report", centerX, 58, { align: 'center' })
+
+    // 9. Table starting below header area
+    autoTable(doc, {
+      head: [columns],
+      body: rows as (string | number)[][],
+      startY: 64,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 30, 30] },
+    })
+
+    doc.save(`${filename}.pdf`)
+  } catch (err) {
+    console.error('Failed to export PDF:', err)
   }
-  if (clogoBase64) {
-    doc.addImage(clogoBase64, 'PNG', 297 - 14 - 24, 10, 24, 24)
-  }
-
-  const centerX = 297 / 2
-
-  // 4. Above HYPERSPACE: Wadia College Header in Quicksand (Black color)
-  doc.setFont('Quicksand', 'normal')
-  doc.setFontSize(11)
-  doc.setTextColor(0, 0, 0)
-  doc.text("WADIA COLLEGE OF ENGINEERING'S", centerX, 14, { align: 'center' })
-  doc.text("DEPARTMENT OF COMPUTER ENGINEERING", centerX, 19, { align: 'center' })
-
-  // 5. HYPERSPACE in Mokoto (Black color)
-  doc.setFont('Mokoto', 'normal')
-  doc.setFontSize(30)
-  doc.setTextColor(0, 0, 0)
-  doc.text("HYPERSPACE", centerX, 32, { align: 'center' })
-
-  // 6. XR SIG below right end of HYPERSPACE in Times Italic (Black color)
-  const hyperspaceWidth = doc.getTextWidth("HYPERSPACE")
-  const rightEndX = centerX + (hyperspaceWidth / 2)
-  doc.setFont('times', 'italic')
-  doc.setFontSize(14)
-  doc.setTextColor(0, 0, 0)
-  doc.text("XR SIG", rightEndX, 39, { align: 'right' })
-
-  // 7. Event Title
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(14)
-  doc.text(eventTitle, centerX, 52, { align: 'center' })
-
-  // 8. "Attendance" Label
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(12)
-  doc.text("Attendance Report", centerX, 58, { align: 'center' })
-
-  // 9. Table starting below header area
-  autoTable(doc, {
-    head: [columns],
-    body: rows as (string | number)[][],
-    startY: 64,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
-  })
-
-  doc.save(`${filename}.pdf`)
 }
 
