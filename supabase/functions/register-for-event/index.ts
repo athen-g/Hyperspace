@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     )
 
     const body = await req.json()
-    const { name, email, phone, college, branch, year, prn, newsletter_opt_in, event_id, custom_field_data } = body
+    const { name, email, phone, college, branch, year, prn, division, newsletter_opt_in, event_id, custom_field_data } = body
 
     // 1. Validate required fields
     if (!name || !email || !event_id) {
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         // Upsert student first before adding to waitlist
         const { data: student } = await supabase
           .from('students')
-          .upsert({ name, email, phone, college, branch, year, prn, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
+          .upsert({ name, email, phone, college, branch, year, prn, division, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
           .select('id')
           .single()
 
@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
     // 4. Upsert student
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .upsert({ name, email, phone, college, branch, year, prn, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
+      .upsert({ name, email, phone, college, branch, year, prn, division, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
       .select('id')
       .single()
 

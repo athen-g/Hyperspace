@@ -131,7 +131,10 @@ export default function MembersPage() {
     if (m.last_sign_in_at) {
       return m.is_active ? 'Active' : 'Inactive'
     }
-    if (!m.invited_at) return 'Pending'
+    // If invitation metadata is missing (e.g. Edge Function has not been redeployed yet or user was added manually)
+    if (!m.invited_at) {
+      return m.is_active ? 'Active' : 'Inactive'
+    }
     const inviteDate = new Date(m.invited_at)
     const diffHours = (new Date().getTime() - inviteDate.getTime()) / (1000 * 60 * 60)
     return diffHours > 24 ? 'Expired' : 'Pending'

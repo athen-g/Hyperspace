@@ -38,6 +38,7 @@ export default function RegistrationsPage() {
         email: '',
         contact: '',
         prn: '',
+        college: "MES's Wadia College of Engineering",
         year: '',
         branch: '',
         division: '',
@@ -77,7 +78,7 @@ export default function RegistrationsPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!event) return;
-        if (!form.name || !form.email || !form.contact || !form.prn || !form.year || !form.branch || !form.division) {
+        if (!form.name || !form.email || !form.contact || !form.prn || !form.college || !form.year || !form.branch || !form.division) {
             toast.error('Please fill in all required fields.');
             return;
         }
@@ -98,10 +99,11 @@ export default function RegistrationsPage() {
                     name: form.name,
                     email: form.email,
                     phone: form.contact,
-                    college: 'Pimpri Chinchwad College of Engineering',
+                    college: form.college,
                     branch: form.branch,
                     year: parseInt(form.year),
                     prn: form.prn,
+                    division: form.division,
                     newsletter_opt_in: form.newsletter,
                     event_id: event.id,
                     custom_field_data: customData
@@ -328,6 +330,22 @@ export default function RegistrationsPage() {
                                     onFocus={() => setFocused('prn')}
                                     onBlur={() => setFocused(null)}
                                     className={`reg-input ${focused === 'prn' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
+                                />
+                            </Field>
+
+                            {/* ── College Input Field ── */}
+                            <Field>
+                                <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor="reg-college">COLLEGE *</label>
+                                <input
+                                    id="reg-college"
+                                    name="college"
+                                    type="text"
+                                    placeholder="MES's Wadia College of Engineering"
+                                    value={form.college}
+                                    onChange={handleChange}
+                                    onFocus={() => setFocused('college')}
+                                    onBlur={() => setFocused(null)}
+                                    className={`reg-input ${focused === 'college' ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                 />
                             </Field>
 

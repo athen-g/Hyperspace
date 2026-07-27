@@ -35,6 +35,9 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No active invitation session found')
+
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
 

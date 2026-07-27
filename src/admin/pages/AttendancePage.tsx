@@ -2,30 +2,43 @@ import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useAttendance } from '../../hooks/useAttendance'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
+import logoUrl from '../../assets/icons/logo.png'
+import clogoUrl from '../../assets/icons/clogo.png'
 
 export default function AttendancePage() {
   const { eventId } = useParams<{ eventId: string }>()
   const { attendance, loading } = useAttendance(eventId ?? '')
 
   const handleExportXLSX = () => {
-    exportToXLSX(attendance.map(a => ({
+    exportToXLSX(attendance.map((a, index) => ({
+      'Sr. No.': index + 1,
       'Reg No.': a.registration_no,
       'Name': a.student_name,
-      'Email': a.student_email,
       'College': a.student_college ?? '',
-      'Branch': a.student_branch ?? '',
+      'PRN': a.student_prn ?? '',
       'Year': a.student_year ?? '',
-      'Scanned At': format(new Date(a.scanned_at), 'dd MMM yyyy HH:mm'),
-      'Scanned By': a.scanned_by_name,
+      'Branch': a.student_branch ?? '',
+      'Division': a.student_division ?? '',
     })), `attendance-${eventId}`)
   }
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Reg No.', 'Name', 'Email', 'College', 'Scanned At', 'Scanned By'],
-      attendance.map(a => [a.registration_no, a.student_name, a.student_email, a.student_college ?? '', format(new Date(a.scanned_at), 'dd MMM HH:mm'), a.scanned_by_name]) as (string | number | null)[][],
-      `Attendance \u2014 ${attendance[0]?.event_title ?? ''}`,
-      `attendance-${eventId}`
+      ['Sr. No.', 'Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division'],
+      attendance.map((a, index) => [
+        index + 1,
+        a.registration_no,
+        a.student_name,
+        a.student_college ?? '',
+        a.student_prn ?? '',
+        a.student_year ?? '',
+        a.student_branch ?? '',
+        a.student_division ?? ''
+      ]) as (string | number | null)[][],
+      attendance[0]?.event_title ?? 'Event',
+      `attendance-${eventId}`,
+      logoUrl,
+      clogoUrl
     )
   }
 
@@ -54,20 +67,18 @@ export default function AttendancePage() {
               <th style={thStyle}>Reg No.</th>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Email</th>
-              <th style={thStyle}>College</th>
               <th style={thStyle}>Scanned At</th>
               <th style={thStyle}>Scanned By</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && attendance.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
+            {loading && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && attendance.length === 0 && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
             {attendance.map(a => (
               <tr key={a.id}>
                 <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{a.registration_no}</td>
                 <td style={{ ...tdStyle, color: '#e5e5e5' }}>{a.student_name}</td>
                 <td style={tdStyle}>{a.student_email}</td>
-                <td style={tdStyle}>{a.student_college ?? '—'}</td>
                 <td style={tdStyle}>{format(new Date(a.scanned_at), 'dd MMM yyyy, HH:mm:ss')}</td>
                 <td style={tdStyle}>{a.scanned_by_name}</td>
               </tr>

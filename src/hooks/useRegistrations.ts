@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 
@@ -9,22 +9,21 @@ export function useRegistrations(eventId: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchRegistrations = useCallback(async () => {
     if (!eventId) return
+    setLoading(true)
+    const { data, error } = await supabase
+      .from('registration_details')
+      .select('*')
+      .eq('event_id', eventId)
+      .order('registered_at', { ascending: false })
 
-    const fetchRegistrations = async () => {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('registration_details')
-        .select('*')
-        .eq('event_id', eventId)
-        .order('registered_at', { ascending: false })
+    if (error) setError(error.message)
+    else setRegistrations(data ?? [])
+    setLoading(false)
+  }, [eventId])
 
-      if (error) setError(error.message)
-      else setRegistrations(data ?? [])
-      setLoading(false)
-    }
-
+  useEffect(() => {
     fetchRegistrations()
 
     // Subscribe to new registrations in realtime
@@ -41,7 +40,7 @@ export function useRegistrations(eventId: string) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [eventId])
+  }, [eventId, fetchRegistrations])
 
-  return { registrations, loading, error }
+  return { registrations, loading, error, refetch: fetchRegistrations }
 }
