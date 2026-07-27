@@ -45,7 +45,26 @@ Deno.serve(async (req) => {
     // 2. Parse payload
     const { action = 'invite', email, name, role, userId } = await req.json()
 
-    const origin = req.headers.get('origin') || 'https://hyperspacesig.tech'
+    if (action === 'list') {
+      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
+      if (listError) {
+        return new Response(
+          JSON.stringify({ error: listError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      const userMetaList = users.map(u => ({
+        id: u.id,
+        email: u.email,
+        invited_at: u.invited_at || null,
+        last_sign_in_at: u.last_sign_in_at || null,
+        confirmation_sent_at: u.confirmation_sent_at || null
+      }))
+      return new Response(
+        JSON.stringify({ success: true, users: userMetaList }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     if (action === 'delete') {
       if (!userId) {
