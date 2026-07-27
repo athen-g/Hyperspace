@@ -35,8 +35,15 @@ import MembersPage from "./admin/pages/MembersPage";
 import AuditLogPage from "./admin/pages/AuditLogPage";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
 import ScanRedirect from "./admin/pages/ScanRedirect";
-
 import { supabase } from "./lib/supabase";
+
+// Check if this page load is due to a Supabase invitation link redirect
+// We capture this synchronously at module load time before Supabase Auth has a chance to strip the hash parameters.
+const isInviteUrl = typeof window !== 'undefined' && (
+  window.location.hash.includes('type=invite') ||
+  window.location.search.includes('type=invite') ||
+  window.location.href.includes('type=invite')
+);
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -45,19 +52,15 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Intercept invite session redirects from Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      const hash = window.location.hash;
-      const isInvite = hash.includes("type=invite") || window.location.href.includes("type=invite");
-      
-      if (isInvite && session) {
-        // Clear hash from URL and redirect to registration setup page
-        window.location.hash = "";
-        navigate("/admin/register", { replace: true });
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    if (isInviteUrl) {
+      // Listen for the session to be established, then redirect to setup password
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session) {
+          navigate("/admin/register", { replace: true });
+        }
+      });
+      return () => subscription.unsubscribe();
+    }
   }, [navigate]);
 
   return (
