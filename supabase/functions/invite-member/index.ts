@@ -46,7 +46,8 @@ Deno.serve(async (req) => {
     const { action = 'invite', email, name, role, userId } = await req.json()
 
     // Always use the production URL for invite redirects — never trust the request Origin
-    const SITE_URL = 'https://hyperspacesig.tech'
+    // Always use the production URL — read from env secret, never from request Origin
+    const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://hyperspacesig.tech'
 
     if (action === 'list') {
       const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
