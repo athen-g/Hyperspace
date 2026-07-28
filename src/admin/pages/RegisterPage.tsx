@@ -38,10 +38,22 @@ export default function RegisterPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) throw new Error('No active invitation session found')
 
-      const { error } = await supabase.auth.updateUser({ password })
-      if (error) throw error
+      // 1. Set the password
+      const { error: pwError } = await supabase.auth.updateUser({ password })
+      if (pwError) throw pwError
 
-      toast.success('Account setup complete! Welcome to the Admin Portal.')
+      // 2. Mark core_member as active now that setup is genuinely complete
+      const { error: memberError } = await (supabase.from('core_members') as any)
+        .update({ is_active: true })
+        .eq('user_id', session.user.id)
+      if (memberError) {
+        console.error('Failed to activate member profile:', memberError)
+        // Non-fatal: warn but still let them proceed
+        toast.error('Account created but activation failed — contact a super admin.')
+      } else {
+        toast.success('Account setup complete! Welcome to the Admin Portal.')
+      }
+
       navigate('/admin/dashboard')
     } catch (err: any) {
       toast.error(err.message || 'Failed to set password')
