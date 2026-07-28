@@ -112,6 +112,8 @@ export default function EventOngoingTemplate() {
 
             {[
               ["DATE:", event.date],
+              ...(event.time ? [["TIME:", event.time]] : []),
+              ...(event.venue ? [["VENUE:", `Room ${event.venue}`]] : []),
               ["AUDIENCE:", event.audience || event.total_seats],
               ["TYPE:", event.type],
               [
