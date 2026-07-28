@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
     // 2. Parse payload
     const { action = 'invite', email, name, role, userId } = await req.json()
 
-    const origin = req.headers.get('origin') || 'https://hyperspacesig.tech'
+    // Always use the production URL for invite redirects — never trust the request Origin
+    const SITE_URL = 'https://hyperspacesig.tech'
 
     if (action === 'list') {
       const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
@@ -96,7 +97,7 @@ Deno.serve(async (req) => {
         )
       }
       const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${origin}/`
+        redirectTo: `${SITE_URL}/admin`
       })
       if (inviteError) {
         return new Response(
@@ -128,7 +129,7 @@ Deno.serve(async (req) => {
 
     // 3. Invite user via Supabase Auth Admin API
     const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${origin}/`
+      redirectTo: `${SITE_URL}/admin`
     })
 
     if (inviteError) {
