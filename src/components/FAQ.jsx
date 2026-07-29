@@ -35,9 +35,8 @@ const FAQ = () => {
                             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                             onClick={() => handleToggle(id)}
                             aria-expanded={isOpened}
-                            className={`faq-card !flex !flex-col !items-stretch overflow-hidden w-full text-left px-6 py-5 cursor-pointer relative z-10 bg-[#0e0e0e] ${
-                                isOpened ? '!justify-start' : '!justify-center min-h-[80px]'
-                            }`}
+                            className={`faq-card !flex !flex-col !items-stretch overflow-hidden w-full text-left px-6 py-5 cursor-pointer relative z-10 bg-[#0e0e0e] ${isOpened ? '!justify-start' : '!justify-center min-h-[80px]'
+                                }`}
                         >
                             <div className="flex items-center justify-between gap-6 relative z-10 w-full my-auto">
                                 <span
@@ -72,7 +71,7 @@ const FAQ = () => {
                     )
                 })}
             </div>
-            <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666] mt-[50px]" />
+            <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] mt-[50px]" />
         </section>
     )
 }

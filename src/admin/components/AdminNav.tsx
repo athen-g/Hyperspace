@@ -53,7 +53,7 @@ export default function AdminNav() {
         width: '100%',
       }}>
         <div>
-          <p style={{ margin: 0, fontSize: '10px', letterSpacing: '3px', color: '#555', textTransform: 'uppercase' }}>Hyperspace XR</p>
+          <a href='https://hyperspacesig.tech' style={{ margin: 0, fontSize: '10px', letterSpacing: '3px', color: '#555', textTransform: 'uppercase' }}>Hyperspace XR</a>
           <h2 style={{ margin: '4px 0 0', fontSize: '16px', fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>Admin Portal</h2>
         </div>
         {isMobile && (

@@ -35,7 +35,7 @@ const eventsOngoing = [
     pagesubtitle: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
     overview: 'Commence Synchronisation is the official introductory event of Hyperspace XR SIG, designed to provide participants with their first glimpse into the world of Extended Reality (XR). Through immersive discussions, live demonstrations, and interactive experiences, the event gradually unfolds the possibilities of Augmented Reality, Virtual Reality, and emerging immersive technologies.\n\nRather than revealing everything at once, each stage of the event uncovers another piece of a much larger vision—inviting participants to explore, question, and imagine what lies beyond the boundaries of conventional technology.',
     date: 'TUESDAY, 4TH AUGUST 2026',
-    time: '1:00 PM – 3:00 PM',
+    time: '2:00 PM – 4:00 PM',
     venue: '514',
     audience: '100+',
     type: 'LECTURE EVENT',

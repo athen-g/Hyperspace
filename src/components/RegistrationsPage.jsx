@@ -9,6 +9,7 @@ import RegSelect from './ui/RegSelect';
 import { useMediaQuery } from 'react-responsive';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import { eventsOngoing } from '../../constants/events';
 
 /* ─── Reusable animated field wrapper ─── */
 function Field({ children, className = '' }) {
@@ -22,6 +23,9 @@ function Field({ children, className = '' }) {
 export default function RegistrationsPage() {
     const { slug } = useParams();
     const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
+
+    // Pull static metadata (name, tagline) from constants by slug
+    const constantsEvent = eventsOngoing.find(e => e.slug === slug) ?? null;
 
     const [event, setEvent] = useState(null);
     const [loadingEvent, setLoadingEvent] = useState(true);
@@ -63,6 +67,13 @@ export default function RegistrationsPage() {
 
                 if (error) throw error;
                 setEvent(data);
+
+                // Prefer constants (slug-matched) for title/tagline, fall back to DB
+                const eventName = constantsEvent?.name ?? data.name;
+                const eventTagline = constantsEvent?.tagline ?? data.tagline;
+                document.title = `${eventName} — Hyperspace XR SIG`;
+                const metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc && eventTagline) metaDesc.setAttribute('content', eventTagline);
             } catch (err) {
                 console.error('Error fetching event:', err);
             } finally {
@@ -70,6 +81,9 @@ export default function RegistrationsPage() {
             }
         };
         fetchEvent();
+
+        // Reset title on unmount
+        return () => { document.title = 'Hyperspace XR SIG'; };
     }, [slug]);
 
     const handleChange = (e) =>
@@ -168,7 +182,7 @@ export default function RegistrationsPage() {
               text-left
             "
                     >
-                        {event.name}
+                        {constantsEvent?.name ?? event.name}
                     </h1>
 
                     <div
@@ -183,7 +197,7 @@ export default function RegistrationsPage() {
               ${isMobile768 ? 'text-left max-w-full text-white/80' : 'max-w-[450px] text-right'}
             `}
                     >
-                        {event.tagline}
+                        {constantsEvent?.tagline ?? event.tagline}
                     </div>
                 </div>
             </div>

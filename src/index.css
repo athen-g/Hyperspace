@@ -135,17 +135,28 @@ body::before {
 }
 
 .hero-name {
-  @apply absolute z-[3] inset-0 pointer-events-none;
+  @apply absolute z-[3] inset-0 pointer-events-none overflow-hidden;
+  /* Single source of truth for hero title scale */
+  --h-fs: clamp(2rem, 14vw, 14vw);
 }
 
 .hero-title {
-  @apply absolute font-mokoto leading-[0.536] tracking-[0.05em] text-accent-pink whitespace-nowrap top-[36%] left-[3.507%];
-  font-size: clamp(3rem, 14.4vw, 50vw);
+  @apply absolute font-mokoto leading-[0.536] tracking-[0.05em] text-accent-pink top-[36%];
+  left: 3.507%;
+  font-size: var(--h-fs);
+  white-space: nowrap;
+  display: block;
 }
 
 .hero-subtitle {
-  @apply absolute font-mokoto leading-[1.25] tracking-[0.05em] text-white whitespace-nowrap top-[52%] left-[74.34%];
-  font-size: clamp(1.5rem, 6.5vw, 20vw);
+  @apply absolute font-mokoto leading-[1.25] tracking-[0.05em] text-white whitespace-nowrap top-[52%];
+  /* XR SIG left edge tracks HYPERSPACE right edge.
+     K=5.06: HYPERSPACE width in units of --h-fs (70.833vw / 14vw).
+     K=1.582: XR SIG width in units of --h-fs (0.464 × 3.41).
+     Total: 96.493vw - --h-fs × (5.06 + 1.584) = 96.493vw - --h-fs × 6.64.
+     min 3.507% ensures it never goes outside the viewport margin. */
+  right: max(3.507%, calc(96.493vw - var(--h-fs) * 6.64));
+  font-size: calc(var(--h-fs) * 0.464);
 }
 
 .site-header {
@@ -1768,18 +1779,30 @@ body::before {
 /* Wordmark aligned with Line 1 (3.472%) and Line 5 (96.528%) */
 .footer-wordmark-container {
   @apply relative z-[3] mx-[3.472%] flex flex-col items-stretch aspect-[4.098/1];
+  /* Single source of truth for the wordmark scale */
+  --fw-size: clamp(48px, 19.5vw, 283px);
 }
 
 .footer-wordmark-main {
-  @apply flex w-full flex-col justify-center text-accent-pink text-center font-mokoto text-[296px] font-normal leading-[436px] uppercase select-none mx-auto;
+  @apply flex w-full flex-col justify-center text-accent-pink text-center font-mokoto font-normal leading-none uppercase select-none mx-auto;
+  font-size: var(--fw-size);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .footer-wordmark-sub-container {
-  @apply flex justify-end w-full mt-[-80px] mx-0 mb-9;
+  @apply flex justify-end w-full mx-0 mb-9;
+  /* Proportional right padding — uses only --fw-size so it never blows up at wide viewports */
+  padding-right: calc(var(--fw-size) * 0.17);
 }
 
 .footer-wordmark-sub-text {
-  @apply flex w-[426.66px] flex-col justify-center text-white text-center font-mokoto text-[136px] font-normal leading-[90px] uppercase;
+  @apply flex flex-col justify-center text-white text-center font-mokoto font-normal uppercase;
+  /* Always 48% of the main wordmark size — stays proportional at all breakpoints */
+  font-size: calc(var(--fw-size) * 0.48);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Bottom Heading */
