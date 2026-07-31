@@ -90,9 +90,9 @@ export default function EventOngoingTemplate() {
         <div className={
           isMobile768
             ? 'relative z-10 w-[93.056%] mx-auto my-8 flex flex-col items-start gap-4 px-2 bg-[#0e0e0e]'
-            : 'flex ml-[50%] w-[46.528%] mt-[46px] mb-[46px] items-start justify-between gap-12'
+            : 'flex max-w-[1050px] ml-[525px] mt-[46px] mb-[46px] mr-auto items-start justify-between'
         }>
-          <div className="flex flex-row items-center justify-center gap-2 shrink-0">
+          <div className="flex flex-row items-center justify-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent-pink"></div>
             <span className='font-mono text-[13px] text-[#ABABAB] tracking-[0.05em] uppercase'>OVERVIEW</span>
           </div>
