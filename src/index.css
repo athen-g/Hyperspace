@@ -1399,12 +1399,17 @@ body::before {
 }
 
 .blog-page-wrapper .media-block img {
-  @apply w-full aspect-video object-cover rounded-xl border border-white/8 block transition-all duration-300 ease-out;
+  @apply w-full rounded-xl border border-white/8 block transition-all duration-300 ease-out;
+  /* Remove aspect-video forcing to allow original image aspect ratios (A3, A4, etc.) without cropping */
+  aspect-ratio: auto;
+  object-fit: contain;
+  max-height: 80vh;
+  background: rgba(0,0,0,0.2);
 }
 
 .blog-page-wrapper .media-block img:hover {
-  @apply scale-[1.006];
-  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.12);
+  @apply scale-[1.002];
+  box-shadow: 0 16px 48px rgba(233, 30, 99, 0.08);
 }
 
 /* FIGMA NOTE: Poster grid — 2-column, gap 1.25rem.
@@ -1414,7 +1419,11 @@ body::before {
 }
 
 .blog-page-wrapper .poster-grid img {
-  @apply w-full aspect-[3/4] object-cover rounded-xl border border-white/8 block transition-transform duration-300 ease-out;
+  @apply w-full rounded-xl border border-white/8 block transition-transform duration-300 ease-out;
+  /* Use A3 aspect ratio (1:1.414) for posters, and contain/contain-fitting behavior to prevent cropping */
+  aspect-ratio: 1 / 1.414;
+  object-fit: contain;
+  background: rgba(0,0,0,0.2);
 }
 
 .blog-page-wrapper .poster-grid img:hover {
@@ -1447,7 +1456,7 @@ body::before {
    flex-col gap 1.5rem.
    ============================================================ */
 .blog-page-wrapper .blog-sidebar {
-  @apply sticky top-[88px] flex flex-col gap-6;
+  @apply flex flex-col gap-6;
 }
 
 /* Glass card — dark surface with subtle border */
@@ -1459,9 +1468,9 @@ body::before {
   @apply border-accent-pink/20;
 }
 
-/* Elevated glass card — pink accent */
+/* Elevated glass card — pink accent, sticky so the ToC stays in view while scrolling */
 .blog-page-wrapper .glass-card-elevated {
-  @apply bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
+  @apply sticky top-[88px] bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
 }
 
 /* Sidebar section label — IBM Plex Mono, pink accent */
@@ -1898,7 +1907,10 @@ body::before {
 }
 
 .contact-connect-box {
-  @apply w-full max-w-[430px] flex flex-col items-start;
+  @apply flex flex-col items-start;
+  /* Align right edge with Line 2 (25.694% left). 
+     Container padding left is 3.472%. Width = 25.694% - 3.472% = 22.222vw. */
+  width: 22.222vw;
 }
 
 .contact-connect-box .rule-line {
@@ -3420,9 +3432,9 @@ body::before {
   z-index: 100;
 
   /* Distinct glass look when open */
-  background: rgba(18, 18, 22, 0.82);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: rgba(18, 18, 22, 0.94);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-top-color: rgba(255, 255, 255, 0.20);
   border-radius: 10px;

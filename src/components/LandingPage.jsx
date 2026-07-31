@@ -38,7 +38,7 @@ const LandingPage = () => {
       <Brands />
       <Events />
       <Blog_Home />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Team_Home />
       <FAQ />
       <Contact />

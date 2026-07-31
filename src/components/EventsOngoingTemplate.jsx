@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from './Header';
 import BackgroundLines from './ui/BackgroundLines';
@@ -7,6 +7,7 @@ import Footer from './Footer';
 import Button from './Button';
 import { eventsOngoing } from '../../constants/events';
 import { useMediaQuery } from 'react-responsive';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function EventOngoingTemplate() {
   const navigate = useNavigate();
@@ -51,19 +52,27 @@ export default function EventOngoingTemplate() {
               {event.name}
             </h1>
 
-            <div
-              className={`
-                font-mono
-                text-[13px]
-                font-medium
-                uppercase
-                tracking-[0.11em]
-                leading-[1.3]
-                text-white
-                ${isMobile768 ? 'text-left max-w-full text-white/80' : 'max-w-[450px] text-right'}
-                `}
-            >
-              {event.tagline}
+            <div className={`flex flex-col gap-4 ${isMobile768 ? 'w-full items-start' : 'items-end'}`}>
+              <div
+                className={`
+                  font-mono
+                  text-[13px]
+                  font-medium
+                  uppercase
+                  tracking-[0.11em]
+                  leading-[1.3]
+                  text-white
+                  ${isMobile768 ? 'text-left max-w-full text-white/80' : 'max-w-[450px] text-right'}
+                  `}
+              >
+                {event.tagline}
+              </div>
+              <button
+                onClick={() => navigate(`/register/${event.slug}`)}
+                className={`bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-opacity-95 active:scale-[0.98] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_20px_rgba(233,30,99,0.4)] ${isMobile768 ? 'w-full mt-2' : ''}`}
+              >
+                REGISTER FOR EVENT →
+              </button>
             </div>
 
           </div>
@@ -105,10 +114,10 @@ export default function EventOngoingTemplate() {
         {/* Metadata Table */}
         <div className={`relative z-10 ${isMobile768
           ? 'w-[93.056%] mx-auto my-8 bg-[#0e0e0e]'
-          : 'w-[93.056%] ml-[435px] max-w-[1406px] mb-[75px]'
+          : 'ml-[50%] w-[46.528%] mb-[75px]'
           }`}>
 
-          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'ml-[520px] border-b border-light-grey'}>
+          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'w-full border-b border-light-grey'}>
 
             {[
               ["DATE:", event.date],
@@ -135,7 +144,7 @@ export default function EventOngoingTemplate() {
             ].map(([title, value]) => (
               <div
                 key={title}
-                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[300px_1fr] justify-center'
+                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[1fr_1.8fr] justify-center'
                   }`}
               >
 

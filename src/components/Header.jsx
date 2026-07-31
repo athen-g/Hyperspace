@@ -193,33 +193,56 @@ export default function Header() {
                   <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">BLOG</span>
                 </span>
               </a>
+
+              {hasOngoing && (
+                <button
+                  onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
+                  className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none ml-4 shadow-[0_0_12px_rgba(233,30,99,0.3)] shrink-0"
+                >
+                  REGISTER NOW
+                </button>
+              )}
             </nav>
           ) : (
-            <button
-              onClick={toggleMenu}
-              className="mr-[3.472%] w-16 h-11 flex items-center justify-center bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 transition-all duration-200 cursor-pointer overflow-hidden relative"
-              aria-label="Toggle Navigation Menu"
-            >
-              {/* Custom Animated 2-Line Icon morphing to Cross (White, 1.5px thin) */}
-              <div className="w-6 h-5 relative flex flex-col justify-center items-center">
-                <motion.span
-                  animate={{
-                    rotate: isOpen ? 45 : 0,
-                    y: isOpen ? 0 : -3.5,
-                  }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute w-5 h-[1.5px] bg-white rounded-full origin-center"
-                />
-                <motion.span
-                  animate={{
-                    rotate: isOpen ? -45 : 0,
-                    y: isOpen ? 0 : 3.5,
-                  }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute w-5 h-[1.5px] bg-white rounded-full origin-center"
-                />
-              </div>
-            </button>
+            <div className="flex items-center gap-4 mr-[3.472%]">
+              {/* Pulsating Green Dot indicating ongoing events next to hamburger */}
+              {hasOngoing && (
+                <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] inline-block shrink-0 shadow-[0_0_10px_rgba(34,197,94,0.9)] animate-pulse" />
+              )}
+              {hasOngoing && (
+                <button
+                  onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
+                  className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_12px_rgba(233,30,99,0.3)]"
+                >
+                  REGISTER NOW
+                </button>
+              )}
+              <button
+                onClick={toggleMenu}
+                className="w-16 h-11 flex items-center justify-center bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 transition-all duration-200 cursor-pointer overflow-hidden relative"
+                aria-label="Toggle Navigation Menu"
+              >
+                {/* Custom Animated 2-Line Icon morphing to Cross (White, 1.5px thin) */}
+                <div className="w-6 h-5 relative flex flex-col justify-center items-center">
+                  <motion.span
+                    animate={{
+                      rotate: isOpen ? 45 : 0,
+                      y: isOpen ? 0 : -3.5,
+                    }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute w-5 h-[1.5px] bg-white rounded-full origin-center"
+                  />
+                  <motion.span
+                    animate={{
+                      rotate: isOpen ? -45 : 0,
+                      y: isOpen ? 0 : 3.5,
+                    }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute w-5 h-[1.5px] bg-white rounded-full origin-center"
+                  />
+                </div>
+              </button>
+            </div>
           )}
         </div>
       </header>
@@ -275,6 +298,16 @@ export default function Header() {
                       </span>
                     </a>
                   ))}
+                  {hasOngoing && (
+                    <div className="mt-4 mb-2">
+                      <button
+                        onClick={(e) => handleNavClick(e, `/register/${eventsOngoing[0].slug}`)}
+                        className="w-full bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase py-4 rounded-[4px] border-none shadow-[0_0_15px_rgba(233,30,99,0.4)] flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        REGISTER FOR {eventsOngoing[0].name}
+                      </button>
+                    </div>
+                  )}
                 </nav>
 
                 {/* Bottom Action Bar */}

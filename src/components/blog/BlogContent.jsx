@@ -69,9 +69,10 @@ const BlogContent = ({ blocks = [] }) => {
           );
 
         case 'posterGrid':
+          const gridItems = block.items || block.images || [];
           return (
             <div className="poster-grid" key={i}>
-              {block.items.map((item, j) => (
+              {gridItems.map((item, j) => (
                 <div key={j}>
                   <img
                     src={item.src}
@@ -81,8 +82,8 @@ const BlogContent = ({ blocks = [] }) => {
                       borderRadius: '12px',
                       border: '1px solid rgba(255,255,255,0.08)',
                       display: 'block',
-                      aspectRatio: item.aspectRatio || '3/4',
-                      objectFit: 'cover',
+                      aspectRatio: item.aspectRatio || '1/1.414',
+                      objectFit: 'contain',
                     }}
                   />
                   {item.caption && (
