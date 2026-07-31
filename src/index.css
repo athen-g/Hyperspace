@@ -1907,7 +1907,10 @@ body::before {
 }
 
 .contact-connect-box {
-  @apply w-full max-w-[430px] flex flex-col items-start;
+  @apply flex flex-col items-start;
+  /* Align right edge with Line 2 (25.694% left). 
+     Container padding left is 3.472%. Width = 25.694% - 3.472% = 22.222vw. */
+  width: 22.222vw;
 }
 
 .contact-connect-box .rule-line {
