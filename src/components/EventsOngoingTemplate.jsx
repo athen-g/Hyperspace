@@ -13,22 +13,8 @@ export default function EventOngoingTemplate() {
   const navigate = useNavigate();
   const { slug } = useParams();
   const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
-  const [showSticky, setShowSticky] = useState(false);
 
   const event = eventsOngoing.find(e => e.slug === slug);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // Show sticky button after scrolling down 300px
-      if (window.scrollY > 300) {
-        setShowSticky(true);
-      } else {
-        setShowSticky(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   if (!event) return <h1 className="text-white text-center py-20 font-host text-3xl">404 - Event Not Found</h1>;
 
@@ -420,30 +406,6 @@ export default function EventOngoingTemplate() {
       {/* Imported Contact and Footer components */}
       <Contact />
       <Footer />
-
-      {/* Floating Sticky Register CTA */}
-      <AnimatePresence>
-        {showSticky && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 30 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed bottom-6 right-6 z-[9999] pointer-events-auto"
-          >
-            <button
-              onClick={() => navigate(`/register/${event.slug}`)}
-              className="bg-accent-pink text-white font-mono text-[12px] sm:text-[13px] font-bold tracking-[0.15em] uppercase px-6 py-4.5 rounded-full border border-white/10 hover:border-white/20 transition-all cursor-pointer shadow-[0_10px_30px_rgba(233,30,99,0.5)] flex items-center gap-2 hover:scale-[1.04] active:scale-[0.97]"
-            >
-              <span>REGISTER NOW</span>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
-              </span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
