@@ -102,10 +102,10 @@ const EventPageTemplate = () => {
         {/* Metadata Table */}
         <div className={`relative z-10 ${isMobile768
           ? 'w-[93.056%] mx-auto my-8 bg-[#0e0e0e]'
-          : 'w-[93.056%] ml-[435px] max-w-[1406px] mb-[75px]'
+          : 'ml-[50%] w-[46.528%] mb-[75px]'
           }`}>
 
-          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'ml-[520px] border-b border-light-grey'}>
+          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'w-full border-b border-light-grey'}>
 
             {[
               ["DATE:", event.date],
@@ -123,7 +123,7 @@ const EventPageTemplate = () => {
             ].map(([title, value]) => (
               <div
                 key={title}
-                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[300px_1fr] justify-center'
+                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[1fr_1.8fr] justify-center'
                   }`}
               >
 
