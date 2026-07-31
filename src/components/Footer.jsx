@@ -137,9 +137,9 @@ export default function Footer() {
           <div className="footer-socials-col">
             <div className="footer-col-header footer-col-header--pink">Follow on</div>
             <ul className="footer-social-list">
-              <li><a href="#" target="_blank" rel="noopener noreferrer">INSTAGRAM</a></li>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">WHATSAPP</a></li>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">LINKEDIN</a></li>
+              <li><a href="https://www.instagram.com/mescoe_hyperspace" target="_blank" rel="noopener noreferrer">INSTAGRAM</a></li>
+              <li><a href="https://chat.whatsapp.com/Ir4Uo7R88zS3ZkIPpZC5A4?mode=ems_copy_t" target="_blank" rel="noopener noreferrer">WHATSAPP</a></li>
+              <li><a href="https://www.linkedin.com/company/112033075" target="_blank" rel="noopener noreferrer">LINKEDIN</a></li>
             </ul>
           </div>
 
