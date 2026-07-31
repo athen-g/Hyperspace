@@ -90,9 +90,9 @@ export default function EventOngoingTemplate() {
         <div className={
           isMobile768
             ? 'relative z-10 w-[93.056%] mx-auto my-8 flex flex-col items-start gap-4 px-2 bg-[#0e0e0e]'
-            : 'flex max-w-[1050px] ml-[525px] mt-[46px] mb-[46px] mr-auto items-start justify-between'
+            : 'flex ml-[50%] w-[46.528%] mt-[46px] mb-[46px] items-start justify-between gap-12'
         }>
-          <div className="flex flex-row items-center justify-center gap-2">
+          <div className="flex flex-row items-center justify-center gap-2 shrink-0">
             <div className="w-2 h-2 rounded-full bg-accent-pink"></div>
             <span className='font-mono text-[13px] text-[#ABABAB] tracking-[0.05em] uppercase'>OVERVIEW</span>
           </div>
@@ -105,10 +105,10 @@ export default function EventOngoingTemplate() {
         {/* Metadata Table */}
         <div className={`relative z-10 ${isMobile768
           ? 'w-[93.056%] mx-auto my-8 bg-[#0e0e0e]'
-          : 'w-[93.056%] ml-[435px] max-w-[1406px] mb-[75px]'
+          : 'ml-[50%] w-[46.528%] mb-[75px]'
           }`}>
 
-          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'ml-[520px] border-b border-light-grey'}>
+          <div className={isMobile768 ? 'w-full border-t border-b border-light-grey' : 'w-full border-b border-light-grey'}>
 
             {[
               ["DATE:", event.date],
@@ -135,7 +135,7 @@ export default function EventOngoingTemplate() {
             ].map(([title, value]) => (
               <div
                 key={title}
-                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[300px_1fr] justify-center'
+                className={`border-b last:border-b-0 border-light-grey items-center ${isMobile768 ? 'flex flex-col justify-start items-start p-3 gap-1' : 'grid grid-cols-[1fr_1.8fr] justify-center'
                   }`}
               >
 
