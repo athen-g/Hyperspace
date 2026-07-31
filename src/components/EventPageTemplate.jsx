@@ -237,7 +237,7 @@ const EventPageTemplate = () => {
           className={
             isMobile768
               ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-4 mb-20'
-              : '!relative !left-[50%] !w-[46.6%] mt-6 mb-60'
+              : '!relative !left-[74.306%] !w-[22.222%] mt-6 mb-60'
           }
         />
 
