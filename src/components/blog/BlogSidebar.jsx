@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * author shape:  { initials, name, role, bio }
@@ -20,18 +21,24 @@ const BlogSidebar = ({ author, related = [] }) => (
       <div className="glass-card">
         <div className="sidebar-label">Related Reads</div>
 
-        {related.map((item, i) => (
-          <a className="related-post" href={item.href || '#'} key={i}>
-            <div className="related-thumb">
-              <div className={item.thumbClass || `related-thumb-${(i % 3) + 1}`}></div>
-            </div>
-            <div className="related-info">
-              <div className="related-category">{item.category}</div>
-              <div className="related-title">{item.title}</div>
-              <div className="related-date">{item.date}</div>
-            </div>
-          </a>
-        ))}
+        {related.map((item, i) => {
+          const cleanHref = item.href && item.href.startsWith('#')
+            ? `/blogs/${item.href.substring(1)}`
+            : item.href || '#';
+
+          return (
+            <Link className="related-post" to={cleanHref} key={i}>
+              <div className="related-thumb">
+                <div className={item.thumbClass || `related-thumb-${(i % 3) + 1}`}></div>
+              </div>
+              <div className="related-info">
+                <div className="related-category">{item.category}</div>
+                <div className="related-title">{item.title}</div>
+                <div className="related-date">{item.date}</div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     )}
   </>

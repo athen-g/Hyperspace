@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
+import { Link } from 'react-router-dom';
 
 import Header from '../Header';
 import BackgroundLines from '../ui/BackgroundLines';
@@ -78,6 +79,40 @@ const BlogPostLayout = ({ post }) => {
             ))}
 
             <BlogContent blocks={post.content} />
+
+            {/* Pagination for parts of the Design Journal */}
+            {(() => {
+              const journalParts = [
+                { partNum: 1, title: 'Initiate Calibration', slug: 'crafting-visual-identity-initiate-calibration' },
+                { partNum: 2, title: 'Activate Immersion', slug: 'crafting-visual-identity-activate-immersion' },
+                { partNum: 3, title: 'Render Creation', slug: 'crafting-visual-identity-render-creation' },
+                { partNum: 4, title: 'Brand Universe', slug: 'crafting-visual-identity-brand-universe' },
+                { partNum: 5, title: 'Design Language', slug: 'crafting-visual-identity-design-language' },
+              ];
+              const currentIndex = journalParts.findIndex(p => p.slug === post.slug);
+              if (currentIndex === -1) return null;
+
+              const prevPart = currentIndex > 0 ? journalParts[currentIndex - 1] : null;
+              const nextPart = currentIndex < journalParts.length - 1 ? journalParts[currentIndex + 1] : null;
+
+              return (
+                <div className="flex justify-between items-center mt-16 pt-8 border-t border-white/10 font-mono text-[14px]">
+                  {prevPart ? (
+                    <Link to={`/blogs/${prevPart.slug}`} className="text-white/60 hover:text-accent-pink transition-colors flex flex-col items-start gap-1">
+                      <span className="text-[11px] text-white/30 tracking-widest uppercase">← Previous Part</span>
+                      <span className="font-bold">Part {prevPart.partNum}: {prevPart.title}</span>
+                    </Link>
+                  ) : <div />}
+
+                  {nextPart ? (
+                    <Link to={`/blogs/${nextPart.slug}`} className="text-white/60 hover:text-accent-pink transition-colors flex flex-col items-end text-right gap-1">
+                      <span className="text-[11px] text-white/30 tracking-widest uppercase">Next Part →</span>
+                      <span className="font-bold">Part {nextPart.partNum}: {nextPart.title}</span>
+                    </Link>
+                  ) : <div />}
+                </div>
+              );
+            })()}
           </article>
 
           <aside className={`blog-sidebar ${isMobile768 ? '!static !w-full' : ''}`}>

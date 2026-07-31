@@ -268,7 +268,7 @@ const BLOGS = [
     id: 3,
     tag: 'Design Journal · Part 2',
     date: 'June 16, 2026',
-    title: 'Activate Immersion: Crossing the Threshold',
+    title: 'Activate Immersion: Crossing Threshold',
     slug: 'crafting-visual-identity-activate-immersion',
   },
   {
