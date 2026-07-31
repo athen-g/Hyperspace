@@ -1447,7 +1447,7 @@ body::before {
    flex-col gap 1.5rem.
    ============================================================ */
 .blog-page-wrapper .blog-sidebar {
-  @apply sticky top-[88px] flex flex-col gap-6;
+  @apply flex flex-col gap-6;
 }
 
 /* Glass card — dark surface with subtle border */
@@ -1459,9 +1459,9 @@ body::before {
   @apply border-accent-pink/20;
 }
 
-/* Elevated glass card — pink accent */
+/* Elevated glass card — pink accent, sticky so the ToC stays in view while scrolling */
 .blog-page-wrapper .glass-card-elevated {
-  @apply bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
+  @apply sticky top-[88px] bg-accent-pink/[0.04] backdrop-blur-[6px] border border-accent-pink/15 rounded-xl p-6;
 }
 
 /* Sidebar section label — IBM Plex Mono, pink accent */
