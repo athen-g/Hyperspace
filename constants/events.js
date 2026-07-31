@@ -41,7 +41,7 @@ const eventsOngoing = [
     type: 'LECTURE EVENT',
     sponsors: ['COMING SOON!'],
     plan: 'Phase 01 — The Signal\nThe event begins with an introduction to Hyperspace XR SIG and its vision. Participants are welcomed into a world where technology extends beyond screens, offering a glimpse into the ideas that drive immersive innovation.\n\nPhase 02 — Echoes of the Journey\nEvery milestone tells a story. This segment showcases the initiatives, workshops, and experiences that have shaped Hyperspace XR SIG.\n\nPhase 03 — From Concept to Creation\nIdeas become tangible through a live demonstration of an immersive project developed by members of the SIG.\n\nPhase 04 — Beyond the Horizon\nThe journey continues with an exploration of the future of immersive technologies across education, healthcare, engineering, architecture, and entertainment.\n\nPhase 05 — The Synchronisation Challenge\nAn interactive quiz culminates the event. Top 5 receive a special prize. Top 3 experience VR firsthand with professional headsets.\n\nPhase 06 — The Beginning\nA formal closing and invitation to become part of Hyperspace XR SIG. The synchronization does not end here—it only begins.',
-    brochure_url: '',
+    brochure_url: 'https://drive.google.com/file/d/17gSMwSkK3G054wFU_6dqkw5TgjBWVetm/view?usp=sharing',
   },
 ]
 
