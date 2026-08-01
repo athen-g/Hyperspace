@@ -199,7 +199,7 @@ export default function Header() {
                   onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
                   className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none ml-4 shadow-[0_0_12px_rgba(233,30,99,0.3)] shrink-0"
                 >
-                  REGISTER NOW
+                  REGISTER
                 </button>
               )}
             </nav>
@@ -214,7 +214,7 @@ export default function Header() {
                   onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
                   className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_12px_rgba(233,30,99,0.3)]"
                 >
-                  REGISTER NOW
+                  REGISTER
                 </button>
               )}
               <button
