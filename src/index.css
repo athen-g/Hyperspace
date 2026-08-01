@@ -1568,6 +1568,35 @@ body::before {
 }
 
 /* ============================================================
+   RESPONSIVE MEDIA QUERIES FOR BLOG PAGE
+   ============================================================ */
+@media (max-width: 960px) {
+  .blog-page-wrapper .blog-body {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 2rem clamp(1.5rem, 5vw, 4rem) 4rem;
+  }
+
+  .blog-page-wrapper .blog-sidebar {
+    position: static;
+    order: -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .blog-page-wrapper .blog-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-page-wrapper .poster-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
    FOOTER
    FIGMA NOTE: Background #080810. Top border rgba(255,255,255,0.06).
    Grid: 1fr repeat(3,auto). Gap 3rem 5rem. pb 3rem + border-bottom.
