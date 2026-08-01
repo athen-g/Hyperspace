@@ -65,9 +65,7 @@ const BlogPostLayout = ({ post }) => {
         <Header />
         <BackgroundLines />
 
-        <div className={isMobile768 ? 'mt-[110px]' : ''}>
-          <BlogHero hero={post.hero} />
-        </div>
+        <BlogHero hero={post.hero} />
 
         <div className="blog-body">
           <article className="blog-main">

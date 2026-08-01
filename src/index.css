@@ -1266,7 +1266,7 @@ body::before {
 
 /* Hero Content Area */
 .blog-page-wrapper .blog-hero-content {
-  @apply relative z-[3] pt-[112px] px-[115.2px] pb-[96px] flex flex-col items-start w-full box-border;
+  @apply relative z-[3] pt-[112px] px-[3.472%] pb-[96px] flex flex-col items-start w-full box-border;
   animation: heroFadeIn 0.8s ease-out both;
 }
 
