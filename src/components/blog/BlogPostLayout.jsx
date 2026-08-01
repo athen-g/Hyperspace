@@ -66,11 +66,9 @@ const BlogPostLayout = ({ post }) => {
         <Header />
         <BackgroundLines />
 
-        <div className={isMobile768 ? 'mt-[110px]' : ''}>
-          <BlogHero hero={post.hero} />
-        </div>
+        <BlogHero hero={post.hero} />
 
-        <div className={`blog-body ${isMobile768 ? '!grid-cols-1 !px-4 !py-6 !gap-8' : ''}`}>
+        <div className="blog-body">
           <article className="blog-main">
             {post.tags?.map((tag) => (
               <span className="tag-pill" key={tag}>
@@ -115,7 +113,7 @@ const BlogPostLayout = ({ post }) => {
             })()}
           </article>
 
-          <aside className={`blog-sidebar ${isMobile768 ? '!static !w-full' : ''}`}>
+          <aside className="blog-sidebar">
             <div className="glass-card-elevated">
               <div className="sidebar-label">Contents</div>
               <ul className="toc-list" id="tocList">
