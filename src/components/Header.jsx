@@ -54,7 +54,7 @@ export default function Header() {
       >
         <div className={`site-header__inner relative ${isMobile ? 'px-4' : ''}`}>
           <div className={`site-header__title ${isMobile ? '!ml-0 !gap-2' : ''}`}>
-            <a href="/" onClick={(e) => handleNavClick(e, '/')} className="site-header__brand-link">
+            <a href="/" onClick={(e) => handleNavClick(e, '/')} className={`site-header__brand-link ${isMobile ? '!gap-1' : ''}`}>
               <img src={logo} alt="Logo" className={`logo-header pb-[10px] ${isMobile ? '!w-[36px] !h-[36px]' : ''}`} />
               <span className={`site-header__brand ${isMobile ? '!text-[26px] !tracking-[3px]' : ''}`}>HYPERSPACE</span>
             </a>
@@ -74,10 +74,6 @@ export default function Header() {
                   className={`site-header__link header-roll-link flex items-center gap-2 ${isActive('/events') ? 'nav-link--active' : ''}`}
                   aria-current={isActive('/events') ? 'page' : undefined}
                 >
-                  {/* Pulsating Green Dot to left if ongoing event exists */}
-                  {hasOngoing && (
-                    <span className="w-2 h-2 rounded-full bg-[#22c55e] inline-block shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
-                  )}
                   <span className="header-roll-link__stack">
                     <span className="header-roll-link__face header-roll-link__face--current">EVENTS</span>
                     <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">EVENTS</span>
@@ -205,10 +201,6 @@ export default function Header() {
             </nav>
           ) : (
             <div className="flex items-center gap-4 mr-[3.472%]">
-              {/* Pulsating Green Dot indicating ongoing events next to hamburger */}
-              {hasOngoing && (
-                <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] inline-block shrink-0 shadow-[0_0_10px_rgba(34,197,94,0.9)] animate-pulse" />
-              )}
               {hasOngoing && (
                 <button
                   onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
@@ -298,16 +290,6 @@ export default function Header() {
                       </span>
                     </a>
                   ))}
-                  {hasOngoing && (
-                    <div className="mt-4 mb-2">
-                      <button
-                        onClick={(e) => handleNavClick(e, `/register/${eventsOngoing[0].slug}`)}
-                        className="w-full bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase py-4 rounded-[4px] border-none shadow-[0_0_15px_rgba(233,30,99,0.4)] flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        REGISTER FOR {eventsOngoing[0].name}
-                      </button>
-                    </div>
-                  )}
                 </nav>
 
                 {/* Bottom Action Bar */}
