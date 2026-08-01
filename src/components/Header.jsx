@@ -74,6 +74,10 @@ export default function Header() {
                   className={`site-header__link header-roll-link flex items-center gap-2 ${isActive('/events') ? 'nav-link--active' : ''}`}
                   aria-current={isActive('/events') ? 'page' : undefined}
                 >
+                  {/* Pulsating Green Dot to left if ongoing event exists (Desktop Only) */}
+                  {hasOngoing && (
+                    <span className="w-2 h-2 rounded-full bg-[#22c55e] inline-block shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
+                  )}
                   <span className="header-roll-link__stack">
                     <span className="header-roll-link__face header-roll-link__face--current">EVENTS</span>
                     <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">EVENTS</span>
