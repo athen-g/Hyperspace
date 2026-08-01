@@ -194,9 +194,9 @@ export default function Header() {
                 </span>
               </a>
 
-              {hasOngoing && (
+              {eventsOngoing.find(e => e.registration_open !== false) && (
                 <button
-                  onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
+                  onClick={() => navigate(`/register/${eventsOngoing.find(e => e.registration_open !== false).slug}`)}
                   className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none ml-4 shadow-[0_0_12px_rgba(233,30,99,0.3)] shrink-0"
                 >
                   REGISTER
@@ -205,9 +205,9 @@ export default function Header() {
             </nav>
           ) : (
             <div className="flex items-center gap-4 mr-[3.472%]">
-              {hasOngoing && (
+              {eventsOngoing.find(e => e.registration_open !== false) && (
                 <button
-                  onClick={() => navigate(`/register/${eventsOngoing[0].slug}`)}
+                  onClick={() => navigate(`/register/${eventsOngoing.find(e => e.registration_open !== false).slug}`)}
                   className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_12px_rgba(233,30,99,0.3)]"
                 >
                   REGISTER

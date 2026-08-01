@@ -67,12 +67,21 @@ export default function EventOngoingTemplate() {
               >
                 {event.tagline}
               </div>
-              <button
-                onClick={() => navigate(`/register/${event.slug}`)}
-                className={`bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-opacity-95 active:scale-[0.98] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_20px_rgba(233,30,99,0.4)] ${isMobile768 ? 'w-full mt-2' : ''}`}
-              >
-                REGISTER FOR EVENT →
-              </button>
+              {event.registration_open !== false ? (
+                <button
+                  onClick={() => navigate(`/register/${event.slug}`)}
+                  className={`bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-opacity-95 active:scale-[0.98] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_20px_rgba(233,30,99,0.4)] ${isMobile768 ? 'w-full mt-2' : ''}`}
+                >
+                  REGISTER FOR EVENT →
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className={`bg-white/10 text-white/50 font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 select-none rounded-[4px] border-none cursor-not-allowed ${isMobile768 ? 'w-full mt-2' : ''}`}
+                >
+                  REGISTRATIONS NOT OPEN
+                </button>
+              )}
             </div>
 
           </div>
@@ -371,35 +380,48 @@ export default function EventOngoingTemplate() {
 
         <div className="absolute left-[3.472%] w-[93.056%] h-[0.5px] bg-[#666666]" />
 
-        {/* Dynamic CTA Header */}
-        <div className={`relative z-10 w-[93.056%] text-left ${isMobile768 ? 'm-6 py-6 px-2' : 'm-16 p-20'
-          }`}>
-          <h2 className={`font-host font-extrabold uppercase leading-tight text-white ${isMobile768 ? 'text-[32px]' : 'text-[64px]'
-            }`}>
-            LIKE WHAT YOU SEE?<br />
-            THEN WHAT ARE YOU <span className="text-[#E91E63]">WAITING</span> FOR?<br />
-            <span className="text-[#E91E63]">REGISTER NOW.</span>
-          </h2>
-        </div>
-
-        {/* CLICK HERE TO REGISTER Big Banner CTA */}
-        <div
-          className={`relative z-10 w-[93.056%] font-poppins mx-auto border-t border-light-grey text-center cursor-pointer register-hover-container ${isMobile768 ? 'mb-12 py-10' : 'mb-28 py-24'
-            }`}
-          onClick={() => navigate(`/register/${event.slug}`)}
-        >
-          <span className={`font-medium uppercase tracking-[0.02em] leading-[1] text-accent-pink block mb-2 ${isMobile768 ? 'text-[36px]' : 'text-[96px]'
-            }`}>
-            CLICK HERE TO
-          </span>
-          <div className="relative inline-block">
-            <span className={`register-hover-text font-bold uppercase leading-none ${isMobile768 ? 'text-[54px]' : 'text-[180px]'
+        {event.registration_open !== false ? (
+          <>
+            {/* Dynamic CTA Header */}
+            <div className={`relative z-10 w-[93.056%] text-left ${isMobile768 ? 'm-6 py-6 px-2' : 'm-16 p-20'
               }`}>
-              REGISTER
-            </span>
-            <span className="register-hover-line"></span>
-          </div>
-        </div>
+              <h2 className={`font-host font-extrabold uppercase leading-tight text-white ${isMobile768 ? 'text-[32px]' : 'text-[64px]'
+                }`}>
+                LIKE WHAT YOU SEE?<br />
+                THEN WHAT ARE YOU <span className="text-[#E91E63]">WAITING</span> FOR?<br />
+                <span className="text-[#E91E63]">REGISTER NOW.</span>
+              </h2>
+            </div>
+
+            {/* CLICK HERE TO REGISTER Big Banner CTA */}
+            <div
+              className={`relative z-10 w-[93.056%] font-poppins mx-auto border-t border-light-grey text-center cursor-pointer register-hover-container ${isMobile768 ? 'mb-12 py-10' : 'mb-28 py-24'
+                }`}
+              onClick={() => navigate(`/register/${event.slug}`)}
+            >
+              <span className={`font-medium uppercase tracking-[0.02em] leading-[1] text-accent-pink block mb-2 ${isMobile768 ? 'text-[36px]' : 'text-[96px]'
+                }`}>
+                CLICK HERE TO
+              </span>
+              <div className="relative inline-block">
+                <span className={`register-hover-text font-bold uppercase leading-none ${isMobile768 ? 'text-[54px]' : 'text-[180px]'
+                  }`}>
+                  REGISTER
+                </span>
+                <span className="register-hover-line"></span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={`relative z-10 w-[93.056%] text-center ${isMobile768 ? 'my-12 py-12 px-2' : 'my-24 p-24'}`}>
+              <h2 className={`font-host font-extrabold uppercase leading-tight text-white/40 ${isMobile768 ? 'text-[28px]' : 'text-[54px]'}`}>
+                REGISTRATIONS FOR THIS EVENT ARE<br />
+                <span className="text-[#E91E63]">NOT OPEN YET</span>
+              </h2>
+            </div>
+          </>
+        )}
 
       </section>
 
