@@ -157,34 +157,6 @@ const EVENTS_CONDUCTED = [
 ]
 const EVENTS_COMING_SOON = [
   {
-    id: 2,
-    name: 'BLENDER WORKSHOP',
-    slug: 'blender-workshop',
-    thumbnail: coming_soon_1,
-    tags: [
-      'WORKSHOP 2',
-      'BLENDER DESIGN AND 3D DEVELOPMENT',
-      'ENIVRONMENT AND ASSETS BUILDING',
-      'DETAILS COMING SOON!',
-    ],
-    tagline: 'CREATING ASSETS AND BUILDING ENVIRONMENTS FOR YOUR PROJECTS.',
-    pagesubtitle: 'CREATING ASSETS AND BUILDING ENVIRONMENTS FOR YOUR PROJECTS.',
-    overview: 'Why so impatient? Details coming soon!',
-    date: "COMING SOON!",
-    audience: "COMING SOON!",
-    type: 'WORKSHOP',
-    sponsors: 'COMING SOON!',
-    images: [
-      coming_soon_grid_1,
-      coming_soon_grid_2,
-      coming_soon_grid_3,
-      coming_soon_grid_4,
-    ],
-    plan: 'Coming Soon!',
-    albumLink: '',
-  },
-
-  {
     id: 3,
     name: 'RENDER CREATION II',
     slug: 'render-creation-2',
