@@ -129,10 +129,10 @@ export default function QuizPage() {
                   <h3 style={{ margin: '0 0 6px', fontSize: '18px' }}>{q.title}</h3>
                   <p style={{ margin: 0, fontSize: '14px', color: '#888' }}>{q.description || 'No description'}</p>
                 </div>
-                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid #3a1a1a', borderRadius: '8px', color: '#e21b3c', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Delete Game</button>
-                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
-                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid rgba(226, 27, 60, 0.2)', borderRadius: '6px', color: '#e21b3c', padding: '6px 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>Delete</button>
+                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #222', borderRadius: '6px', color: '#aaa', padding: '6px 12px', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>Edit Questions</Link>
+                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '6px', color: '#000', padding: '6px 12px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>Host Game →</Link>
                 </div>
               </div>
             ))
