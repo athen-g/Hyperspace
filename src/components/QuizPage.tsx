@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+import toast from 'react-hot-toast'
+
 interface Quiz {
   id: string
   title: string
@@ -16,7 +18,7 @@ export default function QuizPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
 
-  useEffect(() => {
+  const fetchQuizzes = () => {
     supabase
       .from('quizzes')
       .select('*')
@@ -24,7 +26,27 @@ export default function QuizPage() {
       .then(({ data }) => {
         if (data) setQuizzes(data)
       })
+  }
+
+  useEffect(() => {
+    fetchQuizzes()
   }, [])
+
+  const handleDeleteQuiz = async (quizId: string) => {
+    if (!confirm('Are you sure you want to delete this game? This will permanently delete all associated questions.')) return
+
+    const { error } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('id', quizId)
+
+    if (!error) {
+      toast.success('Quiz deleted successfully.')
+      fetchQuizzes()
+    } else {
+      toast.error(error.message)
+    }
+  }
 
   const handleCreateQuiz = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,7 +127,8 @@ export default function QuizPage() {
                   <h3 style={{ margin: '0 0 6px', fontSize: '18px' }}>{q.title}</h3>
                   <p style={{ margin: 0, fontSize: '14px', color: '#888' }}>{q.description || 'No description'}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                 <div style={{ display: 'flex', gap: '12px' }}>
+                  <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid #3a1a1a', borderRadius: '8px', color: '#e21b3c', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Delete Game</button>
                   <Link to={`/quiz/edit/${q.id}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
                   <Link to={`/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
                 </div>
