@@ -55,6 +55,10 @@ export default function QuizPlayer() {
         setStatus('question')
       })
       .on('broadcast', { event: 'time-up' }, ({ payload }) => {
+        if (payload.correctOption === -1) {
+          setStatus('ended')
+          return
+        }
         setCorrectOption(payload.correctOption)
         const chosen = selectedOptionRef.current
         setStatus(() => {
@@ -191,6 +195,15 @@ export default function QuizPlayer() {
           <h1 style={{ fontSize: '72px', margin: '0 0 16px' }}>❌</h1>
           <h2 style={{ fontSize: '32px', color: '#e21b3c', fontWeight: 700 }}>Wrong</h2>
           <p style={{ fontSize: '16px', color: '#888', marginTop: '12px' }}>Better luck next question!</p>
+        </div>
+      )}
+
+      {/* 7. GAME ENDED STATE */}
+      {joined && status === 'ended' && (
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontSize: '72px', margin: '0 0 16px' }}>🏁</h1>
+          <h2 style={{ fontSize: '32px', color: '#00BCD4', fontWeight: 700 }}>Quiz Finished!</h2>
+          <p style={{ fontSize: '16px', color: '#888', marginTop: '12px' }}>Check the presenter screen for the final podium rankings.</p>
         </div>
       )}
 

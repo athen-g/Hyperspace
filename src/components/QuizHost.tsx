@@ -234,21 +234,36 @@ export default function QuizHost() {
                 gap: '16px', 
                 fontSize: '20px', 
                 fontWeight: 600,
-                opacity: gameState === 'answers' && i !== questions[currentIndex].correct_option ? 0.3 : 1
+                opacity: gameState === 'answers' && i !== questions[currentIndex].correct_option ? 0.3 : 1,
+                transition: 'opacity 0.4s ease, transform 0.2s ease',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                transform: gameState === 'answers' && i === questions[currentIndex].correct_option ? 'scale(1.05)' : 'scale(1)'
               }}>
-                <span style={{ fontSize: '28px' }}>{optionShapes[i]}</span>
+                <span style={{ fontSize: '28px', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>{optionShapes[i]}</span>
                 {opt}
               </div>
             ))}
           </div>
 
           {/* Action trigger panel */}
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '24px' }}>
             {gameState === 'question' ? (
-              <button onClick={endQuestion} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 30px', fontSize: '16px', cursor: 'pointer' }}>Skip Question</button>
+              <button onClick={endQuestion} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 30px', fontSize: '16px', cursor: 'pointer', transition: 'transform 0.2s', fontWeight: 600 }}>Skip Question</button>
             ) : (
-              <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 30px', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }}>Show Leaderboard</button>
+              <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 30px', fontSize: '16px', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.2s' }}>Show Leaderboard</button>
             )}
+            <button onClick={() => {
+              if (confirm('Are you sure you want to end this quiz early?')) {
+                setGameState('ended')
+                channelRef.current.send({
+                  type: 'broadcast',
+                  event: 'time-up',
+                  payload: { correctOption: -1 } // End signal
+                })
+              }
+            }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '12px 30px', fontSize: '16px', cursor: 'pointer', transition: 'background 0.2s, color 0.2s', fontWeight: 600 }}>
+              End Quiz Early
+            </button>
           </div>
         </div>
       )}
