@@ -1,12 +1,7 @@
 import React, { useState, useRef } from 'react';
-import emailjs from '@emailjs/browser';
 import Button from './Button';
 import { useMediaQuery } from 'react-responsive';
-
-// ── Replace these three values with your EmailJS credentials ──────────────────
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+import { supabase } from '../lib/supabase';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Contact = () => {
@@ -24,18 +19,26 @@ const Contact = () => {
     setStatus('loading');
     setErrorMsg('');
 
+    const formData = new FormData(formRef.current);
+    const name = formData.get('from_name');
+    const email = formData.get('from_email');
+    const phone = formData.get('phone');
+    const message = formData.get('message');
+
     try {
-      await emailjs.sendForm(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        formRef.current,
-        { publicKey: EMAILJS_PUBLIC_KEY }
-      );
+      const { data, error } = await supabase.functions.invoke('send-support-email', {
+        body: { name, email, phone, message }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to dispatch message');
+      }
+
       setStatus('success');
       formRef.current.reset();
     } catch (err) {
-      console.error('EmailJS error:', err);
-      setErrorMsg(err?.text || 'Something went wrong. Please try again.');
+      console.error('Support email error:', err);
+      setErrorMsg(err.message || 'Something went wrong. Please try again.');
       setStatus('error');
     }
   };
