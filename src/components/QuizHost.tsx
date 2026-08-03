@@ -567,17 +567,16 @@ export default function QuizHost() {
       {gameState === 'intro-build' && (
         <div style={{ background: '#09090e', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, left: 0, zIndex: 999 }}>
           {!introTitleShow ? (
-            <div style={{ textAlign: 'center' }}>
-              {/* Landing Hero Title styling: Hyperspace in cyan gradient + XR SIG in white */}
-              <h1 style={{ fontSize: '76px', fontWeight: 900, letterSpacing: '-2px', margin: 0, animation: 'scaleUpFade 3s forwards' }}>
-                <span style={{ background: 'linear-gradient(135deg, #00fff0 0%, #0055ff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Hyperspace</span> <span style={{ color: '#fff' }}>XR SIG</span>
-              </h1>
-              {introCountdown > 0 && <div style={{ fontSize: '28px', color: '#555', marginTop: '24px', fontWeight: 600 }}>Starting in {introCountdown}...</div>}
+            <div className="hero-name" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+              {/* Uses landing page Hero structure with pink accent color font branding */}
+              <span className="hero-title" style={{ position: 'static', fontSize: 'clamp(2rem, 8vw, 8vw)', color: '#E91E63', fontWeight: 900, fontFamily: 'mokoto, sans-serif' }}>HYPERSPACE</span>
+              <span className="hero-subtitle" style={{ position: 'static', fontSize: 'clamp(1rem, 3.5vw, 3.5vw)', color: '#fff', marginTop: '10px', fontFamily: 'mokoto, sans-serif' }}>XR SIG</span>
+              {introCountdown > 0 && <div style={{ fontSize: '24px', color: '#444', marginTop: '40px', fontWeight: 600 }}>Starting in {introCountdown}...</div>}
             </div>
           ) : (
             <div style={{ animation: 'fadeInOut 2.5s forwards', textAlign: 'center' }}>
               {/* Output quiz title solely with no prefix */}
-              <h1 style={{ fontSize: '64px', fontWeight: 900, letterSpacing: '-1px' }}>{quizTitle}</h1>
+              <h1 style={{ fontSize: '64px', fontWeight: 900, letterSpacing: '-1px', color: '#fff' }}>{quizTitle}</h1>
             </div>
           )}
         </div>
@@ -702,7 +701,7 @@ export default function QuizHost() {
                       <span style={{ background: '#26890c', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', animation: 'pulse 1s infinite' }}>▲ CLIMBED</span>
                     )}
                   </div>
-                  <span style={{ fontSize: '24px', fontWeight: 850, color: flashConfirm ? '#e91e63' : '#e91e63' }}>{displayScore} pts</span>
+                  <span style={{ fontSize: '24px', fontWeight: 850, color: '#e91e63' }}>{displayScore} pts</span>
                 </div>
               )
             })}
