@@ -19,6 +19,9 @@ import RegistrationsPage from "./components/RegistrationsPage";
 import TeamPage from "./components/TeamPage";
 import PageTransition from "./components/ui/PageTransition";
 import CustomCursor from "./components/ui/CustomCursor";
+import QuizPage from "./components/QuizPage";
+import QuizHost from "./components/QuizHost";
+import QuizPlayer from "./components/QuizPlayer";
 
 // Admin imports
 import AdminApp from "./admin/AdminApp";
@@ -106,6 +109,11 @@ function App() {
 
           {/* QR Deep Link */}
           <Route path="/scan" element={<ScanRedirect />} />
+
+          {/* Quiz Kahoot System */}
+          <Route path="/quiz" element={<PageTransition><QuizPage /></PageTransition>} />
+          <Route path="/quiz/host/:quizId" element={<QuizHost />} />
+          <Route path="/quiz/play" element={<QuizPlayer />} />
 
           <Route path="/admin" element={<AdminApp />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
