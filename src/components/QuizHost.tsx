@@ -91,7 +91,7 @@ function LeaderboardRow({
   const displayScore = useAnimatedCounter(
     player.previousScore,
     player.currentScore,
-    1200,
+    1600,
     phase === PHASES.RUNUP
   )
 
@@ -346,7 +346,7 @@ export default function QuizHost() {
       // PLAY: double-rAF ensures browser paints the snapped state first
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          el.style.transition = 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)'
+          el.style.transition = 'transform 900ms cubic-bezier(0.4, 0, 0.2, 1)'
           el.style.transform = 'translateY(0)'
         })
       })
@@ -464,14 +464,14 @@ export default function QuizHost() {
     setGameState('leaderboard')
 
     // Phase timing (ms from leaderboard mount):
-    // 400  — initial pause, let host read old state
-    // 1600 — run-up complete → reorder
-    // 2200 — reorder complete → flash
-    // 3000 — flash complete → done
+    // 500  — initial pause, let host read old state
+    // 2100 — run-up complete (1600ms) → reorder
+    // 3300 — reorder complete (1200ms space) → flash
+    // 4300 — flash complete → done
 
-    const t1 = setTimeout(() => setAnimationPhase(PHASES.RUNUP),   400)
-    const t2 = setTimeout(() => setAnimationPhase(PHASES.REORDER), 1600)
-    const t3 = setTimeout(() => setAnimationPhase(PHASES.FLASH),   2200)
+    const t1 = setTimeout(() => setAnimationPhase(PHASES.RUNUP),   500)
+    const t2 = setTimeout(() => setAnimationPhase(PHASES.REORDER), 2100)
+    const t3 = setTimeout(() => setAnimationPhase(PHASES.FLASH),   3300)
     const t4 = setTimeout(() => {
       setAnimationPhase(PHASES.DONE)
 
@@ -487,7 +487,7 @@ export default function QuizHost() {
         type: 'broadcast', event: 'leaderboard-update',
         payload: { standings: standingsMapping },
       })
-    }, 3000)
+    }, 4300)
 
     // Cleanup if component unmounts mid-animation
     return () => { [t1, t2, t3, t4].forEach(clearTimeout) }
@@ -877,9 +877,9 @@ export default function QuizHost() {
           color: #0d0d1a;
           border-color: #ddd;
           transition:
-            background-color 500ms ease-out,
-            color            500ms ease-out,
-            border-color     500ms ease-out;
+            background-color 800ms ease-out,
+            color            800ms ease-out,
+            border-color     800ms ease-out;
           transition-delay: var(--flash-delay, 0ms);
         }
 
