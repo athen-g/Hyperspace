@@ -344,7 +344,7 @@ export default function QuizHost() {
   const totalAnsweredCount = players.filter(p => p.answered).length
 
   return (
-    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '60px 40px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
       
       {/* Return to Dashboard corner button */}
       <button 
@@ -358,9 +358,9 @@ export default function QuizHost() {
           background: 'rgba(255,255,255,0.05)',
           border: '1px solid #333',
           color: '#fff',
-          padding: '10px 20px',
+          padding: '12px 24px',
           borderRadius: '8px',
-          fontSize: '13px',
+          fontSize: '14px',
           cursor: 'pointer',
           transition: 'all 0.2s',
           fontWeight: 600,
@@ -373,15 +373,15 @@ export default function QuizHost() {
       {/* 1. LOBBY STATE */}
       {gameState === 'lobby' && (
         <div style={{ textAlign: 'center', marginTop: '4vh', animation: 'fadeIn 0.5s ease-out' }}>
-          <p style={{ fontSize: '16px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
-          <h1 style={{ fontSize: '80px', margin: '15px 0', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900 }}>PIN: <span style={{ color: '#E91E63' }}>{pin}</span></h1>
+          <p style={{ fontSize: '20px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
+          <h1 style={{ fontSize: '110px', margin: '15px 0', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900 }}>PIN: <span style={{ color: '#E91E63' }}>{pin}</span></h1>
           
           <div 
             onClick={() => setQrZoomed(!qrZoomed)} 
             style={{ 
               background: '#fff', 
-              padding: '16px', 
-              borderRadius: '16px', 
+              padding: '24px', 
+              borderRadius: '24px', 
               display: 'inline-block', 
               marginBottom: '32px', 
               boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
@@ -392,17 +392,17 @@ export default function QuizHost() {
               position: 'relative'
             }}
           >
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={qrZoomed ? 240 : 150} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '8px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={qrZoomed ? 280 : 180} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '12px', fontWeight: 800, marginTop: '8px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
           </div>
 
-          <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '40px', maxWidth: '700px', margin: '0 auto', minHeight: '200px' }}>
-            <h3 style={{ fontSize: '24px', margin: '0 0 24px', color: '#00BCD4', fontWeight: 800 }}>
+          <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '40px', maxWidth: '800px', margin: '0 auto', minHeight: '200px' }}>
+            <h3 style={{ fontSize: '28px', margin: '0 0 24px', color: '#00BCD4', fontWeight: 800 }}>
               {players.length === 0 ? 'Waiting for players to join...' : `Joined Players (${players.length})`}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
               {players.map((p) => (
-                <div key={p.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '30px', fontSize: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', animation: 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+                <div key={p.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', fontWeight: 700, padding: '12px 28px', borderRadius: '30px', fontSize: '18px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', animation: 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
                   {p.nickname}
                 </div>
               ))}
@@ -411,14 +411,14 @@ export default function QuizHost() {
 
           {/* Mode selector */}
           <div style={{ margin: '32px auto 0', maxWidth: '450px', background: '#111', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid #222' }}>
-            <span style={{ fontSize: '13px', color: '#888', fontWeight: 700, letterSpacing: '1px' }}>LOBBY GAME MODE</span>
+            <span style={{ fontSize: '14px', color: '#888', fontWeight: 700, letterSpacing: '1px' }}>LOBBY GAME MODE</span>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setGameMode('classic')} style={{ flex: 1, background: gameMode === 'classic' ? '#E91E63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Classic Mode</button>
-              <button onClick={() => setGameMode('shared')} style={{ flex: 1, background: gameMode === 'shared' ? '#00BCD4' : 'transparent', border: '1px solid #333', color: gameMode === 'shared' ? '#000' : '#fff', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Shared Screen</button>
+              <button onClick={() => setGameMode('classic')} style={{ flex: 1, background: gameMode === 'classic' ? '#E91E63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '15px' }}>Classic Mode</button>
+              <button onClick={() => setGameMode('shared')} style={{ flex: 1, background: gameMode === 'shared' ? '#00BCD4' : 'transparent', border: '1px solid #333', color: gameMode === 'shared' ? '#000' : '#fff', padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '15px' }}>Shared Screen</button>
             </div>
           </div>
 
-          <button onClick={startQuiz} disabled={players.length === 0} style={{ marginTop: '32px', background: players.length === 0 ? '#222' : '#00BCD4', color: players.length === 0 ? '#555' : '#000', border: 'none', borderRadius: '8px', padding: '16px 48px', fontSize: '20px', fontWeight: 800, cursor: players.length === 0 ? 'not-allowed' : 'pointer', boxShadow: players.length === 0 ? 'none' : '0 8px 25px rgba(0,188,212,0.4)', transition: 'all 0.2s' }}>
+          <button onClick={startQuiz} disabled={players.length === 0} style={{ marginTop: '40px', background: players.length === 0 ? '#222' : '#00BCD4', color: players.length === 0 ? '#555' : '#000', border: 'none', borderRadius: '8px', padding: '18px 60px', fontSize: '24px', fontWeight: 800, cursor: players.length === 0 ? 'not-allowed' : 'pointer', boxShadow: players.length === 0 ? 'none' : '0 8px 25px rgba(0,188,212,0.4)', transition: 'all 0.2s' }}>
             Start Quiz
           </button>
         </div>
@@ -426,10 +426,10 @@ export default function QuizHost() {
 
       {/* 2. GET READY countdown state */}
       {gameState === 'get-ready' && questions[currentIndex] && (
-        <div style={{ textAlign: 'center', marginTop: '15vh', animation: 'fadeIn 0.4s' }}>
-          <p style={{ fontSize: '18px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 700 }}>GET READY FOR QUESTION {currentIndex + 1}</p>
-          <h1 style={{ fontSize: '40px', margin: '40px 0', fontWeight: 800 }}>{questions[currentIndex].question_text}</h1>
-          <div style={{ fontSize: '120px', fontWeight: 900, color: '#E91E63', animation: 'pulse 1s infinite' }}>{readyCountdown}</div>
+        <div style={{ textAlign: 'center', marginTop: '12vh', animation: 'fadeIn 0.4s' }}>
+          <p style={{ fontSize: '24px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 700 }}>GET READY FOR QUESTION {currentIndex + 1}</p>
+          <h1 style={{ fontSize: '56px', margin: '40px 0', fontWeight: 900, lineHeight: 1.2 }}>{questions[currentIndex].question_text}</h1>
+          <div style={{ fontSize: '160px', fontWeight: 950, color: '#E91E63', animation: 'pulse 1s infinite' }}>{readyCountdown}</div>
         </div>
       )}
 
@@ -437,27 +437,27 @@ export default function QuizHost() {
       {gameState === 'question' && questions[currentIndex] && (
         <div style={{ animation: 'fadeIn 0.5s' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-            <span style={{ fontSize: '16px', color: '#888', fontWeight: 700, letterSpacing: '2px' }}>QUESTION {currentIndex + 1} OF {questions.length}</span>
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#888' }}>Answers: <span style={{ color: '#00BCD4', fontSize: '24px' }}>{totalAnsweredCount}</span></div>
-              <div style={{ background: '#111', border: '1px solid #333', borderRadius: '50%', width: '80px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '32px', fontWeight: 800, color: '#fff', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>{timer}</div>
+            <span style={{ fontSize: '20px', color: '#888', fontWeight: 700, letterSpacing: '2px' }}>QUESTION {currentIndex + 1} OF {questions.length}</span>
+            <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#888' }}>Answers: <span style={{ color: '#00BCD4', fontSize: '32px' }}>{totalAnsweredCount}</span></div>
+              <div style={{ background: '#111', border: '1px solid #333', borderRadius: '50%', width: '100px', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '44px', fontWeight: 900, color: '#fff', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>{timer}</div>
             </div>
           </div>
 
-          <h2 style={{ fontSize: '36px', textAlign: 'center', margin: '30px 0 60px', fontWeight: 800 }}>{questions[currentIndex].question_text}</h2>
+          <h2 style={{ fontSize: '48px', textAlign: 'center', margin: '30px 0 60px', fontWeight: 900, lineHeight: 1.2 }}>{questions[currentIndex].question_text}</h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '40px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '40px' }}>
             {questions[currentIndex].options.map((opt, i) => (
-              <div key={i} style={{ background: optionColors[i], borderRadius: '16px', padding: '32px', display: 'flex', alignItems: 'center', gap: '24px', fontSize: '24px', fontWeight: 700, boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }}>
-                <span style={{ fontSize: '36px' }}>{optionShapes[i]}</span>
+              <div key={i} style={{ background: optionColors[i], borderRadius: '16px', padding: '40px', display: 'flex', alignItems: 'center', gap: '28px', fontSize: '32px', fontWeight: 700, boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }}>
+                <span style={{ fontSize: '48px' }}>{optionShapes[i]}</span>
                 {opt}
               </div>
             ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-            <button onClick={endQuestion} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>Skip Question</button>
-            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '12px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <button onClick={endQuestion} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '16px 48px', fontSize: '18px', fontWeight: 700, cursor: 'pointer' }}>Skip Question</button>
+            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '16px 48px', fontSize: '18px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
@@ -466,14 +466,14 @@ export default function QuizHost() {
       {gameState === 'answers' && questions[currentIndex] && (
         <div style={{ animation: 'fadeIn 0.5s' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0 }}>Correct Answer</h2>
-            <span style={{ fontSize: '16px', color: '#888', fontWeight: 700 }}>Total submissions: {totalAnsweredCount}</span>
+            <h2 style={{ fontSize: '36px', fontWeight: 900, margin: 0 }}>Correct Answer</h2>
+            <span style={{ fontSize: '20px', color: '#888', fontWeight: 700 }}>Total submissions: {totalAnsweredCount}</span>
           </div>
 
-          <h2 style={{ fontSize: '32px', textAlign: 'center', margin: '0 0 60px', color: '#fff' }}>{questions[currentIndex].question_text}</h2>
+          <h2 style={{ fontSize: '44px', textAlign: 'center', margin: '0 0 60px', color: '#fff', lineHeight: 1.2 }}>{questions[currentIndex].question_text}</h2>
 
           {/* Bar Chart Representation of Responses */}
-          <div style={{ display: 'flex', height: '280px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '20px', background: 'rgba(0,0,0,0.2)', padding: '40px 20px', borderRadius: '24px', marginBottom: '40px', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', height: '340px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '24px', background: 'rgba(0,0,0,0.2)', padding: '50px 30px', borderRadius: '24px', marginBottom: '40px', boxSizing: 'border-box' }}>
             {answerStats.map((count, i) => {
               const maxCount = Math.max(...answerStats, 1)
               const heightPercent = (count / maxCount) * 100
@@ -481,32 +481,32 @@ export default function QuizHost() {
 
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>{count}</div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#fff', marginBottom: '8px' }}>{count}</div>
                   <div style={{ width: '80%', height: `${heightPercent}%`, background: optionColors[i], borderRadius: '8px 8px 0 0', position: 'relative', border: isCorrect ? '4px solid #fff' : 'none', boxShadow: isCorrect ? '0 0 20px #fff' : 'none', transition: 'height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
                     {isCorrect && (
-                      <span style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', fontSize: '20px' }}>✓</span>
+                      <span style={{ position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)', fontSize: '28px' }}>✓</span>
                     )}
                   </div>
-                  <div style={{ fontSize: '20px', marginTop: '12px' }}>{optionShapes[i]}</div>
+                  <div style={{ fontSize: '28px', marginTop: '12px' }}>{optionShapes[i]}</div>
                 </div>
               )
             })}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-            <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '14px 48px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(0,188,212,0.3)' }}>Show Standings</button>
-            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '14px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '16px 60px', fontSize: '22px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(0,188,212,0.3)' }}>Show Standings</button>
+            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '16px 48px', fontSize: '18px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
 
       {/* 5. LEADERBOARD STATE */}
       {gameState === 'leaderboard' && (
-        <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center', animation: 'fadeIn 0.5s' }}>
-          <p style={{ fontSize: '14px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>CURRENT STANDINGS</p>
-          <h1 style={{ fontSize: '48px', margin: '10px 0 40px', fontWeight: 900 }}>Leaderboard</h1>
+        <div style={{ maxWidth: '850px', margin: '0 auto', textAlign: 'center', animation: 'fadeIn 0.5s' }}>
+          <p style={{ fontSize: '18px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>CURRENT STANDINGS</p>
+          <h1 style={{ fontSize: '64px', margin: '10px 0 40px', fontWeight: 900 }}>Leaderboard</h1>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', minHeight: '350px', position: 'relative' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px', minHeight: '400px', position: 'relative' }}>
             {activeLeaderboardPlayers.map((p, index) => {
               const finalSortedIndex = sortedPlayers.findIndex(sp => sp.id === p.id)
               const displayRank = animatingStandings ? (players.findIndex(sp => sp.id === p.id) + 1) : (finalSortedIndex + 1)
@@ -524,24 +524,24 @@ export default function QuizHost() {
                     background: 'rgba(255,255,255,0.06)', 
                     border: '1px solid rgba(255,255,255,0.1)', 
                     borderRadius: '16px', 
-                    padding: '20px 32px',
+                    padding: '24px 40px',
                     transition: 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <span style={{ fontSize: '24px', fontWeight: 800, color: displayRank === 1 ? '#ffd700' : displayRank === 2 ? '#c0c0c0' : displayRank === 3 ? '#cd7f32' : '#fff' }}>#{displayRank}</span>
-                    <span style={{ fontSize: '20px', fontWeight: 700 }}>{p.nickname}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <span style={{ fontSize: '32px', fontWeight: 900, color: displayRank === 1 ? '#ffd700' : displayRank === 2 ? '#c0c0c0' : displayRank === 3 ? '#cd7f32' : '#fff' }}>#{displayRank}</span>
+                    <span style={{ fontSize: '28px', fontWeight: 700 }}>{p.nickname}</span>
                     {climbed && (
-                      <span style={{ background: '#26890c', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', animation: 'pulse 1s infinite' }}>▲ CLIMBED</span>
+                      <span style={{ background: '#26890c', color: '#fff', fontSize: '13px', fontWeight: 800, padding: '6px 14px', borderRadius: '12px', animation: 'pulse 1s infinite' }}>▲ CLIMBED</span>
                     )}
                   </div>
-                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#00BCD4' }}>{displayScore} pts</span>
+                  <span style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>{displayScore} pts</span>
                 </div>
               )
             })}
           </div>
 
-          <button onClick={nextStep} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '8px', padding: '16px 48px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(233,30,99,0.4)' }}>
+          <button onClick={nextStep} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '8px', padding: '18px 60px', fontSize: '22px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(233,30,99,0.4)' }}>
             {currentIndex + 1 < questions.length ? 'Next Question' : 'End Game'}
           </button>
         </div>
@@ -550,46 +550,46 @@ export default function QuizHost() {
       {/* 6. ENDED STATE - WITH podium / summary tabs */}
       {gameState === 'ended' && (
         <div style={{ textAlign: 'center', marginTop: '4vh', animation: 'fadeIn 0.8s' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '32px' }}>
-            <button onClick={() => setEndedTab('podium')} style={{ background: endedTab === 'podium' ? '#00BCD4' : 'transparent', color: endedTab === 'podium' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Podium</button>
-            <button onClick={() => setEndedTab('summary')} style={{ background: endedTab === 'summary' ? '#00BCD4' : 'transparent', color: endedTab === 'summary' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Session Summary</button>
-            <button onClick={handlePlayAgain} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Play Again</button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '40px' }}>
+            <button onClick={() => setEndedTab('podium')} style={{ background: endedTab === 'podium' ? '#00BCD4' : 'transparent', color: endedTab === 'podium' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '12px 32px', fontWeight: 700, cursor: 'pointer', fontSize: '18px' }}>Podium</button>
+            <button onClick={() => setEndedTab('summary')} style={{ background: endedTab === 'summary' ? '#00BCD4' : 'transparent', color: endedTab === 'summary' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '12px 32px', fontWeight: 700, cursor: 'pointer', fontSize: '18px' }}>Session Summary</button>
+            <button onClick={handlePlayAgain} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '12px 32px', fontWeight: 700, cursor: 'pointer', fontSize: '18px' }}>Play Again</button>
           </div>
 
           {endedTab === 'podium' && (
             <div>
-              <p style={{ fontSize: '16px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800 }}>QUIZ COMPLETED</p>
-              <h1 style={{ fontSize: '48px', margin: '15px 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
+              <p style={{ fontSize: '20px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800 }}>QUIZ COMPLETED</p>
+              <h1 style={{ fontSize: '64px', margin: '15px 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
               
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '20px', minHeight: '260px', marginBottom: '60px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '24px', minHeight: '320px', marginBottom: '60px' }}>
                 
                 {/* 2nd Place */}
                 {sortedPlayers[1] && podiumRevealStep >= 2 && (
-                  <div style={{ width: '150px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.6s ease-out' }}>
-                    <span style={{ fontSize: '28px', marginBottom: '8px' }}>🥈</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
-                    <span style={{ fontSize: '14px', color: '#00BCD4' }}>{sortedPlayers[1].score} pts</span>
-                    <div style={{ width: '100%', height: '80px', background: 'rgba(255,255,255,0.1)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  <div style={{ width: '180px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px', animation: 'slideUp 0.6s ease-out' }}>
+                    <span style={{ fontSize: '36px', marginBottom: '8px' }}>🥈</span>
+                    <span style={{ fontSize: '20px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
+                    <span style={{ fontSize: '16px', color: '#00BCD4' }}>{sortedPlayers[1].score} pts</span>
+                    <div style={{ width: '100%', height: '110px', background: 'rgba(255,255,255,0.1)', marginTop: '20px', borderRadius: '8px' }}></div>
                   </div>
                 )}
 
                 {/* 1st Place */}
                 {sortedPlayers[0] && podiumRevealStep >= 3 && (
-                  <div style={{ width: '170px', background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px', animation: 'slideUp 0.4s ease-out', boxShadow: '0 0 30px rgba(255,215,0,0.2)' }}>
-                    <span style={{ fontSize: '44px', marginBottom: '8px' }}>👑</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, margin: '8px 0', color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
-                    <span style={{ fontSize: '16px', color: '#fff', fontWeight: 700 }}>{sortedPlayers[0].score} pts</span>
-                    <div style={{ width: '100%', height: '110px', background: 'rgba(255,215,0,0.15)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  <div style={{ width: '200px', background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 24px', animation: 'slideUp 0.4s ease-out', boxShadow: '0 0 30px rgba(255,215,0,0.2)' }}>
+                    <span style={{ fontSize: '56px', marginBottom: '8px' }}>👑</span>
+                    <span style={{ fontSize: '24px', fontWeight: 800, margin: '8px 0', color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
+                    <span style={{ fontSize: '18px', color: '#fff', fontWeight: 700 }}>{sortedPlayers[0].score} pts</span>
+                    <div style={{ width: '100%', height: '150px', background: 'rgba(255,215,0,0.15)', marginTop: '20px', borderRadius: '8px' }}></div>
                   </div>
                 )}
 
                 {/* 3rd Place */}
                 {sortedPlayers[2] && podiumRevealStep >= 1 && (
-                  <div style={{ width: '130px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.8s ease-out' }}>
-                    <span style={{ fontSize: '24px', marginBottom: '8px' }}>🥉</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
-                    <span style={{ fontSize: '13px', color: '#00BCD4' }}>{sortedPlayers[2].score} pts</span>
-                    <div style={{ width: '100%', height: '50px', background: 'rgba(255,255,255,0.05)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  <div style={{ width: '160px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px', animation: 'slideUp 0.8s ease-out' }}>
+                    <span style={{ fontSize: '32px', marginBottom: '8px' }}>🥉</span>
+                    <span style={{ fontSize: '18px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
+                    <span style={{ fontSize: '15px', color: '#00BCD4' }}>{sortedPlayers[2].score} pts</span>
+                    <div style={{ width: '100%', height: '70px', background: 'rgba(255,255,255,0.05)', marginTop: '20px', borderRadius: '8px' }}></div>
                   </div>
                 )}
 
@@ -598,11 +598,11 @@ export default function QuizHost() {
           )}
 
           {endedTab === 'summary' && (
-            <div style={{ maxWidth: '600px', margin: '0 auto 40px', background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '24px', textAlign: 'left', animation: 'fadeIn 0.3s' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00BCD4', marginBottom: '16px', borderBottom: '1px solid #222', paddingBottom: '10px' }}>Full Participant Standings</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto', paddingRight: '8px' }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto 40px', background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '32px', textAlign: 'left', animation: 'fadeIn 0.3s' }}>
+              <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#00BCD4', marginBottom: '16px', borderBottom: '1px solid #222', paddingBottom: '10px' }}>Full Participant Standings</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
                 {sortedPlayers.map((p, index) => (
-                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #1a1a1a', padding: '8px 0' }}>
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', borderBottom: '1px solid #1a1a1a', padding: '12px 0' }}>
                     <span>#{index + 1} {p.nickname}</span>
                     <span style={{ fontWeight: 700, color: '#00BCD4' }}>{p.score} pts</span>
                   </div>
@@ -611,7 +611,7 @@ export default function QuizHost() {
             </div>
           )}
 
-          <button onClick={() => navigate('/admin/quiz')} style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '16px 40px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#00BCD4'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>
+          <button onClick={() => navigate('/admin/quiz')} style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '16px 40px', fontSize: '18px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#00BCD4'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>
             Exit to Dashboard
           </button>
         </div>

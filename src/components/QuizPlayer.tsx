@@ -357,9 +357,24 @@ export default function QuizPlayer() {
             <p style={{ fontSize: '16px', color: '#888', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for final rankings.</p>
           )}
 
-          <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '12px 32px', fontWeight: 700, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333' }}>
-            Return to Hyperspace
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', marginTop: '32px' }}>
+            <button 
+              onClick={() => {
+                setJoined(false)
+                setStatus('lobby')
+                setLobbyNicknames([])
+                setPlayerRank(null)
+                setPlayerScore(0)
+                setStreakCount(0)
+              }} 
+              style={{ background: '#00BCD4', border: 'none', borderRadius: '8px', color: '#000', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', width: '100%', maxWidth: '240px' }}
+            >
+              Play Again / Join New Lobby
+            </button>
+            <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '12px 32px', fontWeight: 700, transition: 'all 0.2s', width: '100%', maxWidth: '240px', boxSizing: 'border-box' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333' }}>
+              Return to Hyperspace
+            </a>
+          </div>
         </div>
       )}
 

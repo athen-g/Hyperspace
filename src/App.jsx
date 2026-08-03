@@ -113,6 +113,7 @@ function App() {
 
           {/* Quiz Kahoot System (Public Play Portal) */}
           <Route path="/quiz/play" element={<QuizPlayer />} />
+          <Route path="/quiz" element={<Navigate to="/admin/quiz" replace />} />
 
           <Route path="/admin" element={<AdminApp />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
