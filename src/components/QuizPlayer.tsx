@@ -203,7 +203,8 @@ export default function QuizPlayer() {
         <div style={{ textAlign: 'center' }}>
           <h1 style={{ fontSize: '72px', margin: '0 0 16px' }}>🏁</h1>
           <h2 style={{ fontSize: '32px', color: '#00BCD4', fontWeight: 700 }}>Quiz Finished!</h2>
-          <p style={{ fontSize: '16px', color: '#888', marginTop: '12px' }}>Check the presenter screen for the final podium rankings.</p>
+          <p style={{ fontSize: '16px', color: '#888', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for the final podium rankings.</p>
+          <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#aaa', padding: '10px 24px', fontWeight: 600, transition: 'color 0.2s, border-color 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4'; e.currentTarget.style.color = '#fff' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#aaa' }}>Return to Hyperspace</a>
         </div>
       )}
 

@@ -185,7 +185,40 @@ export default function QuizHost() {
   const optionShapes = ['▲', '◆', '●', '■']
 
   return (
-    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui', position: 'relative' }}>
+      
+      {/* Return to Dashboard corner button */}
+      <button 
+        onClick={() => {
+          if (confirm('Exit hosting session? The current game state will be lost.')) {
+            navigate('/admin/quiz')
+          }
+        }}
+        style={{
+          position: 'absolute',
+          top: '24px',
+          left: '24px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          color: '#aaa',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          fontSize: '13px',
+          cursor: 'pointer',
+          transition: 'background 0.2s, color 0.2s',
+          fontWeight: 600
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+          e.currentTarget.style.color = '#fff'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+          e.currentTarget.style.color = '#aaa'
+        }}
+      >
+        ← Return to Dashboard
+      </button>
       
       {/* 1. LOBBY STATE */}
       {gameState === 'lobby' && (
