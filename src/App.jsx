@@ -31,6 +31,7 @@ import AdminRegistrationsPage from "./admin/pages/RegistrationsPage";
 import AttendancePage from "./admin/pages/AttendancePage";
 import WalkInPage from "./admin/pages/WalkInPage";
 import ScannerPage from "./admin/pages/ScannerPage";
+import SubscribersPage from "./admin/pages/SubscribersPage";
 import MembersPage from "./admin/pages/MembersPage";
 import AuditLogPage from "./admin/pages/AuditLogPage";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
@@ -117,6 +118,7 @@ function App() {
             <Route path="events/:eventId/attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
             <Route path="events/:eventId/walkin" element={<ProtectedRoute roles={['core','super_admin']}><WalkInPage /></ProtectedRoute>} />
             <Route path="scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
+            <Route path="subscribers" element={<ProtectedRoute><SubscribersPage /></ProtectedRoute>} />
             <Route path="members" element={<ProtectedRoute roles={['super_admin']}><MembersPage /></ProtectedRoute>} />
             <Route path="logs" element={<ProtectedRoute roles={['super_admin']}><AuditLogPage /></ProtectedRoute>} />
           </Route>
