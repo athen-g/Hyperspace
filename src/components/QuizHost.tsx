@@ -518,7 +518,7 @@ export default function QuizHost() {
     const oldSorted = [...players].sort((a, b) => (prevLeaderboard[b.id] ?? 0) - (prevLeaderboard[a.id] ?? 0))
     const newSorted = [...players].sort((a, b) => b.score - a.score)
 
-    const enriched: LeaderboardPlayerData[] = oldSorted.map(p => ({
+    const enrichedAll: LeaderboardPlayerData[] = players.map(p => ({
       id:            p.id,
       nickname:      p.nickname,
       previousScore: prevLeaderboard[p.id] ?? 0,
@@ -528,8 +528,20 @@ export default function QuizHost() {
       currentRank:   newSorted.findIndex(x => x.id === p.id) + 1,
     }))
 
+    // Pick the top 5 by CURRENT rank so the winner is always visible
+    const top5 = [...enrichedAll].sort((a, b) => a.currentRank - b.currentRank).slice(0, 5)
+
+    // Re-number ranks 1-5 relative to the visible set so there are no gaps
+    const top5Ids = new Set(top5.map(p => p.id))
+    const visibleOldOrder = oldSorted.filter(p => top5Ids.has(p.id))
+    const enriched: LeaderboardPlayerData[] = top5.map(p => ({
+      ...p,
+      previousRank: visibleOldOrder.findIndex(x => x.id === p.id) + 1,
+      currentRank:  top5.findIndex(x => x.id === p.id) + 1,
+    }))
+
     // Render in previousRank order first (IDLE state)
-    setActiveLeaderboardPlayers(enriched.slice(0, 5))
+    setActiveLeaderboardPlayers(enriched)
     setAnimationPhase(PHASES.IDLE)
     setGameState('leaderboard')
 
@@ -589,21 +601,21 @@ export default function QuizHost() {
 
     podiumTimersRef.current.forEach(clearTimeout)
 
-    // Slowed down increments for proper suspense build-up:
-    // 3rd place: 1500ms
-    // 2nd place: 3000ms (+1500ms)
-    // 1st place: 5200ms (+2200ms)
+    // Podium reveal timers (×1.5 for dramatic build-up):
+    // 3rd place: 2250ms
+    // 2nd place: 4500ms (+2250ms)
+    // 1st place: 7800ms (+3300ms)
 
     const t1 = setTimeout(() => {
       setPodiumRevealStep(1) // 3rd place rises
       confetti({ particleCount: 30, spread: 55, startVelocity: 32, origin: { x: 0.5, y: 0.85 } })
-    }, 1500)
+    }, 2250)
 
     const t2 = setTimeout(() => {
       setPodiumRevealStep(2) // 2nd place rises
       confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.28, y: 0.8 } })
       confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.72, y: 0.8 } })
-    }, 3000)
+    }, 4500)
 
     const t3 = setTimeout(() => {
       setPodiumRevealStep(3) // 1st place rises — finale (revealed slower)
@@ -618,7 +630,7 @@ export default function QuizHost() {
         type: 'broadcast', event: 'time-up',
         payload: { correctOption: -1, standings: standingsMapping },
       })
-    }, 5200)
+    }, 7800)
 
     podiumTimersRef.current = [t1, t2, t3]
   }
@@ -1130,7 +1142,7 @@ export default function QuizHost() {
           margin-bottom: 14px;
           opacity: 0;
           transform: translateY(24px) scale(0.85);
-          transition: opacity 600ms ease-out 200ms, transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms;
+          transition: opacity 900ms ease-out 300ms, transform 900ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms;
         }
         .is-revealed .podium-player {
           opacity: 1;
@@ -1191,14 +1203,14 @@ export default function QuizHost() {
           border: 1px solid rgba(255,255,255,0.06);
           border-bottom: none;
           
-          /* Growth transition when revealed - 1.5 seconds */
+          /* Growth transition when revealed - 2.25 seconds (×1.5) */
           transform: scaleY(0);
           transform-origin: bottom;
-          transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 2250ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .podium-col--first .podium-block {
-          /* 1st place reveals even slower - 2.5 seconds */
-          transition: transform 2500ms cubic-bezier(0.16, 1, 0.3, 1);
+          /* 1st place reveals even slower - 3.75 seconds (×1.5) */
+          transition: transform 3750ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .is-revealed .podium-block {
           transform: scaleY(1);
