@@ -50,7 +50,7 @@ export default function QuizHost() {
   const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<Player[]>([])
   const [animatedScores, setAnimatedScores] = useState<Record<string, number>>({})
   
-  // Control name card flash color state - will start as false (black) and switch to true (white) once animations complete
+  // Control name card flash color state
   const [flashConfirm, setFlashConfirm] = useState(false)
 
   // Intro steps countdown
@@ -346,14 +346,13 @@ export default function QuizHost() {
   }
 
   const showLeaderboard = () => {
-    // 1. Set display standings to the OLD state first
+    // 1. First, secure and render the exact current positions (old standings list order)
     const oldSorted = [...players].sort((a, b) => {
       const aPrev = prevLeaderboard[a.id] ?? 0
       const bPrev = prevLeaderboard[b.id] ?? 0
       return bPrev - aPrev
     })
 
-    // Establish old scores
     const initialScores: Record<string, number> = {}
     players.forEach(p => {
       initialScores[p.id] = prevLeaderboard[p.id] ?? 0
@@ -361,11 +360,11 @@ export default function QuizHost() {
 
     setAnimatedScores(initialScores)
     setActiveLeaderboardPlayers(oldSorted.slice(0, 5))
-    setAnimatingStandings(false) // Initial render displays old positions statically
+    setAnimatingStandings(false) // Static rendering layout
     setFlashConfirm(false)
     setGameState('leaderboard')
 
-    // 2. Trigger the swap transitions & count up sequence after 800ms
+    // 2. Trigger the slide transitions & score counts smoothly after 800ms
     setTimeout(() => {
       setAnimatingStandings(true)
       const finalSorted = [...players].sort((a, b) => b.score - a.score)
@@ -376,7 +375,7 @@ export default function QuizHost() {
         if (start === end) return
         
         let currentVal = start
-        const steps = 15
+        const steps = 30 // Slower score increment steps
         const stepVal = Math.ceil((end - start) / steps)
         const scoreInterval = setInterval(() => {
           currentVal += stepVal
@@ -385,17 +384,17 @@ export default function QuizHost() {
             clearInterval(scoreInterval)
           }
           setAnimatedScores(prev => ({ ...prev, [p.id]: currentVal }))
-        }, 30)
+        }, 40)
       })
 
-      // Swap elements smoothly
+      // Swap positions
       setActiveLeaderboardPlayers(finalSorted.slice(0, 5))
 
       // 3. Confirm transition end, fade container backgrounds to white smoothly
       setTimeout(() => {
         setFlashConfirm(true)
         setAnimatingStandings(false)
-      }, 900)
+      }, 1600) // Slower confirmation matching transition speeds
 
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       finalSorted.forEach((p, idx) => {
@@ -480,7 +479,7 @@ export default function QuizHost() {
   const totalAnsweredCount = players.filter(p => p.answered).length
 
   return (
-    <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '12px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
       {/* Return to Dashboard corner button */}
       <button 
@@ -489,8 +488,8 @@ export default function QuizHost() {
         }}
         style={{
           position: 'absolute',
-          top: '20px',
-          left: '20px',
+          top: '12px',
+          left: '12px',
           background: 'rgba(255,255,255,0.05)',
           border: '1px solid #333',
           color: '#fff',
@@ -532,7 +531,7 @@ export default function QuizHost() {
             <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
           </div>
 
-          <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px 40px', width: '100%', maxWidth: '800px', flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '30vh', overflowY: 'auto' }}>
+          <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px 40px', width: '100%', maxWidth: '95%', flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '30vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '20px', margin: '0 0 16px', color: '#e91e63', fontWeight: 800 }}>
               {players.length === 0 ? 'Waiting for players to join...' : `Joined Players (${players.length})`}
             </h3>
@@ -570,7 +569,6 @@ export default function QuizHost() {
         <div style={{ background: '#09090e', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, left: 0, zIndex: 999 }}>
           {!introTitleShow ? (
             <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', width: '100%', boxSizing: 'border-box', justifyContent: 'center' }}>
-              {/* Uses landing page Hero structure layout matching screenshot */}
               <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '1440px', margin: '0 auto', padding: '0 3.507%', position: 'relative' }}>
                 <span className="hero-title" style={{ position: 'static', fontSize: 'clamp(3rem, 10vw, 10vw)', color: '#E91E63', fontWeight: 900, fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', lineHeight: '0.536' }}>HYPERSPACE</span>
                 <span className="hero-subtitle" style={{ position: 'static', alignSelf: 'flex-end', fontSize: 'clamp(1.5rem, 4.64vw, 4.64vw)', color: '#fff', marginTop: '16px', fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', marginRight: 'max(3.507%, calc(96.493vw - (clamp(3rem, 10vw, 10vw) * 6.64)))' }}>XR SIG</span>
@@ -597,7 +595,7 @@ export default function QuizHost() {
 
       {/* 4. QUESTION STATE */}
       {gameState === 'question' && questions[currentIndex] && (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s', padding: '0 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '18px', color: '#888', fontWeight: 700, letterSpacing: '2px' }}>QUESTION {currentIndex + 1} OF {questions.length}</span>
             <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
@@ -626,7 +624,7 @@ export default function QuizHost() {
 
       {/* 5. ANSWERS DISTRIBUTION VIEW */}
       {gameState === 'answers' && questions[currentIndex] && (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s', padding: '0 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 style={{ fontSize: '28px', fontWeight: 900, margin: 0 }}>Correct Answer</h2>
             <span style={{ fontSize: '18px', color: '#888', fontWeight: 700 }}>Total submissions: {totalAnsweredCount}</span>
@@ -664,22 +662,29 @@ export default function QuizHost() {
 
       {/* 6. LEADERBOARD STATE */}
       {gameState === 'leaderboard' && (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.5s' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.5s', padding: '0 12px' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontSize: '14px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: 0 }}>CURRENT STANDINGS</p>
             <h1 style={{ fontSize: '48px', margin: '5px 0 10px', fontWeight: 900 }}>Leaderboard</h1>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '900px', flex: 1, justifyContent: 'center', position: 'relative' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '96vw', flex: 1, justifyContent: 'center', position: 'relative' }}>
             {activeLeaderboardPlayers.map((p, index) => {
-              const finalSortedIndex = sortedPlayers.findIndex(sp => sp.id === p.id)
-              const displayRank = animatingStandings ? (players.findIndex(sp => sp.id === p.id) + 1) : (finalSortedIndex + 1)
+              // Lock indices based on old standings map first, then swap
+              const baseSorted = [...players].sort((a, b) => {
+                const aPrev = prevLeaderboard[a.id] ?? 0
+                const bPrev = prevLeaderboard[b.id] ?? 0
+                return bPrev - aPrev
+              })
+              const initialIndex = baseSorted.findIndex(sp => sp.id === p.id)
+              const finalIndex = [...players].sort((a,b)=>b.score-a.score).findIndex(sp => sp.id === p.id)
+
+              // Calculate stable transition offsets
+              const currentOffset = animatingStandings ? (finalIndex - initialIndex) * 76 : 0
+              const displayRank = animatingStandings ? (finalIndex + 1) : (initialIndex + 1)
               const displayScore = animatedScores[p.id] ?? p.score
               const prevScore = prevLeaderboard[p.id] ?? 0
-              const climbed = !animatingStandings && p.score > prevScore && prevScore !== 0 && finalSortedIndex < index
-
-              // Transition offset swapping calculation
-              const currentOffset = animatingStandings ? (index - (players.findIndex(sp => sp.id === p.id)) ) * 76 : 0
+              const climbed = !animatingStandings && p.score > prevScore && prevScore !== 0 && finalIndex < initialIndex
 
               return (
                 <div 
@@ -690,12 +695,16 @@ export default function QuizHost() {
                     alignItems: 'center', 
                     borderRadius: '12px', 
                     padding: '20px 40px',
-                    transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.8s ease-out, color 0.8s ease-out',
+                    transition: 'transform 1.6s cubic-bezier(0.25, 1, 0.5, 1), background 1.6s ease-out, color 1.6s ease-out',
                     transform: `translateY(${currentOffset}px)`,
                     background: flashConfirm ? '#fff' : '#000',
                     border: '1px solid #222',
                     color: flashConfirm ? '#000' : '#fff',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                    position: 'absolute',
+                    width: '100%',
+                    top: `${15% + (animatingStandings ? finalIndex : initialIndex) * 76}px`,
+                    boxSizing: 'border-box'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -711,7 +720,7 @@ export default function QuizHost() {
             })}
           </div>
 
-          <div style={{ marginBottom: '10px' }}>
+          <div style={{ marginBottom: '10px', zIndex: 10 }}>
             <button onClick={nextStep} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '14px 48px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.4)' }}>
               Next Question [Space]
             </button>
