@@ -105,6 +105,15 @@ function LeaderboardRow({
     phase !== PHASES.IDLE && phase !== PHASES.RUNUP
   )
 
+  // Animate rank number from previousRank → currentRank during the REORDER phase
+  const displayRank = useAnimatedCounter(
+    player.previousRank,
+    player.currentRank,
+    900,
+    phase === PHASES.REORDER,
+    phase !== PHASES.IDLE && phase !== PHASES.RUNUP && phase !== PHASES.REORDER
+  )
+
   const isFlashing = phase === PHASES.FLASH || phase === PHASES.DONE
   // Rank #1 flashes last — draws the eye upward to the winner
   const flashDelay = player.currentRank * 80
@@ -123,17 +132,17 @@ function LeaderboardRow({
       } as React.CSSProperties & { '--flash-delay': string }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-        {/* Rank badge */}
+        {/* Rank badge — animates from old rank to new rank */}
         <span style={{
           fontSize: '26px',
           fontWeight: 900,
           minWidth: '52px',
-          color: player.currentRank === 1 ? '#ffd700'
-               : player.currentRank === 2 ? '#c0c0c0'
-               : player.currentRank === 3 ? '#cd7f32'
+          color: displayRank === 1 ? '#ffd700'
+               : displayRank === 2 ? '#c0c0c0'
+               : displayRank === 3 ? '#cd7f32'
                : isFlashing ? '#333' : '#aaa',
         }}>
-          #{player.currentRank}
+          #{displayRank}
         </span>
 
         {/* Name */}
@@ -518,7 +527,7 @@ export default function QuizHost() {
     const oldSorted = [...players].sort((a, b) => (prevLeaderboard[b.id] ?? 0) - (prevLeaderboard[a.id] ?? 0))
     const newSorted = [...players].sort((a, b) => b.score - a.score)
 
-    const enrichedAll: LeaderboardPlayerData[] = players.map(p => ({
+    const enriched: LeaderboardPlayerData[] = oldSorted.map(p => ({
       id:            p.id,
       nickname:      p.nickname,
       previousScore: prevLeaderboard[p.id] ?? 0,
@@ -528,20 +537,8 @@ export default function QuizHost() {
       currentRank:   newSorted.findIndex(x => x.id === p.id) + 1,
     }))
 
-    // Pick the top 5 by CURRENT rank so the winner is always visible
-    const top5 = [...enrichedAll].sort((a, b) => a.currentRank - b.currentRank).slice(0, 5)
-
-    // Re-number ranks 1-5 relative to the visible set so there are no gaps
-    const top5Ids = new Set(top5.map(p => p.id))
-    const visibleOldOrder = oldSorted.filter(p => top5Ids.has(p.id))
-    const enriched: LeaderboardPlayerData[] = top5.map(p => ({
-      ...p,
-      previousRank: visibleOldOrder.findIndex(x => x.id === p.id) + 1,
-      currentRank:  top5.findIndex(x => x.id === p.id) + 1,
-    }))
-
     // Render in previousRank order first (IDLE state)
-    setActiveLeaderboardPlayers(enriched)
+    setActiveLeaderboardPlayers(enriched.slice(0, 5))
     setAnimationPhase(PHASES.IDLE)
     setGameState('leaderboard')
 
