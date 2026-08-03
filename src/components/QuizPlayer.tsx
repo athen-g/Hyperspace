@@ -30,6 +30,14 @@ export default function QuizPlayer() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1)
   const [totalQuestions, setTotalQuestions] = useState(1)
   
+  // Lobby waiting list of other joined nicknames
+  const [lobbyNicknames, setLobbyNicknames] = useState<string[]>([])
+
+  // Standing / Rank status states
+  const [playerRank, setPlayerRank] = useState<number | null>(null)
+  const [playerScore, setPlayerScore] = useState<number>(0)
+  const [answerStats, setAnswerStats] = useState<number[]>([0, 0, 0, 0])
+
   const channelRef = useRef<any>(null)
   const startTimeRef = useRef<number>(0)
   const timeLimitRef = useRef<number>(20)
@@ -49,6 +57,11 @@ export default function QuizPlayer() {
         setJoined(true)
         setStatus('lobby')
       })
+      .on('broadcast', { event: 'lobby-update' }, ({ payload }) => {
+        if (payload.players) {
+          setLobbyNicknames(payload.players)
+        }
+      })
       .on('broadcast', { event: 'get-ready' }, ({ payload }) => {
         setQuestionText(payload.questionText)
         setCurrentQuestionIndex(payload.questionIndex)
@@ -56,7 +69,6 @@ export default function QuizPlayer() {
         setReadyCountdown(3)
         setStatus('get-ready')
 
-        // Start local 3s countdown mirroring host
         const interval = setInterval(() => {
           setReadyCountdown((prev) => {
             if (prev <= 1) {
@@ -75,6 +87,7 @@ export default function QuizPlayer() {
         setSelectedOption(null)
         selectedOptionRef.current = null
         setCorrectOption(null)
+        setAnswerStats([0, 0, 0, 0])
         startTimeRef.current = Date.now()
         setStatus('question')
       })
@@ -84,6 +97,9 @@ export default function QuizPlayer() {
           return
         }
         setCorrectOption(payload.correctOption)
+        if (payload.answerStats) {
+          setAnswerStats(payload.answerStats)
+        }
         const chosen = selectedOptionRef.current
         setStatus(() => {
           if (chosen !== null) {
@@ -92,6 +108,12 @@ export default function QuizPlayer() {
           }
           return 'wrong' // Did not answer in time
         })
+      })
+      .on('broadcast', { event: 'leaderboard-update' }, ({ payload }) => {
+        if (payload.standings && payload.standings[playerId]) {
+          setPlayerRank(payload.standings[playerId].rank)
+          setPlayerScore(payload.standings[playerId].score)
+        }
       })
       .subscribe()
 
@@ -130,7 +152,7 @@ export default function QuizPlayer() {
   const optionShapes = ['▲', '◆', '●', '■']
 
   return (
-    <div style={{ background: '#1c0c3a', minHeight: '100vh', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box' }}>
       
       {/* 1. LOBBY/PIN JOIN FORM */}
       {!joined && (
@@ -143,7 +165,7 @@ export default function QuizPlayer() {
               required
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.15)', borderRadius: '12px', color: '#fff', padding: '14px 20px', fontSize: '18px', boxSizing: 'border-box', textAlign: 'center', fontWeight: 700 }}
+              style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '14px 20px', fontSize: '18px', boxSizing: 'border-box', textAlign: 'center', fontWeight: 700 }}
             />
             <input
               type="text"
@@ -152,9 +174,9 @@ export default function QuizPlayer() {
               maxLength={15}
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.15)', borderRadius: '12px', color: '#fff', padding: '14px 20px', fontSize: '18px', boxSizing: 'border-box', textAlign: 'center', fontWeight: 700 }}
+              style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '14px 20px', fontSize: '18px', boxSizing: 'border-box', textAlign: 'center', fontWeight: 700 }}
             />
-            <button type="submit" style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,188,212,0.3)' }}>
+            <button type="submit" style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '14px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,188,212,0.3)' }}>
               Join Game
             </button>
           </form>
@@ -163,10 +185,18 @@ export default function QuizPlayer() {
 
       {/* 2. JOINED / WAITING IN LOBBY STATE */}
       {joined && status === 'lobby' && (
-        <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s' }}>
+        <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s', maxWidth: '500px', margin: '0 auto', width: '100%' }}>
           <h2 style={{ fontSize: '36px', color: '#00BCD4', marginBottom: '16px', fontWeight: 800 }}>You're in!</h2>
-          <p style={{ fontSize: '20px', color: '#b9a7eb', marginBottom: '8px' }}>Nickname: <strong>{nickname}</strong></p>
-          <p style={{ fontSize: '16px', color: '#888' }}>Wait for the host to start the game.</p>
+          <p style={{ fontSize: '20px', color: '#888', marginBottom: '32px' }}>Nickname: <strong>{nickname}</strong></p>
+          
+          <div style={{ background: '#111', border: '1px solid #222', padding: '24px', borderRadius: '12px', textAlign: 'left' }}>
+            <h4 style={{ margin: '0 0 16px', fontSize: '14px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Other Joined Players ({lobbyNicknames.length})</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '150px', overflowY: 'auto' }}>
+              {lobbyNicknames.map((name, idx) => (
+                <span key={idx} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #222', borderRadius: '20px', padding: '6px 12px', fontSize: '14px', color: name === nickname ? '#00BCD4' : '#aaa' }}>{name}</span>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -187,7 +217,7 @@ export default function QuizPlayer() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>{questionText}</h2>
             </div>
           )}
-          <p style={{ textAlign: 'center', fontSize: '13px', color: '#b9a7eb', margin: '0 0 10px', fontWeight: 700, letterSpacing: '1px' }}>
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#888', margin: '0 0 10px', fontWeight: 700, letterSpacing: '1px' }}>
             {gameMode === 'shared' ? 'TAP THE CORRECT ANSWER' : 'TAP THE CORRECT SHAPE'}
           </p>
           <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1, minHeight: '50vh' }}>
@@ -198,7 +228,7 @@ export default function QuizPlayer() {
                 style={{
                   background: optionColors[i],
                   border: 'none',
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
@@ -226,25 +256,65 @@ export default function QuizPlayer() {
         <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s' }}>
           <div style={{ fontSize: '64px', marginBottom: '24px' }}>⏱️</div>
           <h2 style={{ fontSize: '28px', color: '#00BCD4', marginBottom: '12px', fontWeight: 800 }}>Answer Submitted!</h2>
-          <p style={{ fontSize: '16px', color: '#b9a7eb' }}>Waiting for other players to finish...</p>
+          <p style={{ fontSize: '16px', color: '#888' }}>Waiting for other players to finish...</p>
         </div>
       )}
 
-      {/* 6. CORRECT STATE */}
+      {/* 6. CORRECT STATE - SHOW STANDINGS SUMMARY */}
       {joined && status === 'correct' && (
-        <div style={{ textAlign: 'center', animation: 'popIn 0.4s' }}>
+        <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>✔️</h1>
           <h2 style={{ fontSize: '36px', color: '#26890c', fontWeight: 800 }}>Correct!</h2>
-          <p style={{ fontSize: '16px', color: '#b9a7eb', marginTop: '12px' }}>You are on fire!</p>
+          
+          {playerRank !== null && (
+            <div style={{ marginTop: '32px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
+              <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
+              <div style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>Rank #{playerRank}</div>
+              <div style={{ fontSize: '16px', color: '#aaa', marginTop: '6px' }}>Score: {playerScore} points</div>
+            </div>
+          )}
+
+          {/* Bar Chart Summary */}
+          <div style={{ marginTop: '24px', display: 'flex', height: '100px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px' }}>
+            {answerStats.map((count, i) => {
+              const max = Math.max(...answerStats, 1)
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                  <div style={{ width: '100%', height: `${(count/max)*100}%`, background: optionColors[i], borderRadius: '4px 4px 0 0' }}></div>
+                  <div style={{ fontSize: '11px', marginTop: '4px' }}>{optionShapes[i]}</div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
-      {/* 7. WRONG STATE */}
+      {/* 7. WRONG STATE - SHOW STANDINGS SUMMARY */}
       {joined && status === 'wrong' && (
-        <div style={{ textAlign: 'center', animation: 'popIn 0.4s' }}>
+        <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>❌</h1>
           <h2 style={{ fontSize: '36px', color: '#e21b3c', fontWeight: 800 }}>Incorrect</h2>
-          <p style={{ fontSize: '16px', color: '#b9a7eb', marginTop: '12px' }}>Keep concentration for the next one!</p>
+
+          {playerRank !== null && (
+            <div style={{ marginTop: '32px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
+              <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
+              <div style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>Rank #{playerRank}</div>
+              <div style={{ fontSize: '16px', color: '#aaa', marginTop: '6px' }}>Score: {playerScore} points</div>
+            </div>
+          )}
+
+          {/* Bar Chart Summary */}
+          <div style={{ marginTop: '24px', display: 'flex', height: '100px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px' }}>
+            {answerStats.map((count, i) => {
+              const max = Math.max(...answerStats, 1)
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                  <div style={{ width: '100%', height: `${(count/max)*100}%`, background: optionColors[i], borderRadius: '4px 4px 0 0' }}></div>
+                  <div style={{ fontSize: '11px', marginTop: '4px' }}>{optionShapes[i]}</div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -253,8 +323,8 @@ export default function QuizPlayer() {
         <div style={{ textAlign: 'center', animation: 'fadeIn 0.6s' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>🏁</h1>
           <h2 style={{ fontSize: '32px', color: '#00BCD4', fontWeight: 800 }}>Quiz Finished!</h2>
-          <p style={{ fontSize: '16px', color: '#b9a7eb', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for final rankings.</p>
-          <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '24px', color: '#fff', padding: '12px 32px', fontWeight: 700, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}>
+          <p style={{ fontSize: '16px', color: '#888', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for final rankings.</p>
+          <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '12px 32px', fontWeight: 700, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333' }}>
             Return to Hyperspace
           </a>
         </div>
