@@ -23,7 +23,9 @@ export default function QuizHost() {
   const { codeSlug } = useParams()
   const navigate = useNavigate()
   const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
-  const [gameState, setGameState] = useState<'lobby' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
+  
+  // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
+  const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
   const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -35,7 +37,7 @@ export default function QuizHost() {
   const timerRef = useRef<any>(null)
   const readyTimerRef = useRef<any>(null)
 
-  // Demo state config
+  // Demo config
   const [isDemo, setIsDemo] = useState(false)
 
   // QR Modal State
@@ -46,16 +48,23 @@ export default function QuizHost() {
   const [animatingStandings, setAnimatingStandings] = useState(false)
   const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<Player[]>([])
   const [animatedScores, setAnimatedScores] = useState<Record<string, number>>({})
+  
+  // Control name card flash color state
+  const [flashConfirm, setFlashConfirm] = useState(false)
+
+  // Intro steps countdown
+  const [introCountdown, setIntroCountdown] = useState(3)
+  const [introTitleShow, setIntroTitleShow] = useState(false)
 
   // Ended view sub-tabs
   const [endedTab, setEndedTab] = useState<'podium' | 'summary'>('podium')
-  const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0) // 0: None, 1: 3rd, 2: 2nd, 3: 1st
+  const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0)
 
   useEffect(() => {
     if (codeSlug) {
       supabase
         .from('quizzes')
-        .select('id')
+        .select('id, title')
         .eq('code_slug', codeSlug)
         .single()
         .then(({ data }) => {
@@ -139,6 +148,24 @@ export default function QuizHost() {
     }
   }, [pin, questions, currentIndex])
 
+  // Keyboard shortcut handlers (Space controls key steps)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault()
+        if (gameState === 'question') {
+          endQuestion()
+        } else if (gameState === 'answers') {
+          showLeaderboard()
+        } else if (gameState === 'leaderboard') {
+          nextStep()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [gameState, currentIndex, questions, players])
+
   // Bot response simulation in Demo mode
   useEffect(() => {
     if (gameState === 'question' && isDemo && players.length > 0) {
@@ -184,17 +211,17 @@ export default function QuizHost() {
 
   const startQuiz = () => {
     if (questions.length === 0) return
-    triggerGetReady(0)
+    triggerIntroBuild()
   }
 
   const startDemo = () => {
     setIsDemo(true)
-    const botPlayers: Player[] = [
-      { id: 'bot1', nickname: 'NovaBot 🤖', score: 0, answered: false },
-      { id: 'bot2', nickname: 'StellarBot 🤖', score: 0, answered: false },
-      { id: 'bot3', nickname: 'CosmoBot 🤖', score: 0, answered: false },
-      { id: 'bot4', nickname: 'ApexBot 🤖', score: 0, answered: false }
-    ]
+    const botPlayers: Player[] = Array.from({ length: 10 }).map((_, i) => ({
+      id: `bot${i}`,
+      nickname: `SIGBot_${i + 1} 🤖`,
+      score: 0,
+      answered: false
+    }))
     setPlayers(botPlayers)
     
     setTimeout(() => {
@@ -203,8 +230,43 @@ export default function QuizHost() {
         event: 'lobby-update',
         payload: { players: botPlayers.map(b => b.nickname) }
       })
-      triggerGetReady(0)
+      triggerIntroBuild()
     }, 500)
+  }
+
+  // Phase 1: Slow build-up introduction screen
+  const triggerIntroBuild = () => {
+    setGameState('intro-build')
+    setIntroCountdown(3)
+    setIntroTitleShow(false)
+
+    // Notify clients to display waiting buffer
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'get-ready',
+      payload: {
+        questionText: 'Get Ready...',
+        questionIndex: 1,
+        totalQuestions: questions.length,
+        gameMode: gameMode
+      }
+    })
+
+    // 1. Step: 3s Countdown for Hyperspace XR SIG fade-in
+    let elapsed = 3
+    const introInterval = setInterval(() => {
+      elapsed -= 1
+      setIntroCountdown(elapsed)
+      if (elapsed <= 0) {
+        clearInterval(introInterval)
+        
+        // 2. Step: Show Quiz Title for 2s
+        setIntroTitleShow(true)
+        setTimeout(() => {
+          triggerGetReady(0)
+        }, 2500)
+      }
+    }, 1000)
   }
 
   const triggerGetReady = (index: number) => {
@@ -282,6 +344,7 @@ export default function QuizHost() {
   }
 
   const showLeaderboard = () => {
+    // 1. Lock the initial old standings array securely
     const oldSorted = [...players].sort((a, b) => {
       const aPrev = prevLeaderboard[a.id] ?? 0
       const bPrev = prevLeaderboard[b.id] ?? 0
@@ -292,12 +355,14 @@ export default function QuizHost() {
     players.forEach(p => {
       initialScores[p.id] = prevLeaderboard[p.id] ?? 0
     })
+
     setAnimatedScores(initialScores)
     setActiveLeaderboardPlayers(oldSorted.slice(0, 5))
     setAnimatingStandings(true)
+    setFlashConfirm(false)
     setGameState('leaderboard')
 
-    // Wait 1.5 seconds, then count up points & slide position nodes
+    // 2. Perform smooth reorder swaps & count up after 1s
     setTimeout(() => {
       const finalSorted = [...players].sort((a, b) => b.score - a.score)
       
@@ -319,8 +384,14 @@ export default function QuizHost() {
         }, 30)
       })
 
+      // Update positions
       setActiveLeaderboardPlayers(finalSorted.slice(0, 5))
       setAnimatingStandings(false)
+
+      // 3. Flash container backgrounds once transitions wrap up
+      setTimeout(() => {
+        setFlashConfirm(true)
+      }, 800)
 
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       finalSorted.forEach((p, idx) => {
@@ -337,7 +408,7 @@ export default function QuizHost() {
         scores[p.id] = p.score
       })
       setPrevLeaderboard(scores)
-    }, 1500)
+    }, 1200)
   }
 
   const nextStep = () => {
@@ -480,13 +551,30 @@ export default function QuizHost() {
               Start Quiz
             </button>
             <button onClick={startDemo} style={{ background: 'transparent', border: '2px solid #00BCD4', color: '#00BCD4', borderRadius: '6px', padding: '12px 30px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' }}>
-              Host Demo 🤖
+              Host Demo (10 Bots) 🤖
             </button>
           </div>
         </div>
       )}
 
-      {/* 2. GET READY countdown state */}
+      {/* 2. INTRO BUILD STATE - Slow build up sequence prior to question 1 */}
+      {gameState === 'intro-build' && (
+        <div style={{ background: '#000', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, left: 0, zIndex: 999 }}>
+          {!introTitleShow ? (
+            <div style={{ textAlign: 'center' }}>
+              <h1 style={{ fontSize: '72px', fontWeight: 900, letterSpacing: '4px', animation: 'scaleUpFade 3s forwards', color: '#00BCD4' }}>Hyperspace XR SIG</h1>
+              {introCountdown > 0 && <div style={{ fontSize: '32px', color: '#444', marginTop: '20px' }}>Starting in {introCountdown}...</div>}
+            </div>
+          ) : (
+            <div style={{ animation: 'fadeInOut 2.5s forwards', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '32px', color: '#888', textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '16px' }}>Quiz Template</h2>
+              <h1 style={{ fontSize: '56px', fontWeight: 800 }}>Hyperspace XR SIG Quiz</h1>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. GET READY countdown state */}
       {gameState === 'get-ready' && questions[currentIndex] && (
         <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.4s' }}>
           <p style={{ fontSize: '20px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 700, margin: '0 0 10px' }}>GET READY FOR QUESTION {currentIndex + 1}</p>
@@ -495,7 +583,7 @@ export default function QuizHost() {
         </div>
       )}
 
-      {/* 3. QUESTION STATE */}
+      {/* 4. QUESTION STATE */}
       {gameState === 'question' && questions[currentIndex] && (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -518,13 +606,13 @@ export default function QuizHost() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '10px' }}>
-            <button onClick={endQuestion} style={{ background: '#E91E63', border: 'none', borderRadius: '6px', color: '#fff', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>Skip Question</button>
-            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+            <button onClick={endQuestion} style={{ background: '#E91E63', border: 'none', borderRadius: '6px', color: '#fff', padding: '8px 24px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>Skip Question [Space]</button>
+            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '8px 24px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
 
-      {/* 4. ANSWERS DISTRIBUTION VIEW */}
+      {/* 5. ANSWERS DISTRIBUTION VIEW */}
       {gameState === 'answers' && questions[currentIndex] && (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -556,13 +644,13 @@ export default function QuizHost() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '10px' }}>
-            <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(0,188,212,0.3)' }}>Show Standings</button>
+            <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(0,188,212,0.3)' }}>Show Standings [Space]</button>
             <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
 
-      {/* 5. LEADERBOARD STATE */}
+      {/* 6. LEADERBOARD STATE */}
       {gameState === 'leaderboard' && (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.5s' }}>
           <div style={{ textAlign: 'center' }}>
@@ -571,7 +659,7 @@ export default function QuizHost() {
           </div>
           
           {/* Animated Positioning List Blocks */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '800px', flex: 1, justifyContent: 'center', position: 'relative' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '900px', flex: 1, justifyContent: 'center', position: 'relative' }}>
             {activeLeaderboardPlayers.map((p, index) => {
               const finalSortedIndex = sortedPlayers.findIndex(sp => sp.id === p.id)
               const displayRank = animatingStandings ? (players.findIndex(sp => sp.id === p.id) + 1) : (finalSortedIndex + 1)
@@ -580,7 +668,7 @@ export default function QuizHost() {
               const climbed = !animatingStandings && p.score > prevScore && prevScore !== 0 && finalSortedIndex < index
 
               // Calculate transition offset to simulate node swaps
-              const currentOffset = animatingStandings ? (index - displayRank + 1) * 72 : 0
+              const currentOffset = animatingStandings ? (index - (players.findIndex(sp => sp.id === p.id)) ) * 76 : 0
 
               return (
                 <div 
@@ -590,22 +678,23 @@ export default function QuizHost() {
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
                     borderRadius: '12px', 
-                    padding: '16px 32px',
+                    padding: '20px 40px',
                     transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.8s ease-out, border-color 0.8s ease-out',
                     transform: `translateY(${currentOffset}px)`,
-                    background: animatingStandings ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.95)',
-                    border: animatingStandings ? '1px solid rgba(255,255,255,0.1)' : '1px solid #fff',
-                    color: animatingStandings ? '#fff' : '#000'
+                    background: flashConfirm ? '#fff' : 'rgba(255, 255, 255, 0.95)',
+                    border: '1px solid #fff',
+                    color: '#000',
+                    boxShadow: flashConfirm ? '0 0 25px rgba(255,255,255,0.8)' : '0 4px 15px rgba(0,0,0,0.3)'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <span style={{ fontSize: '24px', fontWeight: 900, color: displayRank === 1 ? '#ffd700' : displayRank === 2 ? '#888' : displayRank === 3 ? '#cd7f32' : (animatingStandings ? '#aaa' : '#333') }}>#{displayRank}</span>
-                    <span style={{ fontSize: '22px', fontWeight: 700 }}>{p.nickname}</span>
+                    <span style={{ fontSize: '26px', fontWeight: 900, color: displayRank === 1 ? '#ffd700' : displayRank === 2 ? '#888' : displayRank === 3 ? '#cd7f32' : '#333' }}>#{displayRank}</span>
+                    <span style={{ fontSize: '24px', fontWeight: 700 }}>{p.nickname}</span>
                     {climbed && (
                       <span style={{ background: '#26890c', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', animation: 'pulse 1s infinite' }}>▲ CLIMBED</span>
                     )}
                   </div>
-                  <span style={{ fontSize: '22px', fontWeight: 850, color: animatingStandings ? '#00BCD4' : '#0097a7' }}>{displayScore} pts</span>
+                  <span style={{ fontSize: '24px', fontWeight: 850, color: '#0097a7' }}>{displayScore} pts</span>
                 </div>
               )
             })}
@@ -613,13 +702,13 @@ export default function QuizHost() {
 
           <div style={{ marginBottom: '10px' }}>
             <button onClick={nextStep} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '6px', padding: '14px 48px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.4)' }}>
-              {currentIndex + 1 < questions.length ? 'Next Question' : 'End Game'}
+              Next Question [Space]
             </button>
           </div>
         </div>
       )}
 
-      {/* 6. ENDED STATE */}
+      {/* 7. ENDED STATE */}
       {gameState === 'ended' && (
         <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.8s' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '10px' }}>
@@ -709,6 +798,17 @@ export default function QuizHost() {
           0% { transform: scale(1); }
           50% { transform: scale(1.1); }
           100% { transform: scale(1); }
+        }
+        @keyframes scaleUpFade {
+          0% { opacity: 0; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1); }
+          100% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translateY(20px); }
+          20% { opacity: 1; transform: translateY(0); }
+          80% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-20px); }
         }
       `}</style>
 
