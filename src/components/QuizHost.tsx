@@ -84,6 +84,14 @@ export default function QuizHost() {
     }
   }, [codeSlug])
 
+  const endQuestionRef = useRef<() => void>(() => {})
+  const showLeaderboardRef = useRef<() => void>(() => {})
+
+  useEffect(() => {
+    endQuestionRef.current = endQuestion
+    showLeaderboardRef.current = showLeaderboard
+  })
+
   useEffect(() => {
     const channel = supabase.channel(`quiz-${pin}`, {
       config: {
@@ -128,7 +136,7 @@ export default function QuizHost() {
           const allAnswered = updated.length > 0 && updated.every(p => p.answered)
           if (allAnswered) {
             setTimeout(() => {
-              endQuestion()
+              endQuestionRef.current()
             }, 100)
           }
           return updated
