@@ -21,6 +21,7 @@ export default function QuizPlayer() {
   // Realtime state
   const [questionText, setQuestionText] = useState('')
   const [options, setOptions] = useState<string[]>([])
+  const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
   const [correctOption, setCorrectOption] = useState<number | null>(null)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const selectedOptionRef = useRef<number | null>(null)
@@ -47,6 +48,7 @@ export default function QuizPlayer() {
       .on('broadcast', { event: 'next-question' }, ({ payload }) => {
         setQuestionText(payload.questionText)
         setOptions(payload.options)
+        setGameMode(payload.gameMode || 'classic')
         timeLimitRef.current = payload.timeLimit
         setSelectedOption(null)
         selectedOptionRef.current = null
@@ -146,9 +148,16 @@ export default function QuizPlayer() {
       {/* 3. QUESTION ACTION CONTROLLER STATE */}
       {joined && status === 'question' && (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <p style={{ textAlign: 'center', fontSize: '14px', color: '#555', margin: '0 0 10px' }}>TAP THE CORRECT SHAPE</p>
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1, minHeight: '60vh' }}>
-            {options.map((_, i) => (
+          {gameMode === 'shared' && (
+            <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '20px', marginBottom: '10px', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>{questionText}</h2>
+            </div>
+          )}
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#888', margin: '0 0 10px', fontWeight: 600 }}>
+            {gameMode === 'shared' ? 'TAP THE CORRECT ANSWER' : 'TAP THE CORRECT SHAPE'}
+          </p>
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1, minHeight: '50vh' }}>
+            {options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => submitAnswer(i)}
@@ -157,15 +166,20 @@ export default function QuizPlayer() {
                   border: 'none',
                   borderRadius: '12px',
                   display: 'flex',
+                  flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  fontSize: '54px',
+                  fontSize: gameMode === 'shared' ? '16px' : '54px',
                   color: '#fff',
                   cursor: 'pointer',
-                  transition: 'opacity 0.2s',
+                  transition: 'opacity 0.2s, transform 0.1s',
+                  padding: '16px',
+                  gap: '8px',
+                  fontWeight: gameMode === 'shared' ? 600 : 400
                 }}
               >
-                {optionShapes[i]}
+                <span style={{ fontSize: gameMode === 'shared' ? '28px' : '54px' }}>{optionShapes[i]}</span>
+                {gameMode === 'shared' && <span>{opt}</span>}
               </button>
             ))}
           </div>

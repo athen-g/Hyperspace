@@ -23,6 +23,7 @@ export default function QuizHost() {
   const navigate = useNavigate()
   const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
   const [gameState, setGameState] = useState<'lobby' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
+  const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic') // classic: shapes only on phone, shared: questions+options also visible on phone
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [players, setPlayers] = useState<Player[]>([])
@@ -142,6 +143,7 @@ export default function QuizHost() {
         questionText: currentQuestion.question_text,
         options: currentQuestion.options,
         timeLimit: currentQuestion.time_limit,
+        gameMode: gameMode,
       },
     })
 
@@ -239,7 +241,46 @@ export default function QuizHost() {
               ))}
             </div>
           </div>
-          <button onClick={startQuiz} style={{ marginTop: '40px', background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 36px', fontSize: '18px', fontWeight: 600, cursor: 'pointer' }}>
+          {/* Game Mode Selector */}
+          <div style={{ margin: '24px auto', maxWidth: '400px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span style={{ fontSize: '13px', color: '#888', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Select Interface Mode</span>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={() => setGameMode('classic')} 
+                style={{ 
+                  flex: 1, 
+                  background: gameMode === 'classic' ? '#E91E63' : 'transparent', 
+                  border: '1px solid #333', 
+                  color: '#fff', 
+                  padding: '8px 12px', 
+                  borderRadius: '6px', 
+                  fontSize: '13px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Classic (Shapes Only)
+              </button>
+              <button 
+                onClick={() => setGameMode('shared')} 
+                style={{ 
+                  flex: 1, 
+                  background: gameMode === 'shared' ? '#00BCD4' : 'transparent', 
+                  border: '1px solid #333', 
+                  color: gameMode === 'shared' ? '#000' : '#fff', 
+                  padding: '8px 12px', 
+                  borderRadius: '6px', 
+                  fontSize: '13px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Shared (Question on Phone)
+              </button>
+            </div>
+          </div>
+
+          <button onClick={startQuiz} style={{ marginTop: '16px', background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 36px', fontSize: '18px', fontWeight: 600, cursor: 'pointer' }}>
             Start Quiz
           </button>
         </div>
