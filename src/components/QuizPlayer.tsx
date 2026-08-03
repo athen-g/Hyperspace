@@ -13,6 +13,7 @@ export default function QuizPlayer() {
   const [options, setOptions] = useState<string[]>([])
   const [correctOption, setCorrectOption] = useState<number | null>(null)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
+  const selectedOptionRef = useRef<number | null>(null)
   
   const channelRef = useRef<any>(null)
   const startTimeRef = useRef<number>(0)
@@ -38,15 +39,17 @@ export default function QuizPlayer() {
         setOptions(payload.options)
         timeLimitRef.current = payload.timeLimit
         setSelectedOption(null)
+        selectedOptionRef.current = null
         setCorrectOption(null)
         startTimeRef.current = Date.now()
         setStatus('question')
       })
       .on('broadcast', { event: 'time-up' }, ({ payload }) => {
         setCorrectOption(payload.correctOption)
-        setStatus((prev) => {
-          if (prev === 'waiting') {
-            const isCorrect = selectedOption === payload.correctOption
+        const chosen = selectedOptionRef.current
+        setStatus(() => {
+          if (chosen !== null) {
+            const isCorrect = chosen === payload.correctOption
             return isCorrect ? 'correct' : 'wrong'
           }
           return 'wrong' // Did not answer in time
@@ -69,6 +72,7 @@ export default function QuizPlayer() {
   const submitAnswer = (optionIndex: number) => {
     if (status !== 'question') return
     setSelectedOption(optionIndex)
+    selectedOptionRef.current = optionIndex
     setStatus('waiting')
     
     const timeSpent = (Date.now() - startTimeRef.current) / 1000
