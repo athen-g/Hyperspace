@@ -48,8 +48,8 @@ export default function QuizPage() {
         sort_order: 1
       })
 
-      // Redirect to host lobby directly for demonstration
-      navigate(`/quiz/host/${data.id}`)
+      // Redirect directly to editing workspace
+      navigate(`/quiz/edit/${data.id}`)
     }
   }
 
@@ -88,7 +88,7 @@ export default function QuizPage() {
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>Cancel</button>
-                <button type="submit" style={{ background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Launch & Host</button>
+                <button type="submit" style={{ background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Launch & Edit</button>
               </div>
             </form>
           </div>
@@ -105,7 +105,10 @@ export default function QuizPage() {
                   <h3 style={{ margin: '0 0 6px', fontSize: '18px' }}>{q.title}</h3>
                   <p style={{ margin: 0, fontSize: '14px', color: '#888' }}>{q.description || 'No description'}</p>
                 </div>
-                <Link to={`/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <Link to={`/quiz/edit/${q.id}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
+                  <Link to={`/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
+                </div>
               </div>
             ))
           )}

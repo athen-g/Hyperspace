@@ -22,6 +22,7 @@ import CustomCursor from "./components/ui/CustomCursor";
 import QuizPage from "./components/QuizPage";
 import QuizHost from "./components/QuizHost";
 import QuizPlayer from "./components/QuizPlayer";
+import QuizEditor from "./components/QuizEditor";
 
 // Admin imports
 import AdminApp from "./admin/AdminApp";
@@ -114,6 +115,7 @@ function App() {
           <Route path="/quiz" element={<PageTransition><QuizPage /></PageTransition>} />
           <Route path="/quiz/host/:quizId" element={<QuizHost />} />
           <Route path="/quiz/play" element={<QuizPlayer />} />
+          <Route path="/quiz/edit/:quizId" element={<QuizEditor />} />
 
           <Route path="/admin" element={<AdminApp />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
