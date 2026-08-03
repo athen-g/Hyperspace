@@ -153,6 +153,51 @@ function LeaderboardRow({
 }
 
 // ─────────────────────────────────────────────
+// Podium block — one column of the final results podium.
+// Height animates in (grow-from-floor), avatar/name/score fade+pop in
+// slightly after the block starts rising so the eye follows the block up.
+// ─────────────────────────────────────────────
+interface PodiumConfig {
+  rank: 1 | 2 | 3
+  player: Player | undefined
+  heightVh: number
+  width: string
+  accent: string       // gradient for block + avatar ring
+  numberColor: string
+  revealAt: number      // podiumRevealStep threshold at which this column appears
+  isFirst?: boolean
+}
+
+function PodiumColumn({ cfg }: { cfg: PodiumConfig }) {
+  const { player, heightVh, width, accent, numberColor, isFirst } = cfg
+  if (!player) return <div style={{ width }} />
+
+  return (
+    <div className={`podium-col${isFirst ? ' podium-col--first' : ''}`}>
+      <div className="podium-player">
+        {isFirst && <span className="podium-crown">🏆</span>}
+        <div className="podium-avatar" style={{ background: accent }}>
+          {player.nickname.trim().charAt(0).toUpperCase()}
+        </div>
+        <span className="podium-name">{player.nickname}</span>
+        <span className="podium-score">{player.score.toLocaleString()} pts</span>
+      </div>
+
+      <div
+        className="podium-block"
+        style={{
+          height: `${heightVh}vh`,
+          width,
+          background: accent,
+        }}
+      >
+        <span className="podium-rank-number" style={{ color: numberColor }}>{cfg.rank}</span>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────
 export default function QuizHost() {
@@ -196,7 +241,9 @@ export default function QuizHost() {
 
   // Ended screen
   const [endedTab, setEndedTab] = useState<'podium' | 'summary'>('podium')
+  // 0 = nothing risen yet, 1 = 3rd place risen, 2 = 2nd place risen, 3 = 1st place risen (finale)
   const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0)
+  const podiumTimersRef = useRef<any[]>([])
 
   // ── Data fetching ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -353,6 +400,11 @@ export default function QuizHost() {
     })
   }, [animationPhase, gameState])
 
+  // Clean up any pending podium timers if the component unmounts mid-reveal
+  useEffect(() => {
+    return () => { podiumTimersRef.current.forEach(clearTimeout) }
+  }, [])
+
   // ── Game flow ──────────────────────────────────────────────────────────────
   const startQuiz = () => {
     if (questions.length === 0) return
@@ -508,31 +560,46 @@ export default function QuizHost() {
     else triggerEndQuiz()
   }
 
+  // ── triggerEndQuiz — Kahoot-style podium reveal ────────────────────────────
+  // 3rd place rises first, then 2nd, then 1st (the finale), each with its own
+  // confetti burst. Kept snappy — a host is standing in front of a live room,
+  // not watching a 10s animation loop.
   const triggerEndQuiz = () => {
     setGameState('ended')
     setEndedTab('podium')
     setPodiumRevealStep(0)
     channelRef.current.send({ type: 'broadcast', event: 'podium-building', payload: {} })
 
-    setTimeout(() => {
-      setPodiumRevealStep(1)
-      confetti({ particleCount: 40, spread: 45, origin: { x: 0.8, y: 0.6 } })
-      setTimeout(() => {
-        setPodiumRevealStep(2)
-        confetti({ particleCount: 40, spread: 45, origin: { x: 0.2, y: 0.6 } })
-        setTimeout(() => {
-          setPodiumRevealStep(3)
-          confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } })
-          const finalSorted = [...players].sort((a, b) => b.score - a.score)
-          const standingsMapping: Record<string, { rank: number; score: number }> = {}
-          finalSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-          channelRef.current.send({
-            type: 'broadcast', event: 'time-up',
-            payload: { correctOption: -1, standings: standingsMapping },
-          })
-        }, 3500)
-      }, 3500)
-    }, 3500)
+    podiumTimersRef.current.forEach(clearTimeout)
+    const STEP = 650 // ms between each podium column rising
+
+    const t1 = setTimeout(() => {
+      setPodiumRevealStep(1) // 3rd place rises
+      confetti({ particleCount: 30, spread: 55, startVelocity: 32, origin: { x: 0.5, y: 0.85 } })
+    }, STEP)
+
+    const t2 = setTimeout(() => {
+      setPodiumRevealStep(2) // 2nd place rises
+      confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.28, y: 0.8 } })
+      confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.72, y: 0.8 } })
+    }, STEP * 2)
+
+    const t3 = setTimeout(() => {
+      setPodiumRevealStep(3) // 1st place rises — finale
+      confetti({ particleCount: 160, spread: 100, startVelocity: 55, origin: { x: 0.5, y: 0.6 } })
+      confetti({ particleCount: 70, angle: 60, spread: 55, startVelocity: 45, origin: { x: 0, y: 0.7 } })
+      confetti({ particleCount: 70, angle: 120, spread: 55, startVelocity: 45, origin: { x: 1, y: 0.7 } })
+
+      const finalSorted = [...players].sort((a, b) => b.score - a.score)
+      const standingsMapping: Record<string, { rank: number; score: number }> = {}
+      finalSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
+      channelRef.current.send({
+        type: 'broadcast', event: 'time-up',
+        payload: { correctOption: -1, standings: standingsMapping },
+      })
+    }, STEP * 3)
+
+    podiumTimersRef.current = [t1, t2, t3]
   }
 
   const handlePlayAgain = () => {
@@ -548,6 +615,38 @@ export default function QuizHost() {
   const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
   const optionShapes = ['▲', '◆', '●', '■']
   const totalAnsweredCount = players.filter(p => p.answered).length
+
+  // Podium column configuration — visual order is 2nd / 1st / 3rd (Kahoot's layout)
+  const podiumColumns: PodiumConfig[] = [
+    {
+      rank: 2,
+      player: sortedPlayers[1],
+      heightVh: 32,
+      width: 'clamp(120px, 15vw, 200px)',
+      accent: 'linear-gradient(160deg,#e9ecf2 0%,#a9b0bd 100%)',
+      numberColor: '#3a3f4a',
+      revealAt: 2,
+    },
+    {
+      rank: 1,
+      player: sortedPlayers[0],
+      heightVh: 46,
+      width: 'clamp(150px, 18vw, 240px)',
+      accent: 'linear-gradient(160deg,#ffe9a8 0%,#ffb020 100%)',
+      numberColor: '#5c3a00',
+      revealAt: 3,
+      isFirst: true,
+    },
+    {
+      rank: 3,
+      player: sortedPlayers[2],
+      heightVh: 22,
+      width: 'clamp(110px, 13vw, 170px)',
+      accent: 'linear-gradient(160deg,#f0bd8f 0%,#b3702f 100%)',
+      numberColor: '#402100',
+      revealAt: 1,
+    },
+  ]
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -750,58 +849,42 @@ export default function QuizHost() {
         </div>
       )}
 
-      {/* 7. ENDED */}
+      {/* 7. ENDED — full-screen podium */}
       {gameState === 'ended' && (
-        <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.8s' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '10px' }}>
-            <button onClick={() => setEndedTab('podium')} style={{ background: endedTab === 'podium' ? '#e91e63' : 'transparent', color: '#fff', border: '1px solid #333', borderRadius: '6px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer', fontSize: '15px' }}>Podium</button>
-            <button onClick={() => setEndedTab('summary')} style={{ background: endedTab === 'summary' ? '#e91e63' : 'transparent', color: '#fff', border: '1px solid #333', borderRadius: '6px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer', fontSize: '15px' }}>Session Summary</button>
-            <button onClick={handlePlayAgain} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer', fontSize: '15px' }}>Play Again</button>
+        <div className="ended-fullscreen">
+          {/* Floating tab bar */}
+          <div className="podium-tabs">
+            <button onClick={() => setEndedTab('podium')} className={`podium-tab-btn${endedTab === 'podium' ? ' active' : ''}`}>Podium</button>
+            <button onClick={() => setEndedTab('summary')} className={`podium-tab-btn${endedTab === 'summary' ? ' active' : ''}`}>Session Summary</button>
+            <button onClick={handlePlayAgain} className="podium-tab-btn podium-tab-btn--danger">Play Again</button>
           </div>
 
           {endedTab === 'podium' && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', width: '100%', paddingBottom: '32px' }}>
-              <p style={{ fontSize: '18px', letterSpacing: '6px', color: '#e91e63', fontWeight: 800, margin: '0 0 10px' }}>QUIZ COMPLETED</p>
-              <h1 style={{ fontSize: '48px', margin: '0 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '32px', width: '100%', maxWidth: '900px' }}>
-                {sortedPlayers[1] && podiumRevealStep >= 2 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.6s ease-out' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', width: '180px', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px' }}>
-                      <span style={{ fontSize: '48px', marginBottom: '8px' }}>2</span>
-                      <span style={{ fontSize: '18px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
-                      <span style={{ fontSize: '14px', color: '#e91e63', marginTop: '4px' }}>{sortedPlayers[1].score} pts</span>
-                    </div>
-                  </div>
-                ) : <div style={{ width: '180px' }} />}
+            <div className="podium-stage">
+              <div className="podium-header">
+                <p className="podium-eyebrow">QUIZ COMPLETE</p>
+                <h1 className="podium-title">{quizTitle || 'Final Results'}</h1>
+              </div>
 
-                {sortedPlayers[0] && podiumRevealStep >= 3 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.4s ease-out' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', width: '210px', height: '320px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', boxShadow: '0 0 35px rgba(255,215,0,0.2)' }}>
-                      <span style={{ fontSize: '64px', marginBottom: '8px' }}>1</span>
-                      <span style={{ fontSize: '20px', fontWeight: 800, color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
-                      <span style={{ fontSize: '16px', color: '#fff', marginTop: '4px' }}>{sortedPlayers[0].score} pts</span>
-                    </div>
+              <div className="podium-row">
+                {podiumColumns.map(cfg => (
+                  <div
+                    key={cfg.rank}
+                    className={`podium-col-wrap${podiumRevealStep >= cfg.revealAt ? ' is-revealed' : ''}`}
+                  >
+                    <PodiumColumn cfg={cfg} />
                   </div>
-                ) : <div style={{ width: '210px' }} />}
-
-                {sortedPlayers[2] && podiumRevealStep >= 1 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.8s ease-out' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', width: '160px', height: '170px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px' }}>
-                      <span style={{ fontSize: '38px', marginBottom: '4px' }}>3</span>
-                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
-                      <span style={{ fontSize: '13px', color: '#e91e63', marginTop: '4px' }}>{sortedPlayers[2].score} pts</span>
-                    </div>
-                  </div>
-                ) : <div style={{ width: '160px' }} />}
+                ))}
               </div>
             </div>
           )}
 
           {endedTab === 'summary' && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', maxWidth: '700px' }}>
-              <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px', textAlign: 'left', animation: 'fadeIn 0.3s' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#e91e63', marginBottom: '12px', borderBottom: '1px solid #222', paddingBottom: '8px' }}>Full Participant Standings</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', paddingRight: '8px' }}>
+            <div className="summary-stage">
+              <p className="podium-eyebrow">FULL RESULTS</p>
+              <h1 className="podium-title" style={{ marginBottom: '24px' }}>Participant Standings</h1>
+              <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px', textAlign: 'left', width: '100%', maxWidth: '700px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '50vh', overflowY: 'auto', paddingRight: '8px' }}>
                   {sortedPlayers.map((p, index) => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', borderBottom: '1px solid #1a1a1a', padding: '8px 0' }}>
                       <span>#{index + 1} {p.nickname}</span>
@@ -815,9 +898,7 @@ export default function QuizHost() {
 
           <button
             onClick={() => navigate('/admin/quiz')}
-            style={{ background: 'transparent', border: '1px solid #333', borderRadius: '6px', color: '#fff', padding: '12px 36px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', marginBottom: '10px' }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#e91e63'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}
+            className="exit-fab"
           >
             Exit to Dashboard
           </button>
@@ -832,10 +913,6 @@ export default function QuizHost() {
         @keyframes popIn {
           0%   { transform: scale(0.6); opacity: 0; }
           100% { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { transform: translateY(150px); opacity: 0; }
-          to   { transform: translateY(0);     opacity: 1; }
         }
         @keyframes pulse {
           0%   { transform: scale(1);   }
@@ -855,6 +932,14 @@ export default function QuizHost() {
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(6px); }
           to   { opacity: 1; transform: translateY(0);   }
+        }
+        @keyframes crownFloat {
+          0%, 100% { transform: translateY(0) rotate(-4deg); }
+          50%      { transform: translateY(-8px) rotate(4deg); }
+        }
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.55; }
+          50%      { opacity: 1; }
         }
 
         /* ── Leaderboard row ───────────────────────────────────────────── */
@@ -902,6 +987,235 @@ export default function QuizHost() {
           border-radius: 20px;
           animation: fadeSlideIn 300ms ease-out forwards;
           white-space: nowrap;
+        }
+
+        /* ── Podium — full-screen ended state ───────────────────────────── */
+        .ended-fullscreen {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+          z-index: 200;
+        }
+
+        .podium-tabs {
+          position: absolute;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 10px;
+          z-index: 20;
+          background: rgba(0,0,0,0.3);
+          border: 1px solid rgba(255,255,255,0.08);
+          padding: 8px;
+          border-radius: 10px;
+          backdrop-filter: blur(10px);
+        }
+
+        .podium-tab-btn {
+          background: transparent;
+          border: 1px solid #333;
+          color: #fff;
+          padding: 8px 20px;
+          border-radius: 6px;
+          font-weight: 700;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .podium-tab-btn.active {
+          background: #e91e63;
+          border-color: #e91e63;
+        }
+        .podium-tab-btn--danger {
+          border-color: #e21b3c;
+          color: #ff6b81;
+        }
+
+        .podium-stage {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-end;
+          box-sizing: border-box;
+          padding-bottom: 6vh;
+          background:
+            radial-gradient(ellipse 90% 60% at 50% 12%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%),
+            radial-gradient(ellipse 120% 90% at 50% 100%, #5b2a9e 0%, #2c1150 55%, #12081f 100%);
+        }
+
+        .podium-header {
+          position: absolute;
+          top: 10vh;
+          left: 50%;
+          transform: translateX(-50%);
+          text-align: center;
+          z-index: 2;
+        }
+        .podium-eyebrow {
+          letter-spacing: 6px;
+          font-size: 13px;
+          font-weight: 800;
+          color: #ff9ecf;
+          margin: 0 0 8px;
+        }
+        .podium-title {
+          font-size: clamp(28px, 5vw, 52px);
+          font-weight: 900;
+          margin: 0;
+          color: #fff;
+          text-shadow: 0 6px 24px rgba(0,0,0,0.45);
+          max-width: 90vw;
+        }
+
+        .podium-row {
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          gap: clamp(10px, 3vw, 36px);
+          width: 100%;
+          max-width: 1100px;
+          z-index: 2;
+        }
+
+        .podium-col-wrap {
+          display: flex;
+          align-items: flex-end;
+        }
+
+        .podium-col {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .podium-player {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 14px;
+          opacity: 0;
+          transform: translateY(24px) scale(0.85);
+          transition: opacity 420ms ease-out 120ms, transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms;
+        }
+        .is-revealed .podium-player {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+
+        .podium-avatar {
+          width: clamp(54px, 7vw, 90px);
+          height: clamp(54px, 7vw, 90px);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: clamp(20px, 3vw, 36px);
+          font-weight: 900;
+          color: #fff;
+          box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+          border: 3px solid rgba(255,255,255,0.2);
+          position: relative;
+        }
+        .podium-col--first .podium-avatar {
+          border-color: #ffd700;
+          animation: avatarGlow 2.5s infinite;
+        }
+
+        .podium-crown {
+          position: absolute;
+          top: -24px;
+          font-size: clamp(24px, 3vw, 38px);
+          animation: crownFloat 2s ease-in-out infinite;
+          z-index: 5;
+        }
+
+        .podium-name {
+          font-size: clamp(15px, 2.2vw, 22px);
+          font-weight: 800;
+          color: #fff;
+          margin-top: 10px;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+          max-width: clamp(120px, 16vw, 220px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .podium-score {
+          font-size: clamp(12px, 1.6vw, 16px);
+          font-weight: 600;
+          color: rgba(255,255,255,0.7);
+          margin-top: 3px;
+        }
+
+        .podium-block {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px 12px 0 0;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-bottom: none;
+          
+          /* Growth transition when revealed */
+          transform: scaleY(0);
+          transform-origin: bottom;
+          transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .is-revealed .podium-block {
+          transform: scaleY(1);
+        }
+
+        .podium-rank-number {
+          font-size: clamp(40px, 7vw, 90px);
+          font-weight: 900;
+          user-select: none;
+        }
+
+        /* ── Session Summary Stage ─────────────────────────────────────── */
+        .summary-stage {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 80px 20px 40px;
+          background: #09090e;
+          animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Exit FAB button at bottom-right corner */
+        .exit-fab {
+          position: absolute;
+          bottom: 24px;
+          right: 24px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid #333;
+          border-radius: 6px;
+          color: #fff;
+          padding: 12px 32px;
+          font-size: 15px;
+          font-weight: 750;
+          cursor: pointer;
+          transition: all 0.25s;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+          z-index: 25;
+        }
+        .exit-fab:hover {
+          border-color: #e91e63;
+          box-shadow: 0 4px 20px rgba(233,30,99,0.25);
+        }
+
+        @keyframes avatarGlow {
+          0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.25); }
+          50%      { box-shadow: 0 0 35px rgba(255, 215, 0, 0.55); }
         }
       `}</style>
     </div>
