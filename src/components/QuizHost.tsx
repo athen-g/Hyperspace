@@ -263,7 +263,7 @@ export default function QuizHost() {
             <h2 style={{ margin: '0 0 24px', color: '#00BCD4' }}>Winner: {sortedPlayers[0]?.nickname || 'No one'}</h2>
             <p style={{ fontSize: '18px', color: '#888' }}>Final Score: {sortedPlayers[0]?.score || 0} points</p>
           </div>
-          <button onClick={() => navigate('/quiz')} style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '12px 24px', cursor: 'pointer' }}>Return to Hub</button>
+          <button onClick={() => navigate('/admin/quiz')} style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '12px 24px', cursor: 'pointer' }}>Return to Hub</button>
         </div>
       )}
 

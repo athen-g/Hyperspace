@@ -153,12 +153,12 @@ export default function QuizEditor() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
-            <Link to="/quiz" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back to Quiz Hub</Link>
+            <Link to="/admin/quiz" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back to Quiz Hub</Link>
             <h1 style={{ fontSize: '28px', margin: '8px 0 0 0' }}>Edit Quiz: {quiz?.title || 'Loading...'}</h1>
             <p style={{ color: '#555', margin: '4px 0 0' }}>{quiz?.description || 'No description'}</p>
           </div>
           {quiz && (
-            <Link to={`/quiz/host/${quiz.id}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 600 }}>Host Game →</Link>
+            <Link to={`/admin/quiz/host/${quiz.id}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 600 }}>Host Game →</Link>
           )}
         </div>
 

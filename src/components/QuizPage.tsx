@@ -71,7 +71,7 @@ export default function QuizPage() {
       })
 
       // Redirect directly to editing workspace
-      navigate(`/quiz/edit/${data.id}`)
+      navigate(`/admin/quiz/edit/${data.id}`)
     }
   }
 
@@ -129,8 +129,8 @@ export default function QuizPage() {
                 </div>
                  <div style={{ display: 'flex', gap: '12px' }}>
                   <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid #3a1a1a', borderRadius: '8px', color: '#e21b3c', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Delete Game</button>
-                  <Link to={`/quiz/edit/${q.id}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
-                  <Link to={`/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
+                  <Link to={`/admin/quiz/edit/${q.id}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
+                  <Link to={`/admin/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
                 </div>
               </div>
             ))
