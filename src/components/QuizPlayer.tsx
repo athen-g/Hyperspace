@@ -7,7 +7,7 @@ export default function QuizPlayer() {
   const [pin, setPin] = useState('')
   const [nickname, setNickname] = useState('')
   const [joined, setJoined] = useState(false)
-  const [status, setStatus] = useState<'lobby' | 'get-ready' | 'question' | 'waiting' | 'wrong' | 'correct' | 'ended'>('lobby')
+  const [status, setStatus] = useState<'lobby' | 'get-ready' | 'question' | 'waiting' | 'wrong' | 'correct' | 'times-up' | 'podium-building' | 'ended'>('lobby')
   const [playerId] = useState(() => Math.random().toString(36).substr(2, 9))
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function QuizPlayer() {
   // Standing / Rank status states
   const [playerRank, setPlayerRank] = useState<number | null>(null)
   const [playerScore, setPlayerScore] = useState<number>(0)
-  const [answerStats, setAnswerStats] = useState<number[]>([0, 0, 0, 0])
+  const [streakCount, setStreakCount] = useState<number>(0)
 
   const channelRef = useRef<any>(null)
   const startTimeRef = useRef<number>(0)
@@ -66,6 +66,7 @@ export default function QuizPlayer() {
         setQuestionText(payload.questionText)
         setCurrentQuestionIndex(payload.questionIndex)
         setTotalQuestions(payload.totalQuestions)
+        setGameMode(payload.gameMode || 'classic')
         setReadyCountdown(3)
         setStatus('get-ready')
 
@@ -87,27 +88,40 @@ export default function QuizPlayer() {
         setSelectedOption(null)
         selectedOptionRef.current = null
         setCorrectOption(null)
-        setAnswerStats([0, 0, 0, 0])
         startTimeRef.current = Date.now()
         setStatus('question')
       })
       .on('broadcast', { event: 'time-up' }, ({ payload }) => {
         if (payload.correctOption === -1) {
+          // If standings mapped payload is included inside this final trigger
+          if (payload.standings && payload.standings[playerId]) {
+            setPlayerRank(payload.standings[playerId].rank)
+            setPlayerScore(payload.standings[playerId].score)
+          }
           setStatus('ended')
           return
         }
         setCorrectOption(payload.correctOption)
-        if (payload.answerStats) {
-          setAnswerStats(payload.answerStats)
-        }
         const chosen = selectedOptionRef.current
+        
         setStatus(() => {
           if (chosen !== null) {
             const isCorrect = chosen === payload.correctOption
-            return isCorrect ? 'correct' : 'wrong'
+            if (isCorrect) {
+              setStreakCount(prev => prev + 1)
+              return 'correct'
+            } else {
+              setStreakCount(0)
+              return 'wrong'
+            }
+          } else {
+            setStreakCount(0)
+            return 'times-up' // Timeout waiting state
           }
-          return 'wrong' // Did not answer in time
         })
+      })
+      .on('broadcast', { event: 'podium-building' }, () => {
+        setStatus('podium-building')
       })
       .on('broadcast', { event: 'leaderboard-update' }, ({ payload }) => {
         if (payload.standings && payload.standings[playerId]) {
@@ -200,11 +214,14 @@ export default function QuizPlayer() {
         </div>
       )}
 
-      {/* 3. GET READY 3S MIRROR STATE */}
+      {/* 3. GET READY 3S MIRROR STATE - Hide question text on classic mode */}
       {joined && status === 'get-ready' && (
         <div style={{ textAlign: 'center', animation: 'fadeIn 0.4s' }}>
           <p style={{ fontSize: '14px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>QUESTION {currentQuestionIndex} OF {totalQuestions}</p>
-          <h2 style={{ fontSize: '28px', margin: '32px 0 20px', fontWeight: 800 }}>{questionText}</h2>
+          {gameMode === 'shared' && (
+            <h2 style={{ fontSize: '28px', margin: '32px 0 20px', fontWeight: 800 }}>{questionText}</h2>
+          )}
+          <div style={{ fontSize: '32px', margin: '20px 0 10px', color: '#aaa', fontWeight: 600 }}>Ready...</div>
           <div style={{ fontSize: '80px', fontWeight: 950, color: '#E91E63', animation: 'pulse 1s infinite' }}>{readyCountdown}</div>
         </div>
       )}
@@ -260,32 +277,25 @@ export default function QuizPlayer() {
         </div>
       )}
 
-      {/* 6. CORRECT STATE - SHOW STANDINGS SUMMARY */}
+      {/* 6. CORRECT STATE - SHOW STANDINGS SUMMARY & STREAK */}
       {joined && status === 'correct' && (
         <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>✔️</h1>
           <h2 style={{ fontSize: '36px', color: '#26890c', fontWeight: 800 }}>Correct!</h2>
           
+          {streakCount > 0 && (
+            <div style={{ margin: '16px 0', fontSize: '18px', color: '#FF9800', fontWeight: 700 }}>
+              Answer Streak 🔥 {streakCount}
+            </div>
+          )}
+
           {playerRank !== null && (
-            <div style={{ marginTop: '32px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
               <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
               <div style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>Rank #{playerRank}</div>
               <div style={{ fontSize: '16px', color: '#aaa', marginTop: '6px' }}>Score: {playerScore} points</div>
             </div>
           )}
-
-          {/* Bar Chart Summary */}
-          <div style={{ marginTop: '24px', display: 'flex', height: '100px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px' }}>
-            {answerStats.map((count, i) => {
-              const max = Math.max(...answerStats, 1)
-              return (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ width: '100%', height: `${(count/max)*100}%`, background: optionColors[i], borderRadius: '4px 4px 0 0' }}></div>
-                  <div style={{ fontSize: '11px', marginTop: '4px' }}>{optionShapes[i]}</div>
-                </div>
-              )
-            })}
-          </div>
         </div>
       )}
 
@@ -296,34 +306,57 @@ export default function QuizPlayer() {
           <h2 style={{ fontSize: '36px', color: '#e21b3c', fontWeight: 800 }}>Incorrect</h2>
 
           {playerRank !== null && (
-            <div style={{ marginTop: '32px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
               <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
               <div style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>Rank #{playerRank}</div>
               <div style={{ fontSize: '16px', color: '#aaa', marginTop: '6px' }}>Score: {playerScore} points</div>
             </div>
           )}
-
-          {/* Bar Chart Summary */}
-          <div style={{ marginTop: '24px', display: 'flex', height: '100px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px' }}>
-            {answerStats.map((count, i) => {
-              const max = Math.max(...answerStats, 1)
-              return (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ width: '100%', height: `${(count/max)*100}%`, background: optionColors[i], borderRadius: '4px 4px 0 0' }}></div>
-                  <div style={{ fontSize: '11px', marginTop: '4px' }}>{optionShapes[i]}</div>
-                </div>
-              )
-            })}
-          </div>
         </div>
       )}
 
-      {/* 8. GAME ENDED STATE */}
+      {/* 8. TIMES UP STATE */}
+      {joined && status === 'times-up' && (
+        <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
+          <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>⏰</h1>
+          <h2 style={{ fontSize: '36px', color: '#FF9800', fontWeight: 800 }}>Time's Up!</h2>
+          <p style={{ fontSize: '16px', color: '#aaa', marginTop: '8px' }}>You didn't submit an answer in time.</p>
+
+          {playerRank !== null && (
+            <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
+              <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
+              <div style={{ fontSize: '28px', fontWeight: 800, color: '#00BCD4' }}>Rank #{playerRank}</div>
+              <div style={{ fontSize: '16px', color: '#aaa', marginTop: '6px' }}>Score: {playerScore} points</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 9. PODIUM BUILDING BUFFER SCREEN */}
+      {joined && status === 'podium-building' && (
+        <div style={{ textAlign: 'center', animation: 'fadeIn 0.5s' }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px', animation: 'pulse 1s infinite' }}>👑</div>
+          <h2 style={{ fontSize: '28px', color: '#00BCD4', marginBottom: '12px', fontWeight: 800 }}>building up...</h2>
+          <p style={{ fontSize: '16px', color: '#888' }}>Calculating final standings. Look at the host screen!</p>
+        </div>
+      )}
+
+      {/* 10. GAME ENDED STATE */}
       {joined && status === 'ended' && (
         <div style={{ textAlign: 'center', animation: 'fadeIn 0.6s' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>🏁</h1>
           <h2 style={{ fontSize: '32px', color: '#00BCD4', fontWeight: 800 }}>Quiz Finished!</h2>
-          <p style={{ fontSize: '16px', color: '#888', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for final rankings.</p>
+          
+          {playerRank !== null ? (
+            <div style={{ margin: '24px auto', maxWidth: '350px', background: '#111', border: '1px solid #222', padding: '24px', borderRadius: '12px' }}>
+              <div style={{ fontSize: '14px', color: '#555', textTransform: 'uppercase', letterSpacing: '1px' }}>Your Final Rank</div>
+              <div style={{ fontSize: '48px', fontWeight: 900, color: '#FFD700', margin: '12px 0' }}>#{playerRank}</div>
+              <div style={{ fontSize: '18px', color: '#fff' }}>Total score: {playerScore} points</div>
+            </div>
+          ) : (
+            <p style={{ fontSize: '16px', color: '#888', marginTop: '12px', marginBottom: '32px' }}>Check the presenter screen for final rankings.</p>
+          )}
+
           <a href="/" style={{ display: 'inline-block', textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '12px 32px', fontWeight: 700, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#00BCD4' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333' }}>
             Return to Hyperspace
           </a>

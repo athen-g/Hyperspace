@@ -35,10 +35,18 @@ export default function QuizHost() {
   const timerRef = useRef<any>(null)
   const readyTimerRef = useRef<any>(null)
 
-  // Leaderboard transition states
+  // QR Modal State
+  const [qrZoomed, setQrZoomed] = useState(false)
+
+  // Leaderboard scoring transition states
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
   const [animatingStandings, setAnimatingStandings] = useState(false)
   const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<Player[]>([])
+  const [animatedScores, setAnimatedScores] = useState<Record<string, number>>({})
+
+  // Ended view sub-tabs
+  const [endedTab, setEndedTab] = useState<'podium' | 'summary'>('podium')
+  const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0) // 0: None, 1: 3rd place, 2: 2nd place, 3: 1st place complete
 
   useEffect(() => {
     if (codeSlug) {
@@ -74,7 +82,6 @@ export default function QuizHost() {
         setPlayers((prev) => {
           if (prev.some((p) => p.id === payload.id)) return prev
           const next = [...prev, { id: payload.id, nickname: payload.nickname, score: 0, answered: false }]
-          // Send lobby players list to everyone
           channel.send({
             type: 'broadcast',
             event: 'lobby-update',
@@ -141,13 +148,15 @@ export default function QuizHost() {
     setGameState('get-ready')
     setReadyCountdown(3)
 
+    // Notify clients to display ready buffer screen
     channelRef.current.send({
       type: 'broadcast',
       event: 'get-ready',
       payload: {
         questionText: questions[index].question_text,
         questionIndex: index + 1,
-        totalQuestions: questions.length
+        totalQuestions: questions.length,
+        gameMode: gameMode
       }
     })
 
@@ -197,7 +206,7 @@ export default function QuizHost() {
     if (timerRef.current) clearInterval(timerRef.current)
     setGameState('answers')
     
-    // Broadcast answer statistics together with correctOption
+    // Broadcast correct index and stats answer distribution
     channelRef.current.send({
       type: 'broadcast',
       event: 'time-up',
@@ -209,37 +218,61 @@ export default function QuizHost() {
   }
 
   const showLeaderboard = () => {
-    // 1. Sort players based on previous scores (before this question points were added)
-    const sortedOld = [...players].sort((a, b) => {
+    const oldSorted = [...players].sort((a, b) => {
       const aPrev = prevLeaderboard[a.id] ?? 0
       const bPrev = prevLeaderboard[b.id] ?? 0
       return bPrev - aPrev
     })
 
-    // Display previous leaderboard first
-    setActiveLeaderboardPlayers(sortedOld.slice(0, 5))
+    // Setup initial scores representation values matching prevLeaderboard
+    const initialScores: Record<string, number> = {}
+    players.forEach(p => {
+      initialScores[p.id] = prevLeaderboard[p.id] ?? 0
+    })
+    setAnimatedScores(initialScores)
+    setActiveLeaderboardPlayers(oldSorted.slice(0, 5))
     setAnimatingStandings(true)
     setGameState('leaderboard')
 
-    // Broadcast current standings updates to player clients
-    const standingsMapping: Record<string, { rank: number; score: number }> = {}
-    const finalSorted = [...players].sort((a, b) => b.score - a.score)
-    finalSorted.forEach((p, idx) => {
-      standingsMapping[p.id] = { rank: idx + 1, score: p.score }
-    })
-    
-    channelRef.current.send({
-      type: 'broadcast',
-      event: 'leaderboard-update',
-      payload: { standings: standingsMapping }
-    })
-
-    // 2. After 1.5s, trigger re-rank animation to display final sorted scores
+    // 1. Wait 1.5 seconds, then count up points and re-order ranks
     setTimeout(() => {
+      const finalSorted = [...players].sort((a, b) => b.score - a.score)
+      
+      // Animate score count up increments
+      finalSorted.forEach(p => {
+        const start = prevLeaderboard[p.id] ?? 0
+        const end = p.score
+        if (start === end) return
+        
+        let currentVal = start
+        const steps = 15
+        const stepVal = Math.ceil((end - start) / steps)
+        const scoreInterval = setInterval(() => {
+          currentVal += stepVal
+          if (currentVal >= end) {
+            currentVal = end
+            clearInterval(scoreInterval)
+          }
+          setAnimatedScores(prev => ({ ...prev, [p.id]: currentVal }))
+        }, 30)
+      })
+
+      // Shift position layouts
       setActiveLeaderboardPlayers(finalSorted.slice(0, 5))
       setAnimatingStandings(false)
-      
-      // Save current scores to prevLeaderboard for next round comparison
+
+      // Notify students of updated rank status details
+      const standingsMapping: Record<string, { rank: number; score: number }> = {}
+      finalSorted.forEach((p, idx) => {
+        standingsMapping[p.id] = { rank: idx + 1, score: p.score }
+      })
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'leaderboard-update',
+        payload: { standings: standingsMapping }
+      })
+
+      // Update prevLeaderboard tracker references
       const scores: Record<string, number> = {}
       players.forEach(p => {
         scores[p.id] = p.score
@@ -252,20 +285,57 @@ export default function QuizHost() {
     if (currentIndex + 1 < questions.length) {
       triggerGetReady(currentIndex + 1)
     } else {
-      handleEndQuiz()
+      triggerEndQuiz()
     }
   }
 
-  const handleEndQuiz = () => {
+  const triggerEndQuiz = () => {
     setGameState('ended')
-    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
-    
-    // Send final permanent close event to all active clients
+    setEndedTab('podium')
+    setPodiumRevealStep(0)
+
+    // Notify clients that host is building up final podium rankings
     channelRef.current.send({
       type: 'broadcast',
-      event: 'time-up',
-      payload: { correctOption: -1 }
+      event: 'podium-building',
+      payload: {}
     })
+
+    // Slow step-by-step podium reveal countdown timers
+    setTimeout(() => {
+      setPodiumRevealStep(1) // Show 3rd place
+      confetti({ particleCount: 40, spread: 45, origin: { x: 0.8, y: 0.6 } })
+      
+      setTimeout(() => {
+        setPodiumRevealStep(2) // Show 2nd place
+        confetti({ particleCount: 40, spread: 45, origin: { x: 0.2, y: 0.6 } })
+
+        setTimeout(() => {
+          setPodiumRevealStep(3) // Show 1st place complete
+          confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } })
+
+          // Send final standings map so student client resolves rank and total score
+          const finalSorted = [...players].sort((a, b) => b.score - a.score)
+          const standingsMapping: Record<string, { rank: number; score: number }> = {}
+          finalSorted.forEach((p, idx) => {
+            standingsMapping[p.id] = { rank: idx + 1, score: p.score }
+          })
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'time-up',
+            payload: { correctOption: -1, standings: standingsMapping }
+          })
+        }, 3000)
+      }, 3000)
+    }, 3000)
+  }
+
+  const handlePlayAgain = () => {
+    setGameState('lobby')
+    setPlayers([])
+    setCurrentIndex(0)
+    setPrevLeaderboard({})
+    setAnswerStats([0, 0, 0, 0])
   }
 
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
@@ -279,10 +349,7 @@ export default function QuizHost() {
       {/* Return to Dashboard corner button */}
       <button 
         onClick={() => {
-          if (confirm('Exit hosting session?')) {
-            handleEndQuiz()
-            navigate('/admin/quiz')
-          }
+          if (confirm('Exit hosting session?')) navigate('/admin/quiz')
         }}
         style={{
           position: 'absolute',
@@ -309,9 +376,24 @@ export default function QuizHost() {
           <p style={{ fontSize: '16px', letterSpacing: '4px', color: '#00BCD4', fontWeight: 700 }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
           <h1 style={{ fontSize: '80px', margin: '15px 0', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900 }}>PIN: <span style={{ color: '#E91E63' }}>{pin}</span></h1>
           
-          <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block', marginBottom: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={200} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '13px', fontWeight: 800, marginTop: '8px', letterSpacing: '1px' }}>SCAN QR CODE</div>
+          <div 
+            onClick={() => setQrZoomed(!qrZoomed)} 
+            style={{ 
+              background: '#fff', 
+              padding: '16px', 
+              borderRadius: '16px', 
+              display: 'inline-block', 
+              marginBottom: '32px', 
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              cursor: 'pointer',
+              transform: qrZoomed ? 'scale(1.8)' : 'scale(1)',
+              transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              zIndex: 99,
+              position: 'relative'
+            }}
+          >
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={qrZoomed ? 240 : 150} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '8px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
           </div>
 
           <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '40px', maxWidth: '700px', margin: '0 auto', minHeight: '200px' }}>
@@ -331,7 +413,7 @@ export default function QuizHost() {
           <div style={{ margin: '32px auto 0', maxWidth: '450px', background: '#111', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid #222' }}>
             <span style={{ fontSize: '13px', color: '#888', fontWeight: 700, letterSpacing: '1px' }}>LOBBY GAME MODE</span>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setGameMode('classic')} style={{ flex: 1, background: gameMode === 'classic' ? '#E91E63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Classic</button>
+              <button onClick={() => setGameMode('classic')} style={{ flex: 1, background: gameMode === 'classic' ? '#E91E63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Classic Mode</button>
               <button onClick={() => setGameMode('shared')} style={{ flex: 1, background: gameMode === 'shared' ? '#00BCD4' : 'transparent', border: '1px solid #333', color: gameMode === 'shared' ? '#000' : '#fff', padding: '10px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Shared Screen</button>
             </div>
           </div>
@@ -375,7 +457,7 @@ export default function QuizHost() {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
             <button onClick={endQuestion} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>Skip Question</button>
-            <button onClick={() => { if (confirm('End early?')) handleEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '12px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '12px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
@@ -413,7 +495,7 @@ export default function QuizHost() {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
             <button onClick={showLeaderboard} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '14px 48px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(0,188,212,0.3)' }}>Show Standings</button>
-            <button onClick={() => { if (confirm('End early?')) handleEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '14px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '14px 36px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
@@ -426,9 +508,9 @@ export default function QuizHost() {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', minHeight: '350px', position: 'relative' }}>
             {activeLeaderboardPlayers.map((p, index) => {
-              // Find index in final sorted to show final rank number during re-rank
               const finalSortedIndex = sortedPlayers.findIndex(sp => sp.id === p.id)
               const displayRank = animatingStandings ? (players.findIndex(sp => sp.id === p.id) + 1) : (finalSortedIndex + 1)
+              const displayScore = animatedScores[p.id] ?? p.score
               const prevScore = prevLeaderboard[p.id] ?? 0
               const climbed = !animatingStandings && p.score > prevScore && prevScore !== 0 && finalSortedIndex < index
 
@@ -453,7 +535,7 @@ export default function QuizHost() {
                       <span style={{ background: '#26890c', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', animation: 'pulse 1s infinite' }}>▲ CLIMBED</span>
                     )}
                   </div>
-                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#00BCD4' }}>{p.score} pts</span>
+                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#00BCD4' }}>{displayScore} pts</span>
                 </div>
               )
             })}
@@ -465,58 +547,69 @@ export default function QuizHost() {
         </div>
       )}
 
-      {/* 6. ENDED STATE - SHOW ALL PLAYERS RANKINGS */}
+      {/* 6. ENDED STATE - WITH podium / summary tabs */}
       {gameState === 'ended' && (
         <div style={{ textAlign: 'center', marginTop: '4vh', animation: 'fadeIn 0.8s' }}>
-          <p style={{ fontSize: '16px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800 }}>QUIZ COMPLETED</p>
-          <h1 style={{ fontSize: '48px', margin: '15px 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
-          
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '20px', minHeight: '260px', marginBottom: '60px' }}>
-            
-            {/* 2nd Place */}
-            {sortedPlayers[1] && (
-              <div style={{ width: '150px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.6s ease-out' }}>
-                <span style={{ fontSize: '28px', marginBottom: '8px' }}>🥈</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
-                <span style={{ fontSize: '14px', color: '#00BCD4' }}>{sortedPlayers[1].score} pts</span>
-                <div style={{ width: '100%', height: '80px', background: 'rgba(255,255,255,0.1)', marginTop: '16px', borderRadius: '8px' }}></div>
-              </div>
-            )}
-
-            {/* 1st Place */}
-            {sortedPlayers[0] && (
-              <div style={{ width: '170px', background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px', animation: 'slideUp 0.4s ease-out', boxShadow: '0 0 30px rgba(255,215,0,0.2)' }}>
-                <span style={{ fontSize: '44px', marginBottom: '8px' }}>👑</span>
-                <span style={{ fontSize: '18px', fontWeight: 800, margin: '8px 0', color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
-                <span style={{ fontSize: '16px', color: '#fff', fontWeight: 700 }}>{sortedPlayers[0].score} pts</span>
-                <div style={{ width: '100%', height: '110px', background: 'rgba(255,215,0,0.15)', marginTop: '16px', borderRadius: '8px' }}></div>
-              </div>
-            )}
-
-            {/* 3rd Place */}
-            {sortedPlayers[2] && (
-              <div style={{ width: '130px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.8s ease-out' }}>
-                <span style={{ fontSize: '24px', marginBottom: '8px' }}>🥉</span>
-                <span style={{ fontSize: '14px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
-                <span style={{ fontSize: '13px', color: '#00BCD4' }}>{sortedPlayers[2].score} pts</span>
-                <div style={{ width: '100%', height: '50px', background: 'rgba(255,255,255,0.05)', marginTop: '16px', borderRadius: '8px' }}></div>
-              </div>
-            )}
-
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '32px' }}>
+            <button onClick={() => setEndedTab('podium')} style={{ background: endedTab === 'podium' ? '#00BCD4' : 'transparent', color: endedTab === 'podium' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Podium</button>
+            <button onClick={() => setEndedTab('summary')} style={{ background: endedTab === 'summary' ? '#00BCD4' : 'transparent', color: endedTab === 'summary' ? '#000' : '#fff', border: '1px solid #333', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Session Summary</button>
+            <button onClick={handlePlayAgain} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '8px', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Play Again</button>
           </div>
 
-          {/* Detailed All Players list below podium */}
-          <div style={{ maxWidth: '600px', margin: '0 auto 40px', background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '24px', textAlign: 'left' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00BCD4', marginBottom: '16px', borderBottom: '1px solid #222', paddingBottom: '10px' }}>Full Participant Standings</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', paddingRight: '8px' }}>
-              {sortedPlayers.map((p, index) => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #1a1a1a', padding: '8px 0' }}>
-                  <span>#{index + 1} {p.nickname}</span>
-                  <span style={{ fontWeight: 700, color: '#00BCD4' }}>{p.score} pts</span>
-                </div>
-              ))}
+          {endedTab === 'podium' && (
+            <div>
+              <p style={{ fontSize: '16px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800 }}>QUIZ COMPLETED</p>
+              <h1 style={{ fontSize: '48px', margin: '15px 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
+              
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '20px', minHeight: '260px', marginBottom: '60px' }}>
+                
+                {/* 2nd Place */}
+                {sortedPlayers[1] && podiumRevealStep >= 2 && (
+                  <div style={{ width: '150px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.6s ease-out' }}>
+                    <span style={{ fontSize: '28px', marginBottom: '8px' }}>🥈</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
+                    <span style={{ fontSize: '14px', color: '#00BCD4' }}>{sortedPlayers[1].score} pts</span>
+                    <div style={{ width: '100%', height: '80px', background: 'rgba(255,255,255,0.1)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  </div>
+                )}
+
+                {/* 1st Place */}
+                {sortedPlayers[0] && podiumRevealStep >= 3 && (
+                  <div style={{ width: '170px', background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px', animation: 'slideUp 0.4s ease-out', boxShadow: '0 0 30px rgba(255,215,0,0.2)' }}>
+                    <span style={{ fontSize: '44px', marginBottom: '8px' }}>👑</span>
+                    <span style={{ fontSize: '18px', fontWeight: 800, margin: '8px 0', color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
+                    <span style={{ fontSize: '16px', color: '#fff', fontWeight: 700 }}>{sortedPlayers[0].score} pts</span>
+                    <div style={{ width: '100%', height: '110px', background: 'rgba(255,215,0,0.15)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  </div>
+                )}
+
+                {/* 3rd Place */}
+                {sortedPlayers[2] && podiumRevealStep >= 1 && (
+                  <div style={{ width: '130px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', animation: 'slideUp 0.8s ease-out' }}>
+                    <span style={{ fontSize: '24px', marginBottom: '8px' }}>🥉</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, margin: '8px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
+                    <span style={{ fontSize: '13px', color: '#00BCD4' }}>{sortedPlayers[2].score} pts</span>
+                    <div style={{ width: '100%', height: '50px', background: 'rgba(255,255,255,0.05)', marginTop: '16px', borderRadius: '8px' }}></div>
+                  </div>
+                )}
+
+              </div>
             </div>
-          </div>
+          )}
+
+          {endedTab === 'summary' && (
+            <div style={{ maxWidth: '600px', margin: '0 auto 40px', background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '24px', textAlign: 'left', animation: 'fadeIn 0.3s' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00BCD4', marginBottom: '16px', borderBottom: '1px solid #222', paddingBottom: '10px' }}>Full Participant Standings</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto', paddingRight: '8px' }}>
+                {sortedPlayers.map((p, index) => (
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #1a1a1a', padding: '8px 0' }}>
+                    <span>#{index + 1} {p.nickname}</span>
+                    <span style={{ fontWeight: 700, color: '#00BCD4' }}>{p.score} pts</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button onClick={() => navigate('/admin/quiz')} style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '16px 40px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#00BCD4'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>
             Exit to Dashboard
