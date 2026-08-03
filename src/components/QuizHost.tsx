@@ -650,7 +650,7 @@ export default function QuizHost() {
         </div>
       )}
 
-      {/* 6. LEADERBOARD STATE */}
+      {/* 6. LEADERBOARD STATE - Full screen layout height */}
       {gameState === 'leaderboard' && (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.5s' }}>
           <div style={{ textAlign: 'center' }}>
@@ -658,7 +658,6 @@ export default function QuizHost() {
             <h1 style={{ fontSize: '48px', margin: '5px 0 10px', fontWeight: 900 }}>Leaderboard</h1>
           </div>
           
-          {/* Animated Positioning List Blocks */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '900px', flex: 1, justifyContent: 'center', position: 'relative' }}>
             {activeLeaderboardPlayers.map((p, index) => {
               const finalSortedIndex = sortedPlayers.findIndex(sp => sp.id === p.id)
@@ -667,7 +666,6 @@ export default function QuizHost() {
               const prevScore = prevLeaderboard[p.id] ?? 0
               const climbed = !animatingStandings && p.score > prevScore && prevScore !== 0 && finalSortedIndex < index
 
-              // Calculate transition offset to simulate node swaps
               const currentOffset = animatingStandings ? (index - (players.findIndex(sp => sp.id === p.id)) ) * 76 : 0
 
               return (
@@ -708,7 +706,7 @@ export default function QuizHost() {
         </div>
       )}
 
-      {/* 7. ENDED STATE */}
+      {/* 7. ENDED STATE - Full-screen responsive Podium view matches Kahoot screen */}
       {gameState === 'ended' && (
         <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.8s' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '10px' }}>
@@ -718,40 +716,49 @@ export default function QuizHost() {
           </div>
 
           {endedTab === 'podium' && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-              <p style={{ fontSize: '16px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800, margin: 0 }}>QUIZ COMPLETED</p>
-              <h1 style={{ fontSize: '48px', margin: '5px 0 20px', fontWeight: 900 }}>Final Results Podium</h1>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', width: '100%', paddingBottom: '32px' }}>
+              <p style={{ fontSize: '18px', letterSpacing: '6px', color: '#00BCD4', fontWeight: 800, margin: '0 0 10px' }}>QUIZ COMPLETED</p>
+              <h1 style={{ fontSize: '48px', margin: '0 0 40px', fontWeight: 900 }}>Final Results Podium</h1>
               
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '20px', minHeight: '220px', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '32px', width: '100%', maxWidth: '900px' }}>
                 
-                {/* 2nd Place */}
-                {sortedPlayers[1] && podiumRevealStep >= 2 && (
-                  <div style={{ width: '150px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px', animation: 'slideUp 0.6s ease-out' }}>
-                    <span style={{ fontSize: '28px', marginBottom: '4px' }}>🥈</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, margin: '4px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
-                    <span style={{ fontSize: '13px', color: '#00BCD4' }}>{sortedPlayers[1].score} pts</span>
-                    <div style={{ width: '100%', height: '80px', background: 'rgba(255,255,255,0.1)', marginTop: '12px', borderRadius: '8px' }}></div>
+                {/* 2nd Place Column */}
+                {sortedPlayers[1] && podiumRevealStep >= 2 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.6s ease-out' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px 16px 0 0', width: '160px', height: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px' }}>
+                      <span style={{ fontSize: '40px', marginBottom: '8px' }}>2</span>
+                      <span style={{ fontSize: '18px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[1].nickname}</span>
+                      <span style={{ fontSize: '14px', color: '#00BCD4', marginTop: '4px' }}>{sortedPlayers[1].score} pts</span>
+                    </div>
                   </div>
+                ) : (
+                  <div style={{ width: '160px' }}></div>
                 )}
 
-                {/* 1st Place */}
-                {sortedPlayers[0] && podiumRevealStep >= 3 && (
-                  <div style={{ width: '170px', background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 16px', animation: 'slideUp 0.4s ease-out', boxShadow: '0 0 30px rgba(255,215,0,0.2)' }}>
-                    <span style={{ fontSize: '44px', marginBottom: '4px' }}>👑</span>
-                    <span style={{ fontSize: '18px', fontWeight: 800, margin: '4px 0', color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
-                    <span style={{ fontSize: '15px', color: '#fff', fontWeight: 700 }}>{sortedPlayers[0].score} pts</span>
-                    <div style={{ width: '100%', height: '110px', background: 'rgba(255,215,0,0.15)', marginTop: '12px', borderRadius: '8px' }}></div>
+                {/* 1st Place Column */}
+                {sortedPlayers[0] && podiumRevealStep >= 3 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.4s ease-out' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.1)', border: '2px solid #ffd700', borderRadius: '16px 16px 0 0', width: '180px', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', boxShadow: '0 0 35px rgba(255,215,0,0.2)' }}>
+                      <span style={{ fontSize: '56px', marginBottom: '8px' }}>1</span>
+                      <span style={{ fontSize: '20px', fontWeight: 800, color: '#ffd700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[0].nickname}</span>
+                      <span style={{ fontSize: '16px', color: '#fff', marginTop: '4px' }}>{sortedPlayers[0].score} pts</span>
+                    </div>
                   </div>
+                ) : (
+                  <div style={{ width: '180px' }}></div>
                 )}
 
-                {/* 3rd Place */}
-                {sortedPlayers[2] && podiumRevealStep >= 1 && (
-                  <div style={{ width: '130px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px', animation: 'slideUp 0.8s ease-out' }}>
-                    <span style={{ fontSize: '24px', marginBottom: '4px' }}>🥉</span>
-                    <span style={{ fontSize: '15px', fontWeight: 700, margin: '4px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
-                    <span style={{ fontSize: '12px', color: '#00BCD4' }}>{sortedPlayers[2].score} pts</span>
-                    <div style={{ width: '100%', height: '50px', background: 'rgba(255,255,255,0.05)', marginTop: '12px', borderRadius: '8px' }}></div>
+                {/* 3rd Place Column */}
+                {sortedPlayers[2] && podiumRevealStep >= 1 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'slideUp 0.8s ease-out' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px 16px 0 0', width: '140px', height: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px' }}>
+                      <span style={{ fontSize: '32px', marginBottom: '4px' }}>3</span>
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{sortedPlayers[2].nickname}</span>
+                      <span style={{ fontSize: '13px', color: '#00BCD4', marginTop: '4px' }}>{sortedPlayers[2].score} pts</span>
+                    </div>
                   </div>
+                ) : (
+                  <div style={{ width: '140px' }}></div>
                 )}
 
               </div>
