@@ -129,8 +129,13 @@ Deno.serve(async (req) => {
       .single()
 
     if (regError || !registration) {
+      console.error('Registration insertion failed:', regError)
       return new Response(
-        JSON.stringify({ error: 'Failed to create registration', code: 'REGISTRATION_ERROR' }),
+        JSON.stringify({ 
+          error: 'Failed to create registration', 
+          code: 'REGISTRATION_ERROR', 
+          details: regError?.message || 'Database insert failed' 
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
