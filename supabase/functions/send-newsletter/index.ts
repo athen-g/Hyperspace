@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json()
-    const { subject, htmlContent } = body
+    const { subject, htmlContent, testEmail } = body
 
     if (!subject || !htmlContent) {
       return new Response(JSON.stringify({ error: 'Missing subject or htmlContent' }), {
@@ -60,17 +60,23 @@ Deno.serve(async (req) => {
       })
     }
 
-    // 1. Fetch active subscribers
-    const { data: subscribers, error: subError } = await supabase
-      .from('newsletter_subscribers')
-      .select('email')
-      .eq('is_active', true)
+    // 1. Fetch active subscribers or override with test email
+    let emails: string[] = []
+    if (testEmail) {
+      emails = [testEmail]
+    } else {
+      const { data: subscribers, error: subError } = await supabase
+        .from('newsletter_subscribers')
+        .select('email')
+        .eq('is_active', true)
 
-    if (subError || !subscribers || subscribers.length === 0) {
-      return new Response(JSON.stringify({ success: true, count: 0, message: 'No active subscribers found.' }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      if (subError || !subscribers || subscribers.length === 0) {
+        return new Response(JSON.stringify({ success: true, count: 0, message: 'No active subscribers found.' }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      emails = subscribers.map(sub => sub.email)
     }
 
     if (!RESEND_API_KEY) {
@@ -82,7 +88,6 @@ Deno.serve(async (req) => {
 
     // 2. Batch send using Resend API
     // Resend batch limit is 100 emails per request
-    const emails = subscribers.map(sub => sub.email)
     const batchSize = 100
     let sentCount = 0
 

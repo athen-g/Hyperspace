@@ -22,6 +22,8 @@ export default function SubscribersPage() {
   const [htmlContent, setHtmlContent] = useState('')
   const [sending, setSending] = useState(false)
 
+  const [testEmail, setTestEmail] = useState('')
+
   useEffect(() => {
     supabase
       .from('newsletter_subscribers')
@@ -52,7 +54,7 @@ export default function SubscribersPage() {
       }
 
       const res = await supabase.functions.invoke('send-newsletter', {
-        body: { subject, htmlContent },
+        body: { subject, htmlContent, testEmail: testEmail || undefined },
         headers: {
           Authorization: `Bearer ${session.access_token}`
         }
@@ -63,10 +65,14 @@ export default function SubscribersPage() {
       }
 
       if (res.data?.success) {
-        toast.success(`Newsletter dispatched successfully to ${res.data.count} active subscribers!`)
+        toast.success(testEmail 
+          ? `Test email sent successfully to ${testEmail}!` 
+          : `Newsletter dispatched successfully to ${res.data.count} active subscribers!`
+        )
         setIsModalOpen(false)
         setSubject('')
         setHtmlContent('')
+        setTestEmail('')
       } else {
         toast.error(res.data?.error || 'Dispatched failed')
       }
@@ -202,6 +208,27 @@ export default function SubscribersPage() {
                   placeholder="e.g. Hyperspace August Update!"
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: '#0d0d0d',
+                    border: '1px solid #2a2a2a',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    padding: '10px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Test Email (Optional)</label>
+                <input
+                  type="email"
+                  placeholder="e.g. admin@test.com (Leave blank to send to all active subscribers)"
+                  value={testEmail}
+                  onChange={e => setTestEmail(e.target.value)}
                   style={{
                     width: '100%',
                     background: '#0d0d0d',
