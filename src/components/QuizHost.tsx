@@ -339,9 +339,17 @@ export default function QuizHost() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code !== 'Space') return
       e.preventDefault()
-      if (gameState === 'question') endQuestion()
-      else if (gameState === 'answers') showLeaderboard()
-      else if (gameState === 'leaderboard' && animationPhase === PHASES.DONE) nextStep()
+      if (gameState === 'question') {
+        endQuestion()
+      } else if (gameState === 'answers') {
+        if (currentIndex + 1 < questions.length) {
+          showLeaderboard()
+        } else {
+          triggerEndQuiz()
+        }
+      } else if (gameState === 'leaderboard' && animationPhase === PHASES.DONE) {
+        nextStep()
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
@@ -572,8 +580,7 @@ export default function QuizHost() {
 
   // ── triggerEndQuiz — Kahoot-style podium reveal ────────────────────────────
   // 3rd place rises first, then 2nd, then 1st (the finale), each with its own
-  // confetti burst. Kept snappy — a host is standing in front of a live room,
-  // not watching a 10s animation loop.
+  // confetti burst. Slowed down significantly for suspense and build-up.
   const triggerEndQuiz = () => {
     setGameState('ended')
     setEndedTab('podium')
@@ -581,21 +588,25 @@ export default function QuizHost() {
     channelRef.current.send({ type: 'broadcast', event: 'podium-building', payload: {} })
 
     podiumTimersRef.current.forEach(clearTimeout)
-    const STEP = 650 // ms between each podium column rising
+
+    // Slowed down increments for proper suspense build-up:
+    // 3rd place: 1500ms
+    // 2nd place: 3000ms (+1500ms)
+    // 1st place: 5200ms (+2200ms)
 
     const t1 = setTimeout(() => {
       setPodiumRevealStep(1) // 3rd place rises
       confetti({ particleCount: 30, spread: 55, startVelocity: 32, origin: { x: 0.5, y: 0.85 } })
-    }, STEP)
+    }, 1500)
 
     const t2 = setTimeout(() => {
       setPodiumRevealStep(2) // 2nd place rises
       confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.28, y: 0.8 } })
       confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.72, y: 0.8 } })
-    }, STEP * 2)
+    }, 3000)
 
     const t3 = setTimeout(() => {
-      setPodiumRevealStep(3) // 1st place rises — finale
+      setPodiumRevealStep(3) // 1st place rises — finale (revealed slower)
       confetti({ particleCount: 160, spread: 100, startVelocity: 55, origin: { x: 0.5, y: 0.6 } })
       confetti({ particleCount: 70, angle: 60, spread: 55, startVelocity: 45, origin: { x: 0, y: 0.7 } })
       confetti({ particleCount: 70, angle: 120, spread: 55, startVelocity: 45, origin: { x: 1, y: 0.7 } })
@@ -607,7 +618,7 @@ export default function QuizHost() {
         type: 'broadcast', event: 'time-up',
         payload: { correctOption: -1, standings: standingsMapping },
       })
-    }, STEP * 3)
+    }, 5200)
 
     podiumTimersRef.current = [t1, t2, t3]
   }
@@ -801,7 +812,15 @@ export default function QuizHost() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '10px' }}>
-            <button onClick={showLeaderboard} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.3)' }}>Show Standings [Space]</button>
+            {currentIndex + 1 < questions.length ? (
+              <button onClick={showLeaderboard} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.3)' }}>
+                Show Standings [Space]
+              </button>
+            ) : (
+              <button onClick={triggerEndQuiz} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.3)' }}>
+                Show Final Results [Space]
+              </button>
+            )}
             <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
@@ -1055,8 +1074,8 @@ export default function QuizHost() {
           box-sizing: border-box;
           padding-bottom: 6vh;
           background:
-            radial-gradient(ellipse 90% 60% at 50% 12%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%),
-            radial-gradient(ellipse 120% 90% at 50% 100%, #5b2a9e 0%, #2c1150 55%, #12081f 100%);
+            radial-gradient(ellipse 90% 60% at 50% 12%, rgba(233,30,99,0.15) 0%, rgba(0,0,0,0) 65%),
+            radial-gradient(ellipse 120% 90% at 50% 100%, #150a21 0%, #09090e 65%, #050508 100%);
         }
 
         .podium-header {
@@ -1071,7 +1090,7 @@ export default function QuizHost() {
           letter-spacing: 6px;
           font-size: 13px;
           font-weight: 800;
-          color: #ff9ecf;
+          color: #e91e63;
           margin: 0 0 8px;
         }
         .podium-title {
@@ -1111,7 +1130,7 @@ export default function QuizHost() {
           margin-bottom: 14px;
           opacity: 0;
           transform: translateY(24px) scale(0.85);
-          transition: opacity 420ms ease-out 120ms, transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms;
+          transition: opacity 600ms ease-out 200ms, transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms;
         }
         .is-revealed .podium-player {
           opacity: 1;
@@ -1172,10 +1191,14 @@ export default function QuizHost() {
           border: 1px solid rgba(255,255,255,0.06);
           border-bottom: none;
           
-          /* Growth transition when revealed */
+          /* Growth transition when revealed - 1.5 seconds */
           transform: scaleY(0);
           transform-origin: bottom;
-          transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .podium-col--first .podium-block {
+          /* 1st place reveals even slower - 2.5 seconds */
+          transition: transform 2500ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .is-revealed .podium-block {
           transform: scaleY(1);
