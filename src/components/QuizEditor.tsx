@@ -18,7 +18,7 @@ interface Quiz {
 }
 
 export default function QuizEditor() {
-  const { quizId } = useParams()
+  const { codeSlug } = useParams()
   const navigate = useNavigate()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -35,26 +35,31 @@ export default function QuizEditor() {
   const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (quizId) {
-      // Fetch quiz details
+    if (codeSlug) {
+      // Fetch quiz details by code_slug
       supabase
         .from('quizzes')
         .select('*')
-        .eq('id', quizId)
+        .eq('code_slug', codeSlug)
         .single()
-        .then(({ data }) => setQuiz(data))
-
-      // Fetch questions list
-      fetchQuestions()
+        .then(({ data }) => {
+          if (data) {
+            setQuiz(data)
+            fetchQuestions(data.id)
+          }
+        })
     }
-  }, [quizId])
+  }, [codeSlug])
 
-  const fetchQuestions = () => {
+  const fetchQuestions = (quizIdVal: string) => {
+    const qId = quizIdVal || quiz?.id
+    if (!qId) return
+
     setLoading(true)
     supabase
       .from('quiz_questions')
       .select('*')
-      .eq('quiz_id', quizId)
+      .eq('quiz_id', qId)
       .order('sort_order', { ascending: true })
       .then(({ data }) => {
         if (data) setQuestions(data)
@@ -75,13 +80,17 @@ export default function QuizEditor() {
 
   const handleSaveQuestion = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!quiz?.id) {
+      toast.error('Quiz details not loaded yet.')
+      return
+    }
     if (!questionText || !opt0 || !opt1 || !opt2 || !opt3) {
       toast.error('All options are required.')
       return
     }
 
     const payload = {
-      quiz_id: quizId,
+      quiz_id: quiz.id,
       question_text: questionText,
       options: [opt0, opt1, opt2, opt3],
       correct_option: correctOption,
@@ -99,7 +108,7 @@ export default function QuizEditor() {
       if (!error) {
         toast.success('Question updated!')
         resetForm()
-        fetchQuestions()
+        fetchQuestions(quiz.id)
       } else {
         toast.error(error.message)
       }
@@ -112,7 +121,7 @@ export default function QuizEditor() {
       if (!error) {
         toast.success('Question added!')
         resetForm()
-        fetchQuestions()
+        fetchQuestions(quiz.id)
       } else {
         toast.error(error.message)
       }
@@ -137,9 +146,9 @@ export default function QuizEditor() {
       .delete()
       .eq('id', id)
 
-    if (!error) {
+    if (!error && quiz) {
       toast.success('Question deleted.')
-      fetchQuestions()
+      fetchQuestions(quiz.id)
     }
   }
 

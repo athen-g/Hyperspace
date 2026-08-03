@@ -1,12 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function QuizPlayer() {
+  const location = useLocation()
   const [pin, setPin] = useState('')
   const [nickname, setNickname] = useState('')
   const [joined, setJoined] = useState(false)
   const [status, setStatus] = useState<'lobby' | 'question' | 'waiting' | 'wrong' | 'correct' | 'ended'>('lobby')
   const [playerId] = useState(() => Math.random().toString(36).substr(2, 9))
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const urlPin = params.get('pin')
+    if (urlPin) {
+      setPin(urlPin)
+    }
+  }, [location])
   
   // Realtime state
   const [questionText, setQuestionText] = useState('')

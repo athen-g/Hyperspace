@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { QRCodeSVG } from 'qrcode.react'
 
 interface Question {
   id: string
@@ -18,7 +19,7 @@ interface Player {
 }
 
 export default function QuizHost() {
-  const { quizId } = useParams()
+  const { codeSlug } = useParams()
   const navigate = useNavigate()
   const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
   const [gameState, setGameState] = useState<'lobby' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
@@ -31,17 +32,28 @@ export default function QuizHost() {
   const timerRef = useRef<any>(null)
 
   useEffect(() => {
-    if (quizId) {
+    if (codeSlug) {
+      // Find the quiz ID from its short codeSlug
       supabase
-        .from('quiz_questions')
-        .select('*')
-        .eq('quiz_id', quizId)
-        .order('sort_order', { ascending: true })
+        .from('quizzes')
+        .select('id')
+        .eq('code_slug', codeSlug)
+        .single()
         .then(({ data }) => {
-          if (data) setQuestions(data)
+          if (data) {
+            // Load questions
+            supabase
+              .from('quiz_questions')
+              .select('*')
+              .eq('quiz_id', data.id)
+              .order('sort_order', { ascending: true })
+              .then(({ data: qData }) => {
+                if (qData) setQuestions(qData)
+              })
+          }
         })
     }
-  }, [quizId])
+  }, [codeSlug])
 
   // Setup Supabase Realtime channel
   useEffect(() => {
@@ -177,9 +189,15 @@ export default function QuizHost() {
       
       {/* 1. LOBBY STATE */}
       {gameState === 'lobby' && (
-        <div style={{ textAlign: 'center', marginTop: '10vh' }}>
+        <div style={{ textAlign: 'center', marginTop: '5vh' }}>
           <p style={{ fontSize: '14px', letterSpacing: '4px', color: '#888' }}>JOIN AT <strong>/quiz/play</strong></p>
-          <h1 style={{ fontSize: '72px', margin: '20px 0', letterSpacing: '-2px' }}>PIN: <span style={{ color: '#E91E63' }}>{pin}</span></h1>
+          <h1 style={{ fontSize: '72px', margin: '10px 0', letterSpacing: '-2px' }}>PIN: <span style={{ color: '#E91E63' }}>{pin}</span></h1>
+          
+          <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block', marginBottom: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={180} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '12px', fontWeight: 700, marginTop: '8px', fontFamily: 'monospace' }}>SCAN TO PLAY</div>
+          </div>
+
           <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
             <h3 style={{ fontSize: '20px', margin: '0 0 20px', color: '#bbb' }}>Waiting for players... ({players.length})</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>

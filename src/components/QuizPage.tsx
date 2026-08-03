@@ -9,6 +9,7 @@ interface Quiz {
   title: string
   description: string
   created_at: string
+  code_slug: string
 }
 
 export default function QuizPage() {
@@ -53,9 +54,10 @@ export default function QuizPage() {
     if (!title) return
 
     const { data: { user } } = await supabase.auth.getUser()
+    const slug = Math.random().toString(36).substring(2, 8) // Generate short 6-char slug
     const { data, error } = await supabase
       .from('quizzes')
-      .insert({ title, description, created_by: user?.id })
+      .insert({ title, description, created_by: user?.id, code_slug: slug })
       .select()
       .single()
 
@@ -71,7 +73,7 @@ export default function QuizPage() {
       })
 
       // Redirect directly to editing workspace
-      navigate(`/admin/quiz/edit/${data.id}`)
+      navigate(`/admin/quiz/edit/${data.code_slug}`)
     }
   }
 
@@ -129,8 +131,8 @@ export default function QuizPage() {
                 </div>
                  <div style={{ display: 'flex', gap: '12px' }}>
                   <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid #3a1a1a', borderRadius: '8px', color: '#e21b3c', padding: '8px 20px', fontWeight: 600, cursor: 'pointer' }}>Delete Game</button>
-                  <Link to={`/admin/quiz/edit/${q.id}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
-                  <Link to={`/admin/quiz/host/${q.id}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
+                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', padding: '8px 20px', fontWeight: 600 }}>Edit Questions</Link>
+                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '8px 20px', fontWeight: 600 }}>Host Game →</Link>
                 </div>
               </div>
             ))
