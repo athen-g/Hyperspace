@@ -40,16 +40,21 @@ interface LeaderboardPlayerData {
   currentRank: number
 }
 
-// Animated score counter hook — cubic ease-out, resets when isActive flips
+// Animated score counter hook — cubic ease-out
 function useAnimatedCounter(
   from: number,
   to: number,
   duration: number,
-  isActive: boolean
+  isActive: boolean,
+  isFinished: boolean
 ): number {
   const [displayValue, setDisplayValue] = useState(from)
 
   useEffect(() => {
+    if (isFinished) {
+      setDisplayValue(to)
+      return
+    }
     if (!isActive) {
       setDisplayValue(from)
       return
@@ -63,12 +68,16 @@ function useAnimatedCounter(
       const progress = Math.min(elapsed / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3) // cubic ease-out
       setDisplayValue(Math.round(from + (to - from) * eased))
-      if (progress < 1) rafId = requestAnimationFrame(tick)
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        setDisplayValue(to)
+      }
     }
 
     rafId = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafId)
-  }, [isActive, from, to, duration])
+  }, [isActive, isFinished, from, to, duration])
 
   return displayValue
 }
@@ -92,7 +101,8 @@ function LeaderboardRow({
     player.previousScore,
     player.currentScore,
     1600,
-    phase === PHASES.RUNUP
+    phase === PHASES.RUNUP,
+    phase !== PHASES.IDLE && phase !== PHASES.RUNUP
   )
 
   const isFlashing = phase === PHASES.FLASH || phase === PHASES.DONE
