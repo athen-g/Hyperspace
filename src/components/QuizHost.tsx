@@ -65,8 +65,8 @@ export default function QuizHost() {
         })
       })
       .on('broadcast', { event: 'player-answer' }, ({ payload }) => {
-        setPlayers((prev) =>
-          prev.map((p) => {
+        setPlayers((prev) => {
+          const updated = prev.map((p) => {
             if (p.id === payload.id) {
               const currentQuestion = questions[currentIndex]
               const isCorrect = payload.optionIndex === currentQuestion.correct_option
@@ -81,7 +81,18 @@ export default function QuizHost() {
             }
             return p
           })
-        )
+
+          // If there are players in the game, and every single one of them has answered:
+          const allAnswered = updated.length > 0 && updated.every(p => p.answered)
+          if (allAnswered) {
+            // Trigger time-up/end question immediately
+            setTimeout(() => {
+              endQuestion()
+            }, 100) // Small delay for state stabilization
+          }
+
+          return updated
+        })
         setAnswerStats((prev) => {
           const nextStats = [...prev]
           if (payload.optionIndex >= 0 && payload.optionIndex < 4) {
