@@ -473,7 +473,9 @@ export default function QuizHost() {
   }
 
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
-  const optionColors = ['#e21b3c', '#e91e63', '#d89e00', '#26890c']
+  
+  // Use original Kahoot colors
+  const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
   const optionShapes = ['▲', '◆', '●', '■']
   const totalAnsweredCount = players.filter(p => p.answered).length
 
@@ -567,11 +569,13 @@ export default function QuizHost() {
       {gameState === 'intro-build' && (
         <div style={{ background: '#09090e', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, left: 0, zIndex: 999 }}>
           {!introTitleShow ? (
-            <div className="hero-name" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-              {/* Uses landing page Hero structure with pink accent color font branding */}
-              <span className="hero-title" style={{ position: 'static', fontSize: 'clamp(2rem, 8vw, 8vw)', color: '#E91E63', fontWeight: 900, fontFamily: 'mokoto, sans-serif' }}>HYPERSPACE</span>
-              <span className="hero-subtitle" style={{ position: 'static', fontSize: 'clamp(1rem, 3.5vw, 3.5vw)', color: '#fff', marginTop: '10px', fontFamily: 'mokoto, sans-serif' }}>XR SIG</span>
-              {introCountdown > 0 && <div style={{ fontSize: '24px', color: '#444', marginTop: '40px', fontWeight: 600 }}>Starting in {introCountdown}...</div>}
+            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', width: '100%', boxSizing: 'border-box', justifyContent: 'center' }}>
+              {/* Uses landing page Hero structure layout matching screenshot */}
+              <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '1440px', margin: '0 auto', padding: '0 3.507%', position: 'relative' }}>
+                <span className="hero-title" style={{ position: 'static', fontSize: 'clamp(3rem, 10vw, 10vw)', color: '#E91E63', fontWeight: 900, fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', lineHeight: '0.536' }}>HYPERSPACE</span>
+                <span className="hero-subtitle" style={{ position: 'static', alignSelf: 'flex-end', fontSize: 'clamp(1.5rem, 4.64vw, 4.64vw)', color: '#fff', marginTop: '16px', fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', marginRight: 'max(3.507%, calc(96.493vw - (clamp(3rem, 10vw, 10vw) * 6.64)))' }}>XR SIG</span>
+              </div>
+              {introCountdown > 0 && <div style={{ fontSize: '24px', color: '#444', textAlign: 'center', marginTop: '40px', fontWeight: 600 }}>Starting in {introCountdown}...</div>}
             </div>
           ) : (
             <div style={{ animation: 'fadeInOut 2.5s forwards', textAlign: 'center' }}>
@@ -815,10 +819,9 @@ export default function QuizHost() {
           50% { transform: scale(1.1); }
           100% { transform: scale(1); }
         }
-        @keyframes scaleUpFade {
-          0% { opacity: 0; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1); }
-          100% { opacity: 1; transform: scale(1.05); }
+        @keyframes scaleUpFadeGrow {
+          0% { opacity: 0; transform: scale(0.7); }
+          100% { opacity: 1; transform: scale(1.0); }
         }
         @keyframes fadeInOut {
           0% { opacity: 0; transform: translateY(20px); }

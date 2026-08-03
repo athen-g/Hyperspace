@@ -79,19 +79,19 @@ export default function QuizPage() {
     <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
-        {/* Header Block with Premium Glowing Border Accent */}
+        {/* Header Block with Pink branding accent */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid #1f1f2e', paddingBottom: '24px' }}>
           <div>
-            <h1 style={{ fontSize: '36px', fontWeight: 800, margin: 0, letterSpacing: '-1px', background: 'linear-gradient(90deg, #fff 0%, #00BCD4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Quiz Admin Hub</h1>
+            <h1 style={{ fontSize: '36px', fontWeight: 800, margin: 0, letterSpacing: '-1px', color: '#fff' }}>Quiz Admin Hub</h1>
             <p style={{ color: '#888', margin: '6px 0 0', fontSize: '15px' }}>Design, edit, and host interactive real-time presenter sessions.</p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Link to="/quiz/play" style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#00BCD4'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>Join Player view</Link>
-            <button onClick={() => setShowCreate(true)} style={{ background: '#00BCD4', border: 'none', borderRadius: '8px', color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>Create New Quiz</button>
+            <Link to="/quiz/play" style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#E91E63'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>Join Player view</Link>
+            <button onClick={() => setShowCreate(true)} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>Create New Quiz</button>
           </div>
         </div>
 
-        {/* Modal-style Form Overlay if active */}
+        {/* Modal Create form Overlay */}
         {showCreate && (
           <div style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '16px', padding: '32px', marginBottom: '40px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', animation: 'fadeIn 0.3s ease-out' }}>
             <h3 style={{ margin: '0 0 20px', fontSize: '22px', fontWeight: 800 }}>Create a New Quiz</h3>
@@ -118,7 +118,7 @@ export default function QuizPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
                 <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-                <button type="submit" style={{ background: '#00BCD4', border: 'none', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Create & Edit</button>
+                <button type="submit" style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Create & Edit</button>
               </div>
             </form>
           </div>
@@ -133,7 +133,7 @@ export default function QuizPage() {
             </div>
           ) : (
             quizzes.map(q => (
-              <div key={q.id} style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s', hover: { transform: 'translateY(-2deg)' } }}>
+              <div key={q.id} style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ maxWidth: '60%' }}>
                   <h3 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 700 }}>{q.title}</h3>
                   <p style={{ margin: 0, fontSize: '14px', color: '#888', lineHeight: 1.4 }}>{q.description || 'No description provided.'}</p>
@@ -141,8 +141,8 @@ export default function QuizPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid rgba(226, 27, 60, 0.2)', borderRadius: '8px', color: '#e21b3c', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(226,27,60,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>Delete</button>
-                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #222', borderRadius: '8px', color: '#aaa', padding: '10px 20px', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#00BCD4'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#222'}>Edit Questions</Link>
-                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(0,188,212,0.2)' }}>Host Game →</Link>
+                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #222', borderRadius: '8px', color: '#aaa', padding: '10px 20px', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#E91E63'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#222'}>Edit Questions</Link>
+                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#E91E63', borderRadius: '8px', color: '#fff', padding: '10px 24px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(233,30,99,0.2)' }}>Host Game →</Link>
                 </div>
               </div>
             ))
