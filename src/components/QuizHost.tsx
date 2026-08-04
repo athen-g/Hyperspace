@@ -38,6 +38,7 @@ interface LeaderboardPlayerData {
   pointsEarned: number
   previousRank: number
   currentRank: number
+  transition: 'stay' | 'enter' | 'leave'
 }
 
 // Animated score counter hook — cubic ease-out
@@ -115,14 +116,22 @@ function LeaderboardRow({
   )
 
   const isFlashing = phase === PHASES.FLASH || phase === PHASES.DONE
-  // Rank #1 flashes last — draws the eye upward to the winner
   const flashDelay = player.currentRank * 80
   const rankDelta = player.previousRank - player.currentRank // positive = climbed
+
+  // Build CSS class list based on transition type + phase
+  const isEntering = player.transition === 'enter' && (phase === PHASES.REORDER)
+  const isLeaving  = player.transition === 'leave' && (phase === PHASES.REORDER || phase === PHASES.FLASH || phase === PHASES.DONE)
+
+  let rowClass = 'leaderboard-row'
+  if (isFlashing && !isLeaving) rowClass += ' flashing'
+  if (isEntering) rowClass += ' lb-entering'
+  if (isLeaving)  rowClass += ' lb-leaving'
 
   return (
     <div
       ref={el => { rowRefs.current[player.id] = el }}
-      className={`leaderboard-row${isFlashing ? ' flashing' : ''}`}
+      className={rowClass}
       style={{
         '--flash-delay': `${flashDelay}ms`,
         position: 'absolute',
@@ -148,13 +157,18 @@ function LeaderboardRow({
         {/* Name */}
         <span style={{ fontSize: '22px', fontWeight: 700 }}>{player.nickname}</span>
 
+        {/* 🔥 NEW tag for players entering the top 5 */}
+        {player.transition === 'enter' && (phase === PHASES.REORDER || phase === PHASES.FLASH) && (
+          <span className="lb-new-tag">🔥 NEW</span>
+        )}
+
         {/* +points badge — visible during run-up only */}
         {phase === PHASES.RUNUP && player.pointsEarned > 0 && (
           <span className="points-earned">+{player.pointsEarned}</span>
         )}
 
         {/* Rank change arrow — visible after reorder */}
-        {isFlashing && rankDelta !== 0 && (
+        {isFlashing && !isLeaving && rankDelta !== 0 && (
           <span style={{
             color: rankDelta > 0 ? '#4ade80' : '#f87171',
             fontWeight: 800,
@@ -401,13 +415,17 @@ export default function QuizHost() {
   }, [animationPhase, gameState])
 
   // ── FLIP Step 2: apply invert→play when REORDER phase starts ──────────────
-  // At this point displayedLeaderboardPlayers has re-sorted so DOM is in new order.
-  // We translate each row back to where it was, then animate to translateY(0).
+  // Only applies to 'stay' players (enter/leave use CSS keyframes instead).
+  // Clears the inline transition after 900ms so the flash CSS class works.
   useEffect(() => {
     if (gameState !== 'leaderboard' || animationPhase !== PHASES.REORDER) return
 
+    const stayIds = new Set(
+      activeLeaderboardPlayers.filter(p => p.transition === 'stay').map(p => p.id)
+    )
+
     Object.entries(rowRefs.current).forEach(([id, el]) => {
-      if (!el || prevPositions.current[id] == null) return
+      if (!el || !stayIds.has(id) || prevPositions.current[id] == null) return
 
       const oldTop = prevPositions.current[id]
       const newTop = el.getBoundingClientRect().top
@@ -425,7 +443,19 @@ export default function QuizHost() {
         })
       })
     })
-  }, [animationPhase, gameState])
+
+    // Clear inline transition after reorder finishes so CSS flash classes work
+    const clearTimer = setTimeout(() => {
+      Object.entries(rowRefs.current).forEach(([, el]) => {
+        if (el) {
+          el.style.transition = ''
+          el.style.transform = ''
+        }
+      })
+    }, 950) // slightly after the 900ms FLIP animation
+
+    return () => clearTimeout(clearTimer)
+  }, [animationPhase, gameState, activeLeaderboardPlayers])
 
   // Clean up any pending podium timers if the component unmounts mid-reveal
   useEffect(() => {
@@ -521,27 +551,27 @@ export default function QuizHost() {
     })
   }
 
-  // ── showLeaderboard — drives the full 4-phase animation sequence ───────────
+  // ── showLeaderboard — Kahoot-style 4-phase animation with enter/leave ───────
   //
-  // BUGFIX: the leaderboard must show the CURRENT top 5 (by new score), not the
-  // PREVIOUS top 5. The old version sorted all players by their previous score,
-  // sliced the top 5 off *that* list, and only then looked up each of those
-  // players' current rank. That means a player who used to be #2 but only
-  // gained a few points stays on the board at their new rank (#6, #7, #8...)
-  // while a player who actually climbed into today's real top 5 never shows
-  // up at all — which is exactly the "#1, #2, #6, #7, #8" symptom.
-  //
-  // Fix: pick the top 5 by CURRENT rank first. Each of those players' previous
-  // rank/score (which can be any value, even outside the old top 5) is still
-  // looked up normally so the run-up/reorder animation plays correctly.
+  // IDLE:    Show the PREVIOUS top 5 with their old ranks (snapshot of last round)
+  // RUNUP:   Score count-up on those same 5 rows
+  // REORDER: Swap to the UNION of old-top-5 ∪ new-top-5.
+  //          • 'stay'  players: FLIP-animate to their new slot
+  //          • 'leave' players: fade+slide out (fell out of top 5)
+  //          • 'enter' players: fade+slide in from below (rose into top 5)
+  // FLASH:   Filter out leavers, white-flash the final 5
+  // DONE:    Commit scores as next-round baseline
   const showLeaderboard = () => {
     const oldSorted = [...players].sort((a, b) => (prevLeaderboard[b.id] ?? 0) - (prevLeaderboard[a.id] ?? 0))
     const newSorted = [...players].sort((a, b) => b.score - a.score)
 
-    // The leaderboard always reflects who is ACTUALLY in the top 5 right now
-    const currentTopFive = newSorted.slice(0, 5)
+    const oldTop5 = oldSorted.slice(0, 5)
+    const newTop5 = newSorted.slice(0, 5)
+    const oldTop5Ids = new Set(oldTop5.map(p => p.id))
+    const newTop5Ids = new Set(newTop5.map(p => p.id))
 
-    const enriched: LeaderboardPlayerData[] = currentTopFive.map(p => ({
+    // Helper to enrich a player with rank/score data
+    const enrich = (p: Player, transition: 'stay' | 'enter' | 'leave'): LeaderboardPlayerData => ({
       id:            p.id,
       nickname:      p.nickname,
       previousScore: prevLeaderboard[p.id] ?? 0,
@@ -549,22 +579,45 @@ export default function QuizHost() {
       pointsEarned:  p.score - (prevLeaderboard[p.id] ?? 0),
       previousRank:  oldSorted.findIndex(x => x.id === p.id) + 1,
       currentRank:   newSorted.findIndex(x => x.id === p.id) + 1,
-    }))
+      transition,
+    })
 
-    // Render in previousRank order first (IDLE state)
-    setActiveLeaderboardPlayers(enriched)
+    // ── IDLE data: real previous top 5, with their old ranks ──
+    const idleData = oldTop5.map(p => enrich(p, 'stay'))
+
+    setActiveLeaderboardPlayers(idleData)
     setAnimationPhase(PHASES.IDLE)
     setGameState('leaderboard')
 
+    // ── Pre-compute union for REORDER ──
+    const stayData  = oldTop5.filter(p =>  newTop5Ids.has(p.id)).map(p => enrich(p, 'stay'))
+    const leaveData = oldTop5.filter(p => !newTop5Ids.has(p.id)).map(p => enrich(p, 'leave'))
+    const enterData = newTop5.filter(p => !oldTop5Ids.has(p.id)).map(p => enrich(p, 'enter'))
+    const unionData = [...stayData, ...enterData, ...leaveData]
+
+    // ── Pre-compute flash data: only current top 5 ──
+    const flashData = newTop5.map(p => enrich(p, 'stay'))
+
     // Phase timing (ms from leaderboard mount):
     // 500  — initial pause, let host read old state
-    // 2100 — run-up complete (1600ms) → reorder
-    // 3300 — reorder complete (1200ms space) → flash
+    // 2100 — run-up complete (1600ms) → reorder with enter/leave
+    // 3300 — reorder complete (1200ms space) → flash (leavers removed)
     // 4300 — flash complete → done
 
-    const t1 = setTimeout(() => setAnimationPhase(PHASES.RUNUP),   500)
-    const t2 = setTimeout(() => setAnimationPhase(PHASES.REORDER), 2100)
-    const t3 = setTimeout(() => setAnimationPhase(PHASES.FLASH),   3300)
+    const t1 = setTimeout(() => setAnimationPhase(PHASES.RUNUP), 500)
+
+    const t2 = setTimeout(() => {
+      // Swap to union — React re-renders, FLIP step 2 fires for 'stay' players
+      setActiveLeaderboardPlayers(unionData)
+      setAnimationPhase(PHASES.REORDER)
+    }, 2100)
+
+    const t3 = setTimeout(() => {
+      // Remove leavers, keep only current top 5
+      setActiveLeaderboardPlayers(flashData)
+      setAnimationPhase(PHASES.FLASH)
+    }, 3300)
+
     const t4 = setTimeout(() => {
       setAnimationPhase(PHASES.DONE)
 
@@ -587,12 +640,22 @@ export default function QuizHost() {
   }
 
   // ── Sort order flips at the REORDER phase boundary ─────────────────────────
-  // IDLE + RUNUP → previousRank order (so reorder is visible)
-  // REORDER onwards → currentRank order
+  // IDLE + RUNUP → previousRank order (old top 5, slots 1-5)
+  // REORDER      → stay+enter by currentRank, leavers pushed to end (slots 5+)
+  // FLASH + DONE → currentRank order (new top 5 only)
   const displayedLeaderboardPlayers = useMemo(() => {
     if (animationPhase === PHASES.IDLE || animationPhase === PHASES.RUNUP) {
       return [...activeLeaderboardPlayers].sort((a, b) => a.previousRank - b.previousRank)
     }
+    if (animationPhase === PHASES.REORDER) {
+      // Stay + enter sorted by currentRank (their new slot), leavers after
+      const visible = activeLeaderboardPlayers.filter(p => p.transition !== 'leave')
+        .sort((a, b) => a.currentRank - b.currentRank)
+      const leaving = activeLeaderboardPlayers.filter(p => p.transition === 'leave')
+        .sort((a, b) => a.currentRank - b.currentRank)
+      return [...visible, ...leaving]
+    }
+    // FLASH/DONE — only current top 5
     return [...activeLeaderboardPlayers].sort((a, b) => a.currentRank - b.currentRank)
   }, [activeLeaderboardPlayers, animationPhase])
 
@@ -1039,6 +1102,36 @@ export default function QuizHost() {
           border-radius: 20px;
           animation: fadeSlideIn 300ms ease-out forwards;
           white-space: nowrap;
+        }
+
+        /* Enter/leave transitions for leaderboard rows */
+        .leaderboard-row.lb-entering {
+          animation: lbSlideIn 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .leaderboard-row.lb-leaving {
+          animation: lbSlideOut 700ms cubic-bezier(0.4, 0, 1, 1) forwards;
+          pointer-events: none;
+        }
+
+        @keyframes lbSlideIn {
+          0%   { opacity: 0; transform: translateY(60px) scale(0.92); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes lbSlideOut {
+          0%   { opacity: 1; transform: translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateY(40px) scale(0.9); }
+        }
+
+        .lb-new-tag {
+          font-size: 11px;
+          font-weight: 800;
+          color: #ff6f00;
+          background: rgba(255, 111, 0, 0.15);
+          padding: 2px 10px;
+          border-radius: 20px;
+          animation: fadeSlideIn 400ms ease-out forwards;
+          white-space: nowrap;
+          letter-spacing: 1px;
         }
 
         /* ── Podium — full-screen ended state ───────────────────────────── */
