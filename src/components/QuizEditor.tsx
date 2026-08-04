@@ -24,6 +24,10 @@ export default function QuizEditor() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Title edit state
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+
   // Form states
   const [questionText, setQuestionText] = useState('')
   const [opt0, setOpt0] = useState('')
@@ -36,7 +40,6 @@ export default function QuizEditor() {
 
   useEffect(() => {
     if (codeSlug) {
-      // Fetch quiz details by code_slug
       supabase
         .from('quizzes')
         .select('*')
@@ -45,6 +48,7 @@ export default function QuizEditor() {
         .then(({ data }) => {
           if (data) {
             setQuiz(data)
+            setNewTitle(data.title)
             fetchQuestions(data.id)
           }
         })
@@ -65,6 +69,22 @@ export default function QuizEditor() {
         if (data) setQuestions(data)
         setLoading(false)
       })
+  }
+
+  const handleUpdateTitle = async () => {
+    if (!quiz?.id || !newTitle.trim()) return
+    const { error } = await supabase
+      .from('quizzes')
+      .update({ title: newTitle.trim() })
+      .eq('id', quiz.id)
+
+    if (!error) {
+      toast.success('Quiz title updated!')
+      setQuiz(prev => prev ? { ...prev, title: newTitle.trim() } : null)
+      setEditingTitle(false)
+    } else {
+      toast.error(error.message)
+    }
   }
 
   const resetForm = () => {
@@ -99,7 +119,6 @@ export default function QuizEditor() {
     }
 
     if (editingId) {
-      // UPDATE
       const { error } = await supabase
         .from('quiz_questions')
         .update(payload)
@@ -113,7 +132,6 @@ export default function QuizEditor() {
         toast.error(error.message)
       }
     } else {
-      // INSERT
       const { error } = await supabase
         .from('quiz_questions')
         .insert(payload)
@@ -152,22 +170,40 @@ export default function QuizEditor() {
     }
   }
 
-  const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
-  const optionShapes = ['▲ Option 1 (Red)', '◆ Option 2 (Blue)', '● Option 3 (Yellow)', '■ Option 4 (Green)']
+  const optionColors = ['#e21b3c', '#e91e63', '#d89e00', '#26890c']
+  const optionShapes = ['▲ Option 1 (Red)', '◆ Option 2 (Pink)', '● Option 3 (Yellow)', '■ Option 4 (Green)']
 
   return (
-    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', borderBottom: '1px solid #1f1f2e', paddingBottom: '24px' }}>
           <div>
             <Link to="/admin/quiz" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back to Quiz Hub</Link>
-            <h1 style={{ fontSize: '28px', margin: '8px 0 0 0' }}>Edit Quiz: {quiz?.title || 'Loading...'}</h1>
-            <p style={{ color: '#555', margin: '4px 0 0' }}>{quiz?.description || 'No description'}</p>
+            
+            {editingTitle ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={e => setNewTitle(e.target.value)}
+                  style={{ background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '6px 12px', fontSize: '20px', fontWeight: 700 }}
+                />
+                <button onClick={handleUpdateTitle} style={{ background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '6px 14px', fontWeight: 700, cursor: 'pointer' }}>Save</button>
+                <button onClick={() => { setEditingTitle(false); setNewTitle(quiz?.title || '') }} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                <h1 style={{ fontSize: '28px', margin: 0, fontWeight: 800 }}>{quiz?.title || 'Loading...'}</h1>
+                <button onClick={() => setEditingTitle(true)} style={{ background: 'transparent', border: '1px solid #333', color: '#aaa', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}>Rename</button>
+              </div>
+            )}
+            
+            <p style={{ color: '#555', margin: '6px 0 0' }}>{quiz?.description || 'No description'}</p>
           </div>
           {quiz && (
-            <Link to={`/admin/quiz/host/${quiz.id}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 600 }}>Host Game →</Link>
+            <Link to={`/admin/quiz/host/${quiz.code_slug}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 700, boxShadow: '0 4px 10px rgba(0,188,212,0.2)' }}>Host Game →</Link>
           )}
         </div>
 
@@ -175,26 +211,26 @@ export default function QuizEditor() {
           
           {/* LEFT: Add / Edit form */}
           <div>
-            <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ margin: '0 0 20px', fontSize: '18px', color: '#eee' }}>
+            <div style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '24px' }}>
+              <h3 style={{ margin: '0 0 20px', fontSize: '18px', color: '#eee', fontWeight: 700 }}>
                 {editingId ? 'Edit Question' : 'Add New Question'}
               </h3>
               <form onSubmit={handleSaveQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>Question Text</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Question Text</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. What does XR stand for?"
                     value={questionText}
                     onChange={e => setQuestionText(e.target.value)}
-                    style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 {/* Option fields */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>Answers Options</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Answers Options</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <input
                       type="text"
@@ -202,15 +238,15 @@ export default function QuizEditor() {
                       placeholder="Red Option"
                       value={opt0}
                       onChange={e => setOpt0(e.target.value)}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderLeft: `4px solid ${optionColors[0]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[0]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
                     />
                     <input
                       type="text"
                       required
-                      placeholder="Blue Option"
+                      placeholder="Pink Option"
                       value={opt1}
                       onChange={e => setOpt1(e.target.value)}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderLeft: `4px solid ${optionColors[1]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[1]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
                     />
                     <input
                       type="text"
@@ -218,7 +254,7 @@ export default function QuizEditor() {
                       placeholder="Yellow Option"
                       value={opt2}
                       onChange={e => setOpt2(e.target.value)}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderLeft: `4px solid ${optionColors[2]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[2]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
                     />
                     <input
                       type="text"
@@ -226,7 +262,7 @@ export default function QuizEditor() {
                       placeholder="Green Option"
                       value={opt3}
                       onChange={e => setOpt3(e.target.value)}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderLeft: `4px solid ${optionColors[3]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[3]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
@@ -234,11 +270,11 @@ export default function QuizEditor() {
                 {/* Configurations */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>Correct Option</label>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Correct Option</label>
                     <select
                       value={correctOption}
                       onChange={e => setCorrectOption(Number(e.target.value))}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
                     >
                       {optionShapes.map((name, i) => (
                         <option key={i} value={i}>{name}</option>
@@ -246,11 +282,11 @@ export default function QuizEditor() {
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>Time Limit (s)</label>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Time Limit (s)</label>
                     <select
                       value={timeLimit}
                       onChange={e => setTimeLimit(Number(e.target.value))}
-                      style={{ width: '100%', background: '#0d0d0d', border: '1px solid #2a2a2a', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
+                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
                     >
                       <option value={10}>10s</option>
                       <option value={20}>20s</option>
@@ -264,7 +300,7 @@ export default function QuizEditor() {
                   {editingId && (
                     <button type="button" onClick={resetForm} style={{ flex: 1, background: 'transparent', border: '1px solid #333', borderRadius: '6px', color: '#888', padding: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
                   )}
-                  <button type="submit" style={{ flex: 2, background: '#E91E63', border: 'none', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                  <button type="submit" style={{ flex: 2, background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '10px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
                     {editingId ? 'Update Question' : 'Add Question'}
                   </button>
                 </div>
@@ -274,7 +310,7 @@ export default function QuizEditor() {
 
           {/* RIGHT: Questions list */}
           <div>
-            <h3 style={{ margin: '0 0 16px', fontSize: '18px', color: '#eee' }}>Questions List ({questions.length})</h3>
+            <h3 style={{ margin: '0 0 16px', fontSize: '18px', color: '#eee', fontWeight: 700 }}>Questions List ({questions.length})</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {loading ? (
                 <p style={{ color: '#444' }}>Loading questions...</p>
@@ -282,9 +318,9 @@ export default function QuizEditor() {
                 <p style={{ color: '#444' }}>No questions configured. Add one on the left!</p>
               ) : (
                 questions.map((q, index) => (
-                  <div key={q.id} style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '20px' }}>
+                  <div key={q.id} style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#E91E63', letterSpacing: '1px' }}>Q{index + 1} ({q.time_limit}s)</span>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#00BCD4', letterSpacing: '1px' }}>Q{index + 1} ({q.time_limit}s)</span>
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <button onClick={() => startEdit(q)} style={{ background: 'none', border: 'none', color: '#00BCD4', fontSize: '12px', cursor: 'pointer', padding: 0 }}>Edit</button>
                         <button onClick={() => handleDelete(q.id!)} style={{ background: 'none', border: 'none', color: '#e21b3c', fontSize: '12px', cursor: 'pointer', padding: 0 }}>Delete</button>
