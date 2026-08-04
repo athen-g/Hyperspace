@@ -522,12 +522,26 @@ export default function QuizHost() {
   }
 
   // ── showLeaderboard — drives the full 4-phase animation sequence ───────────
+  //
+  // BUGFIX: the leaderboard must show the CURRENT top 5 (by new score), not the
+  // PREVIOUS top 5. The old version sorted all players by their previous score,
+  // sliced the top 5 off *that* list, and only then looked up each of those
+  // players' current rank. That means a player who used to be #2 but only
+  // gained a few points stays on the board at their new rank (#6, #7, #8...)
+  // while a player who actually climbed into today's real top 5 never shows
+  // up at all — which is exactly the "#1, #2, #6, #7, #8" symptom.
+  //
+  // Fix: pick the top 5 by CURRENT rank first. Each of those players' previous
+  // rank/score (which can be any value, even outside the old top 5) is still
+  // looked up normally so the run-up/reorder animation plays correctly.
   const showLeaderboard = () => {
-    // Build enriched player data with previous/current ranks and point delta
     const oldSorted = [...players].sort((a, b) => (prevLeaderboard[b.id] ?? 0) - (prevLeaderboard[a.id] ?? 0))
     const newSorted = [...players].sort((a, b) => b.score - a.score)
 
-    const enriched: LeaderboardPlayerData[] = oldSorted.map(p => ({
+    // The leaderboard always reflects who is ACTUALLY in the top 5 right now
+    const currentTopFive = newSorted.slice(0, 5)
+
+    const enriched: LeaderboardPlayerData[] = currentTopFive.map(p => ({
       id:            p.id,
       nickname:      p.nickname,
       previousScore: prevLeaderboard[p.id] ?? 0,
@@ -538,7 +552,7 @@ export default function QuizHost() {
     }))
 
     // Render in previousRank order first (IDLE state)
-    setActiveLeaderboardPlayers(enriched.slice(0, 5))
+    setActiveLeaderboardPlayers(enriched)
     setAnimationPhase(PHASES.IDLE)
     setGameState('leaderboard')
 
