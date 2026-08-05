@@ -79,7 +79,7 @@ export default function ScannerPage() {
       // Programmatically start camera scanning immediately (triggers native browser prompt)
       scanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: 250 },
+        { fps: 25 },
         async (decodedText) => {
           if (processingRef.current) return
           processingRef.current = true
