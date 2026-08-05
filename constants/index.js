@@ -7,6 +7,7 @@ import brand2 from '../src/assets/images/brands-showcase/guruvrai.png'
 import initiateCalibration from '../src/assets/images/event-backdrops/initiate-calibration.jpg'
 import activateImmersion from '../src/assets/images/event-backdrops/activate-immersion.png'
 import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
+import commenceSynchronization from '../src/assets/images/event-backdrops/commence-syncronization.png'
 import backActiveImmersion from '../src/assets/images/event-backdrops/activate-immersion2.png'
 import backRenderCreation from '../src/assets/images/event-backdrops/render-creation2.jpg'
 import e1_image_1 from '../src/assets/images/event-images/initiate-calibration/initiate_calibration_image_1.png'
@@ -21,6 +22,10 @@ import e3_image_1 from '../src/assets/images/event-images/render-creation/rennde
 import e3_image_2 from '../src/assets/images/event-images/render-creation/render-creation-images-2.jpg'
 import e3_image_3 from '../src/assets/images/event-images/render-creation/render-creation-images-3.jpg'
 import e3_image_4 from '../src/assets/images/event-images/render-creation/render-creation-images-4.jpg'
+import e4_image_1 from '../src/assets/images/event-images/commence-synchronization/IMG_9161.jpg'
+import e4_image_2 from '../src/assets/images/event-images/commence-synchronization/IMG_9200.jpg'
+import e4_image_3 from '../src/assets/images/event-images/commence-synchronization/IMG_9173.jpg'
+import e4_image_4 from '../src/assets/images/event-images/commence-synchronization/IMG_9227.jpg'
 import coming_soon_1 from '../src/assets/images/coming-soon/1.png'
 import coming_soon_2 from '../src/assets/images/coming-soon/2.png'
 import coming_soon_3 from '../src/assets/images/coming-soon/3.png'
@@ -153,6 +158,33 @@ const EVENTS_CONDUCTED = [
 
       Following the completion of the workshop, the organizing team gathered participant feedback to evaluate the event's strengths and identify areas for improvement. The insights collected became valuable input for planning future workshops and the anticipated hackathon series. By combining practical Unity development, collaborative learning, and thoughtful event execution, Render Creation successfully equipped participants with foundational game development skills while establishing a stronger and more capable Hyperspace SIG community`,
     albumLink: 'https://drive.google.com/drive/folders/1ElmY1VGCLGVcfkcw8sKwxJ2ktHfIEa1R?usp=drive_link'
+  },
+  {
+    id: 4,
+    name: 'COMMENCE SYNCHRONIZATION',
+    thumbnail: commenceSynchronization,
+    bthumbnail: commenceSynchronization,
+    slug: 'commence-synchronization',
+    tags: [
+      'INTRODUCTION TO NEW STUDENTS',
+      'FUTURE XR KNOWLEDGE',
+      'HANDS-ON EXPERIENCE',
+    ],
+    tagline: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
+    pagesubtitle: 'A NEW JOURNEY BEGINS. A NEW CHAPTER OPENS. A NEW ERA STARTS.',
+    overview: 'Commence Synchronisation is the official introductory event of Hyperspace XR SIG, designed to provide participants with their first glimpse into the world of Extended Reality (XR). Through immersive discussions, live demonstrations, and interactive experiences, the event gradually unfolds the possibilities of Augmented Reality, Virtual Reality, and emerging immersive technologies.\n\nRather than revealing everything at once, each stage of the event uncovers another piece of a much larger vision—inviting participants to explore, question, and imagine what lies beyond the boundaries of conventional technology.',
+    date: 'TUESDAY, 4TH AUGUST 2026',
+    audience: '100+',
+    type: 'LECTURE EVENT',
+    sponsors: 'NONE',
+    images: [
+      e4_image_1,
+      e4_image_2,
+      e4_image_3,
+      e4_image_4
+    ],
+    plan: 'Phase 01 — The Signal\nThe event begins with an introduction to Hyperspace XR SIG and its vision. Participants are welcomed into a world where technology extends beyond screens, offering a glimpse into the ideas that drive immersive innovation.\n\nPhase 02 — Echoes of the Journey\nEvery milestone tells a story. This segment showcases the initiatives, workshops, and experiences that have shaped Hyperspace XR SIG.\n\nPhase 03 — From Concept to Creation\nIdeas become tangible through a live demonstration of an immersive project developed by members of the SIG.\n\nPhase 04 — Beyond the Horizon\nThe journey continues with an exploration of the future of immersive technologies across education, healthcare, engineering, architecture, and entertainment.\n\nPhase 05 — The Synchronisation Challenge\nAn interactive quiz culminates the event. Top 5 receive a special prize. Top 3 experience VR firsthand with professional headsets.\n\nPhase 06 — The Beginning\nA formal closing and invitation to become part of Hyperspace XR SIG. The synchronization does not end here—it only begins.',
+    albumLink: ''
   },
 ]
 const EVENTS_COMING_SOON = [
