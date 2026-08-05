@@ -202,8 +202,8 @@ export default function ScannerPage() {
         {/* Camera feed */}
         {scanning && (
           <div style={{ 
-            width: '240px', 
-            height: '240px', 
+            width: 'min(100%, 45vh, 360px)', 
+            height: 'min(100%, 45vh, 360px)', 
             background: '#111', 
             border: '1px solid #1e1e1e', 
             borderRadius: '12px', 
