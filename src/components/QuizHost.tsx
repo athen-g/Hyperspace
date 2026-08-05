@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import confetti from 'canvas-confetti'
+import { toast } from 'react-hot-toast'
 
 interface Question {
   id: string
@@ -268,6 +269,31 @@ export default function QuizHost() {
 
   // Previous-round scores used as the "from" baseline for animations
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
+
+  const handleShareLink = () => {
+    const playUrl = `${window.location.origin}/quiz/play?pin=${pin}`
+    navigator.clipboard.writeText(playUrl).then(() => {
+      toast.success('Lobby join link copied to clipboard!')
+    }).catch(() => {
+      toast.error('Failed to copy link')
+    })
+  }
+
+  useEffect(() => {
+    if (!qrZoomed) return
+
+    const handleGlobalClick = () => {
+      setQrZoomed(false)
+    }
+    const timer = setTimeout(() => {
+      window.addEventListener('click', handleGlobalClick)
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('click', handleGlobalClick)
+    }
+  }, [qrZoomed])
 
   // Players enriched with rank/score delta data, sliced to top 5
   const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<LeaderboardPlayerData[]>([])
@@ -1010,6 +1036,32 @@ export default function QuizHost() {
   return (
     <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '12px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
+      {/* ── Zoomed QR Modal ── */}
+      {qrZoomed && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(9, 9, 14, 0.95)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={280} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK ANYWHERE TO CLOSE</div>
+          </div>
+          <h1 style={{ fontSize: '64px', margin: '24px 0 8px', letterSpacing: '-1px', fontWeight: 900 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
+          <p style={{ fontSize: '20px', color: '#888', fontWeight: 700 }}>Joined Players: <strong style={{ color: '#fff' }}>{players.length}</strong></p>
+        </div>
+      )}
+
       {/* Return to Dashboard corner button */}
       <button
         onClick={() => { if (confirm('Exit hosting session?')) navigate('/admin/quiz') }}
@@ -1022,14 +1074,23 @@ export default function QuizHost() {
       {gameState === 'lobby' && (
         <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
           <p style={{ fontSize: '18px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: '0 0 10px' }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
-          <h1 style={{ fontSize: '90px', margin: '0 0 16px', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900, lineHeight: 1 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
+          <h1 style={{ fontSize: '90px', margin: '0 0 16px', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+            PIN: <span style={{ color: '#e91e63' }}>{pin}</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleShareLink() }} 
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', borderRadius: '50%', width: '48px', height: '48px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s' }}
+              title="Copy Join Link"
+            >
+              🔗
+            </button>
+          </h1>
 
           <div
-            onClick={() => setQrZoomed(!qrZoomed)}
-            style={{ background: '#fff', padding: '16px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', cursor: 'pointer', transform: qrZoomed ? 'scale(1.8)' : 'scale(1)', transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)', zIndex: 99, position: 'relative' }}
+            onClick={(e) => { e.stopPropagation(); setQrZoomed(true) }}
+            style={{ background: '#fff', padding: '16px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', cursor: 'pointer', zIndex: 99, position: 'relative' }}
           >
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={qrZoomed ? 200 : 130} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={130} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK TO ENLARGE</div>
           </div>
 
           <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px 40px', width: '100%', maxWidth: '95%', flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '30vh', overflowY: 'auto' }}>
