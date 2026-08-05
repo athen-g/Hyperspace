@@ -101,20 +101,12 @@ export default function QuizPlayer() {
           setStatus('ended')
           return
         }
-
-        // Update player score and rank immediately from this question's standings
-        if (payload.standings && payload.standings[playerId]) {
-          setPlayerRank(payload.standings[playerId].rank)
-          setPlayerScore(payload.standings[playerId].score)
-        }
-
         setCorrectOption(payload.correctOption)
         const chosen = selectedOptionRef.current
         
         setStatus(() => {
           if (chosen !== null) {
-            // Robust coercion checking to handle any string/number type mismatches
-            const isCorrect = Number(chosen) === Number(payload.correctOption)
+            const isCorrect = chosen === payload.correctOption
             if (isCorrect) {
               setStreakCount(prev => prev + 1)
               return 'correct'
@@ -297,20 +289,6 @@ export default function QuizPlayer() {
             </div>
           )}
 
-          {/* Detailed Question Review */}
-          <div style={{ margin: '20px 0', background: 'rgba(255,255,255,0.03)', border: '1px solid #222', borderRadius: '12px', padding: '16px', textAlign: 'left' }}>
-            <div style={{ fontSize: '14px', color: '#00BCD4', fontWeight: 700, marginBottom: '6px' }}>Question:</div>
-            <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>{questionText}</div>
-            
-            <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Your Answer:</div>
-            {selectedOption !== null && (
-              <div style={{ background: optionColors[selectedOption], color: '#fff', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700 }}>
-                <span>{optionShapes[selectedOption]}</span>
-                <span>{options[selectedOption]}</span>
-              </div>
-            )}
-          </div>
-
           {playerRank !== null && (
             <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
               <p style={{ color: '#555', margin: '0 0 4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Ranking Status</p>
@@ -326,34 +304,6 @@ export default function QuizPlayer() {
         <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>❌</h1>
           <h2 style={{ fontSize: '36px', color: '#e21b3c', fontWeight: 800 }}>Incorrect</h2>
-
-          {/* Detailed Question Review */}
-          <div style={{ margin: '20px 0', background: 'rgba(255,255,255,0.03)', border: '1px solid #222', borderRadius: '12px', padding: '16px', textAlign: 'left' }}>
-            <div style={{ fontSize: '14px', color: '#00BCD4', fontWeight: 700, marginBottom: '6px' }}>Question:</div>
-            <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>{questionText}</div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Your Answer:</div>
-                {selectedOption !== null && (
-                  <div style={{ background: optionColors[selectedOption], color: '#fff', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700, opacity: 0.6 }}>
-                    <span>{optionShapes[selectedOption]}</span>
-                    <span>{options[selectedOption]}</span>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Correct Answer:</div>
-                {correctOption !== null && (
-                  <div style={{ background: optionColors[correctOption], color: '#fff', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700, border: '2px solid #fff' }}>
-                    <span>{optionShapes[correctOption]}</span>
-                    <span>{options[correctOption]}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
 
           {playerRank !== null && (
             <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
@@ -371,22 +321,6 @@ export default function QuizPlayer() {
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>⏰</h1>
           <h2 style={{ fontSize: '36px', color: '#FF9800', fontWeight: 800 }}>Time's Up!</h2>
           <p style={{ fontSize: '16px', color: '#aaa', marginTop: '8px' }}>You didn't submit an answer in time.</p>
-
-          {/* Detailed Question Review */}
-          <div style={{ margin: '20px 0', background: 'rgba(255,255,255,0.03)', border: '1px solid #222', borderRadius: '12px', padding: '16px', textAlign: 'left' }}>
-            <div style={{ fontSize: '14px', color: '#00BCD4', fontWeight: 700, marginBottom: '6px' }}>Question:</div>
-            <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>{questionText}</div>
-
-            <div>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Correct Answer:</div>
-              {correctOption !== null && (
-                <div style={{ background: optionColors[correctOption], color: '#fff', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700 }}>
-                  <span>{optionShapes[correctOption]}</span>
-                  <span>{options[correctOption]}</span>
-                </div>
-              )}
-            </div>
-          </div>
 
           {playerRank !== null && (
             <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>

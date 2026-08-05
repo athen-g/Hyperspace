@@ -545,21 +545,9 @@ export default function QuizHost() {
   const endQuestion = () => {
     if (timerRef.current) clearInterval(timerRef.current)
     setGameState('answers')
-
-    // Calculate current standings mapping so players get updated rank and score immediately
-    const sorted = [...players].sort((a, b) => b.score - a.score)
-    const standingsMapping: Record<string, { rank: number; score: number }> = {}
-    sorted.forEach((p, idx) => {
-      standingsMapping[p.id] = { rank: idx + 1, score: p.score }
-    })
-
     channelRef.current.send({
       type: 'broadcast', event: 'time-up',
-      payload: { 
-        correctOption: questions[currentIndex].correct_option, 
-        answerStats,
-        standings: standingsMapping
-      },
+      payload: { correctOption: questions[currentIndex].correct_option, answerStats },
     })
   }
 
@@ -904,37 +892,6 @@ export default function QuizHost() {
                     {isCorrect && <span style={{ position: 'absolute', top: '-32px', left: '50%', transform: 'translateX(-50%)', fontSize: '24px' }}>✓</span>}
                   </div>
                   <div style={{ fontSize: '24px', marginTop: '8px' }}>{optionShapes[i]}</div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Render the option texts, highlighting the correct option and dimming incorrect ones */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            {questions[currentIndex].options.map((opt, i) => {
-              const isCorrect = i === questions[currentIndex].correct_option
-              return (
-                <div 
-                  key={i} 
-                  style={{ 
-                    background: optionColors[i], 
-                    borderRadius: '12px', 
-                    padding: '20px 32px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '20px', 
-                    fontSize: '22px', 
-                    fontWeight: 700, 
-                    boxShadow: '0 6px 15px rgba(0,0,0,0.2)',
-                    opacity: isCorrect ? 1 : 0.35,
-                    border: isCorrect ? '3px solid #fff' : 'none',
-                    transform: isCorrect ? 'scale(1.02)' : 'scale(1)',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <span style={{ fontSize: '32px' }}>{optionShapes[i]}</span>
-                  <span style={{ flex: 1 }}>{opt}</span>
-                  {isCorrect && <span style={{ fontSize: '28px', marginLeft: 'auto' }}>✓</span>}
                 </div>
               )
             })}
