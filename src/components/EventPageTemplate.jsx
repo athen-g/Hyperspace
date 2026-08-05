@@ -205,6 +205,31 @@ const EventPageTemplate = () => {
           }
         />
 
+        {/* The Plan Section */}
+        <div className={
+          isMobile768
+            ? 'w-[93.056%] mx-auto p-10 relative z-10 mb-12 flex flex-col gap-6 bg-[#0e0e0e] border border-light-grey'
+            : 'w-[93.056%] mx-auto py-[140px] relative z-10 mb-50'
+        }>
+
+          <div className={isMobile768 ? 'flex flex-col leading-[0.85]' : 'flex flex-col leading-[0.85] ml-40'}>
+            <span className={`font-host font-extrabold uppercase text-[#8A8A8A] ${isMobile768 ? 'text-[50px]' : 'text-[clamp(64px,6vw,120px)]'}`}>
+              THE
+            </span>
+
+            <span className={`font-host font-extrabold uppercase text-accent-pink ${isMobile768 ? 'text-[50px]' : 'text-white text-[clamp(64px,6vw,120px)]'}`}>
+              PLAN
+            </span>
+          </div>
+
+          <div className={isMobile768 ? 'pt-2 mt-2 w-full' : 'max-w-[1200px] pt-[20px] mt-20 ml-120'}>
+            <p className="font-host text-white text-[14px] md:text-[clamp(18px,1.2vw,22px)] leading-[1.4] tracking-[-0.01em] whitespace-pre-line">
+              {event.plan}
+            </p>
+          </div>
+
+        </div>
+
         {/* Brochure & Rulebook text */}
         <div className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
           }`}>
@@ -257,31 +282,6 @@ const EventPageTemplate = () => {
               </span>
             )}
           </div>
-        </div>
-
-        {/* The Plan Section */}
-        <div className={
-          isMobile768
-            ? 'w-[93.056%] mx-auto p-10 relative z-10 mb-12 flex flex-col gap-6 bg-[#0e0e0e] border border-light-grey'
-            : 'w-[93.056%] mx-auto py-[140px] relative z-10 mb-50'
-        }>
-
-          <div className={isMobile768 ? 'flex flex-col leading-[0.85]' : 'flex flex-col leading-[0.85] ml-40'}>
-            <span className={`font-host font-extrabold uppercase text-[#8A8A8A] ${isMobile768 ? 'text-[50px]' : 'text-[clamp(64px,6vw,120px)]'}`}>
-              THE
-            </span>
-
-            <span className={`font-host font-extrabold uppercase text-accent-pink ${isMobile768 ? 'text-[50px]' : 'text-white text-[clamp(64px,6vw,120px)]'}`}>
-              PLAN
-            </span>
-          </div>
-
-          <div className={isMobile768 ? 'pt-2 mt-2 w-full' : 'max-w-[1200px] pt-[20px] mt-20 ml-120'}>
-            <p className="font-host text-white text-[14px] md:text-[clamp(18px,1.2vw,22px)] leading-[1.4] tracking-[-0.01em] whitespace-pre-line">
-              {event.plan}
-            </p>
-          </div>
-
         </div>
 
         {/* Explore All Events Button */}

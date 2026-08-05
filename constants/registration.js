@@ -1,5 +1,5 @@
 const registrationQuestions = {
-    'commence-syncrhronisation': [
+    'commence-synchronisation': [
         {
             id: 'attended_before',
             label: 'HAVE YOU ATTENDED ANY HYPERSPACE XR EVENTS BEFORE?',
