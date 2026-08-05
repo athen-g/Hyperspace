@@ -201,57 +201,64 @@ export default function ScannerPage() {
 
         {/* Camera feed */}
         {scanning && (
-          <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
-            <div id="qr-reader" style={{ width: '100%' }} />
+          <div style={{ 
+            width: '280px', 
+            height: '280px', 
+            background: '#111', 
+            border: '1px solid #1e1e1e', 
+            borderRadius: '12px', 
+            overflow: 'hidden', 
+            marginBottom: '24px',
+            margin: '0 auto 24px',
+            position: 'relative'
+          }}>
+            <div id="qr-reader" style={{ width: '100%', height: '100%' }} />
+            {/* Cosmetic target guide box */}
+            <div style={{
+              position: 'absolute',
+              top: '15%',
+              left: '15%',
+              width: '70%',
+              height: '70%',
+              border: '2px dashed rgba(255,255,255,0.4)',
+              borderRadius: '8px',
+              pointerEvents: 'none'
+            }} />
           </div>
         )}
 
-        {/* Full screen Viewport Result Overlay */}
+        {/* Inline Scan Result Status card */}
         {result && (
           <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: isSuccess ? 'rgba(5,30,5,0.96)' : isAlreadyScanned ? 'rgba(25,20,5,0.96)' : 'rgba(30,5,5,0.96)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10000,
-            padding: '24px',
+            padding: '20px',
+            borderRadius: '12px',
+            background: isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a',
+            border: `1px solid ${isSuccess ? '#166534' : isAlreadyScanned ? '#713f12' : '#7f1d1d'}`,
             textAlign: 'center',
-            backdropFilter: 'blur(8px)'
+            marginTop: '16px'
           }}>
-            <div style={{ fontSize: '72px', marginBottom: '24px', animation: 'bounce 0.5s' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>
               {isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌'}
             </div>
             {isSuccess && 'success' in result && result.success && (
               <>
-                <p style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: 800, color: '#4ade80' }}>Check-in Successful!</p>
-                <p style={{ margin: '0 0 12px', fontSize: '20px', color: '#fff', fontWeight: 600 }}>{result.studentName}</p>
-                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '16px', color: '#86efac', background: 'rgba(255,255,255,0.05)', padding: '6px 16px', borderRadius: '20px' }}>{result.registrationNo}</p>
+                <p style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 700, color: '#4ade80' }}>Check-in Successful!</p>
+                <p style={{ margin: '0 0 4px', fontSize: '15px', color: '#e5e5e5' }}>{result.studentName}</p>
+                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '13px', color: '#86efac' }}>{result.registrationNo}</p>
               </>
             )}
             {isAlreadyScanned && 'error' in result && (
               <>
-                <p style={{ margin: '0 0 12px', fontSize: '26px', fontWeight: 800, color: '#facc15' }}>Already Scanned</p>
-                <p style={{ margin: 0, fontSize: '16px', color: '#d4d4d4' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
+                <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#facc15' }}>Already Scanned</p>
+                <p style={{ margin: 0, fontSize: '12px', color: '#a3a3a3' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
               </>
             )}
             {isError && 'error' in result && (
-              <p style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
+              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
             )}
           </div>
         )}
       </div>
-      <style>{`
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-      `}</style>
     </div>
   )
 }
