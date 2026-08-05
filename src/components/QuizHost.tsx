@@ -1054,7 +1054,7 @@ export default function QuizHost() {
           animation: 'fadeIn 0.2s ease-out'
         }}>
           <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={280} level="M" includeMargin={true} />
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={500} level="M" includeMargin={true} />
             <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK ANYWHERE TO CLOSE</div>
           </div>
           <h1 style={{ fontSize: '64px', margin: '24px 0 8px', letterSpacing: '-1px', fontWeight: 900 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
