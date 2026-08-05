@@ -202,62 +202,93 @@ export default function ScannerPage() {
         {/* Camera feed */}
         {scanning && (
           <div style={{ 
-            width: '280px', 
-            height: '280px', 
+            width: '100%', 
+            aspectRatio: '1/1', 
             background: '#111', 
             border: '1px solid #1e1e1e', 
             borderRadius: '12px', 
             overflow: 'hidden', 
             marginBottom: '24px',
-            margin: '0 auto 24px',
             position: 'relative'
           }}>
             <div id="qr-reader" style={{ width: '100%', height: '100%' }} />
-            {/* Cosmetic target guide box */}
+            {/* Cosmetic target guide box corners */}
             <div style={{
               position: 'absolute',
               top: '15%',
               left: '15%',
               width: '70%',
               height: '70%',
-              border: '2px dashed rgba(255,255,255,0.4)',
-              borderRadius: '8px',
-              pointerEvents: 'none'
-            }} />
+              pointerEvents: 'none',
+              boxSizing: 'border-box'
+            }}>
+              {/* Top-left corner */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #4ade80', borderTop: '4px solid #4ade80', borderTopLeftRadius: '8px' }} />
+              {/* Top-right corner */}
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #4ade80', borderTop: '4px solid #4ade80', borderTopRightRadius: '8px' }} />
+              {/* Bottom-left corner */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #4ade80', borderBottom: '4px solid #4ade80', borderBottomLeftRadius: '8px' }} />
+              {/* Bottom-right corner */}
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #4ade80', borderBottom: '4px solid #4ade80', borderBottomRightRadius: '8px' }} />
+            </div>
           </div>
         )}
 
-        {/* Inline Scan Result Status card */}
-        {result && (
-          <div style={{
-            padding: '20px',
-            borderRadius: '12px',
-            background: isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a',
-            border: `1px solid ${isSuccess ? '#166534' : isAlreadyScanned ? '#713f12' : '#7f1d1d'}`,
-            textAlign: 'center',
-            marginTop: '16px'
-          }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-              {isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌'}
-            </div>
-            {isSuccess && 'success' in result && result.success && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 700, color: '#4ade80' }}>Check-in Successful!</p>
-                <p style={{ margin: '0 0 4px', fontSize: '15px', color: '#e5e5e5' }}>{result.studentName}</p>
-                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '13px', color: '#86efac' }}>{result.registrationNo}</p>
-              </>
-            )}
-            {isAlreadyScanned && 'error' in result && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#facc15' }}>Already Scanned</p>
-                <p style={{ margin: 0, fontSize: '12px', color: '#a3a3a3' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
-              </>
-            )}
-            {isError && 'error' in result && (
-              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
-            )}
+        {/* Scan Result Status card - Always visible */}
+        <div style={{
+          padding: '20px',
+          borderRadius: '12px',
+          background: result 
+            ? (isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a')
+            : (scanning ? '#0f172a' : '#111'),
+          border: `1px solid ${
+            result 
+              ? (isSuccess ? '#166534' : isAlreadyScanned ? '#713f12' : '#7f1d1d')
+              : (scanning ? '#1e3a8a' : '#222')
+          }`,
+          textAlign: 'center',
+          marginTop: '16px'
+        }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>
+            {result 
+              ? (isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌')
+              : (scanning ? '🔍' : '💤')}
           </div>
-        )}
+          
+          {/* 1. Active Scan Results */}
+          {result && isSuccess && 'success' in result && result.success && (
+            <>
+              <p style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 700, color: '#4ade80' }}>Check-in Successful!</p>
+              <p style={{ margin: '0 0 4px', fontSize: '15px', color: '#e5e5e5' }}>{result.studentName}</p>
+              <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '13px', color: '#86efac' }}>{result.registrationNo}</p>
+            </>
+          )}
+          {result && isAlreadyScanned && 'error' in result && (
+            <>
+              <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#facc15' }}>Already Scanned</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#a3a3a3' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
+            </>
+          )}
+          {result && isError && 'error' in result && (
+            <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
+          )}
+
+          {/* 2. Scanning State (No Result) */}
+          {!result && scanning && (
+            <>
+              <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#60a5fa' }}>Scanning for Ticket...</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Point the camera at the attendee's QR code.</p>
+            </>
+          )}
+
+          {/* 3. Idle State (No Result, Not Scanning) */}
+          {!result && !scanning && (
+            <>
+              <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#64748b' }}>Scanner Offline</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Choose an event above and click Start Scanning.</p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
