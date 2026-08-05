@@ -238,6 +238,9 @@ export default function QuizHost() {
   const navigate = useNavigate()
   const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
 
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [otherHostActive, setOtherHostActive] = useState(false)
+
   // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
   const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
   const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
@@ -254,6 +257,14 @@ export default function QuizHost() {
 
   const [isDemo, setIsDemo] = useState(false)
   const [qrZoomed, setQrZoomed] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setCurrentUser(user)
+      }
+    })
+  }, [])
 
   // Previous-round scores used as the "from" baseline for animations
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
@@ -428,8 +439,22 @@ export default function QuizHost() {
 
   // ── Realtime channel ───────────────────────────────────────────────────────
   useEffect(() => {
+    if (!currentUser) return
+
     const channel = supabase.channel(`quiz-${pin}`, {
-      config: { broadcast: { self: true, ack: true } },
+      config: { 
+        broadcast: { self: true, ack: true },
+        presence: { key: 'host' }
+      },
+    })
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState()
+      const hostPresenceList = state.host || []
+      const anotherHost = hostPresenceList.some((pres: any) => pres.user_id !== currentUser.id)
+      if (anotherHost) {
+        setOtherHostActive(true)
+      }
     })
 
     channel
@@ -556,11 +581,18 @@ export default function QuizHost() {
           return next
         })
       })
-      .subscribe()
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            user_id: currentUser.id,
+            online_at: new Date().toISOString()
+          })
+        }
+      })
 
     channelRef.current = channel
     return () => { channel.unsubscribe() }
-  }, [pin])
+  }, [pin, currentUser])
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -962,6 +994,19 @@ export default function QuizHost() {
   ]
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  if (otherHostActive) {
+    return (
+      <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ textAlign: 'center', maxWidth: '480px', background: '#111', border: '1px solid #222', padding: '32px', borderRadius: '16px' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔒</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#e91e63', marginBottom: '12px' }}>Session Locked</h2>
+          <p style={{ color: '#888', lineHeight: 1.6, marginBottom: '24px' }}>This quiz session is currently being hosted by another administrator. Presenter control is restricted to one host at a time.</p>
+          <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(233,30,99,0.3)' }}>Return to Dashboard</button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '12px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
