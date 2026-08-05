@@ -7,16 +7,32 @@ export default function QuizPlayer() {
   const [pin, setPin] = useState('')
   const [nickname, setNickname] = useState('')
   const [joined, setJoined] = useState(false)
-  const [status, setStatus] = useState<'lobby' | 'get-ready' | 'question' | 'waiting' | 'wrong' | 'correct' | 'times-up' | 'podium-building' | 'ended'>('lobby')
-  const [playerId] = useState(() => Math.random().toString(36).substr(2, 9))
+  
+  // States: lobby, get-ready, question, waiting, wrong, correct, times-up, podium-building, ended,
+  // Custom states: rejected_game_in_progress, rejected_name_taken, rejected_session_full, rejected_quiz_ended
+  const [status, setStatus] = useState<
+    'lobby' | 'get-ready' | 'question' | 'waiting' | 'wrong' | 'correct' | 'times-up' | 'podium-building' | 'ended' |
+    'rejected_game_in_progress' | 'rejected_name_taken' | 'rejected_session_full' | 'rejected_quiz_ended'
+  >('lobby')
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const urlPin = params.get('pin')
-    if (urlPin) {
-      setPin(urlPin)
+  // Persist and load client UUID
+  const [playerId] = useState(() => {
+    try {
+      const stored = localStorage.getItem('quiz-player-uuid')
+      if (stored) return stored
+      const newId = 'player_' + Math.random().toString(36).substring(2, 15)
+      localStorage.setItem('quiz-player-uuid', newId)
+      return newId
+    } catch (e) {
+      return 'player_' + Math.random().toString(36).substring(2, 15)
     }
-  }, [location])
+  })
+
+  // Connection & State Recovery parameters
+  const [connectionError, setConnectionError] = useState<string | null>(null)
+  const [showAnswerAckWarning, setShowAnswerAckWarning] = useState(false)
+  const [deadHost, setDeadHost] = useState(false)
+  const [timerDisplay, setTimerDisplay] = useState<number>(0)
   
   // Realtime state
   const [questionText, setQuestionText] = useState('')
@@ -29,6 +45,7 @@ export default function QuizPlayer() {
   const [readyCountdown, setReadyCountdown] = useState(3)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1)
   const [totalQuestions, setTotalQuestions] = useState(1)
+  const [lostAnswersWindow, setLostAnswersWindow] = useState(false)
   
   // Lobby waiting list of other joined nicknames
   const [lobbyNicknames, setLobbyNicknames] = useState<string[]>([])
@@ -41,28 +58,249 @@ export default function QuizPlayer() {
   const channelRef = useRef<any>(null)
   const startTimeRef = useRef<number>(0)
   const timeLimitRef = useRef<number>(20)
+  const lastBroadcastTimeRef = useRef<number>(Date.now())
+  const hasAnsweredRef = useRef(false)
+  const localTimerIntervalRef = useRef<any>(null)
 
-  const handleJoin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!pin || !nickname) return
+  // Parse location parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const urlPin = params.get('pin')
+    if (urlPin) {
+      setPin(urlPin)
+    }
+  }, [location])
 
-    const channel = supabase.channel(`quiz-${pin}`, {
+  // Defensive status transitions
+  const statusRef = useRef(status)
+  useEffect(() => { statusRef.current = status }, [status])
+
+  const isValidTransition = (incomingEvent: string) => {
+    const current = statusRef.current
+    if (['join-ack', 'rejoin-ack', 'sync-state'].includes(incomingEvent)) {
+      return true
+    }
+    switch (current) {
+      case 'lobby':
+        return ['lobby-update'].includes(incomingEvent)
+      case 'get-ready':
+        return ['next-question', 'time-sync'].includes(incomingEvent)
+      case 'question':
+        return ['time-up', 'time-sync', 'next-question'].includes(incomingEvent)
+      case 'waiting':
+        return ['time-up', 'time-sync', 'answer-ack'].includes(incomingEvent)
+      case 'correct':
+      case 'wrong':
+      case 'times-up':
+        return ['leaderboard-update', 'podium-building', 'get-ready'].includes(incomingEvent)
+      case 'podium-building':
+        return ['podium-building', 'leaderboard-update', 'ended'].includes(incomingEvent)
+      default:
+        return true
+    }
+  }
+
+  // ── Auto Rejoin Flow ───────────────────────────────────────────────────────
+  useEffect(() => {
+    try {
+      const savedPin = localStorage.getItem('quiz-player-joined-pin')
+      const savedNickname = localStorage.getItem('quiz-player-nickname')
+      if (savedPin && savedNickname) {
+        setPin(savedPin)
+        setNickname(savedNickname)
+        connectChannel(savedPin, savedNickname, true)
+      }
+    } catch (e) {
+      console.warn(e)
+    }
+
+    return () => {
+      if (channelRef.current) channelRef.current.unsubscribe()
+      if (localTimerIntervalRef.current) clearInterval(localTimerIntervalRef.current)
+    }
+  }, [])
+
+  // ── Dead Host Monitor ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const deadHostInterval = setInterval(() => {
+      if (!joined) return
+      const maxQuestionTime = timeLimitRef.current
+      const silenceWindow = (maxQuestionTime + 10) * 1000
+      if (Date.now() - lastBroadcastTimeRef.current > silenceWindow) {
+        setDeadHost(true)
+      }
+      
+      // Auto exit after 120s of dead host state
+      if (Date.now() - lastBroadcastTimeRef.current > (silenceWindow + 120000)) {
+        clearInterval(deadHostInterval)
+        handleNormalExit()
+      }
+    }, 2000)
+
+    return () => clearInterval(deadHostInterval)
+  }, [joined])
+
+  // ── Mobile App Visibility Monitor ──────────────────────────────────────────
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && joined && channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'state-request',
+          payload: { id: playerId }
+        })
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [joined, playerId])
+
+  const handleNormalExit = () => {
+    try {
+      localStorage.removeItem('quiz-player-joined-pin')
+      localStorage.removeItem('quiz-player-nickname')
+    } catch (e) {
+      console.warn(e)
+    }
+    setJoined(false)
+    setStatus('lobby')
+    setLobbyNicknames([])
+    setPlayerRank(null)
+    setPlayerScore(0)
+    setStreakCount(0)
+    setDeadHost(false)
+    setConnectionError(null)
+    if (channelRef.current) {
+      channelRef.current.unsubscribe()
+      channelRef.current = null
+    }
+  }
+
+  // Helper function to establish connection channel and bind listeners
+  const connectChannel = (targetPin: string, playerNick: string, isRejoinAttempt = false) => {
+    if (channelRef.current) {
+      channelRef.current.unsubscribe()
+    }
+
+    const channel = supabase.channel(`quiz-${targetPin}`, {
       config: {
         broadcast: { self: true, ack: true },
       },
     })
 
+    channel.on('system' as any, {} as any, (event: any) => {
+      if (event.status === 'disconnected' || event.status === 'timed out') {
+        setConnectionError('Connection lost. Reconnecting...')
+      } else if (event.status === 'connected') {
+        setConnectionError(null)
+      }
+    })
+
     channel
-      .on('broadcast', { event: 'join-ack' }, () => {
-        setJoined(true)
-        setStatus('lobby')
+      .on('broadcast', { event: 'join-ack' }, ({ payload }) => {
+        if (!isValidTransition('join-ack')) return
+        if (payload.targetPlayerId !== playerId) return
+        
+        lastBroadcastTimeRef.current = Date.now()
+
+        if (payload.rejected) {
+          if (payload.reason === 'game_in_progress') setStatus('rejected_game_in_progress')
+          else if (payload.reason === 'name_taken') setStatus('rejected_name_taken')
+          else if (payload.reason === 'session_full') setStatus('rejected_session_full')
+          else if (payload.reason === 'quiz_ended') setStatus('rejected_quiz_ended')
+          setJoined(false)
+          return
+        }
+
+        if (payload.success) {
+          try {
+            localStorage.setItem('quiz-player-joined-pin', targetPin)
+            localStorage.setItem('quiz-player-nickname', playerNick)
+          } catch (e) {
+            console.warn(e)
+          }
+          setJoined(true)
+          setStatus('lobby')
+        }
+      })
+      .on('broadcast', { event: 'rejoin-ack' }, ({ payload }) => {
+        if (!isValidTransition('rejoin-ack')) return
+        if (payload.targetPlayerId !== playerId) return
+        
+        lastBroadcastTimeRef.current = Date.now()
+
+        if (payload.success) {
+          try {
+            localStorage.setItem('quiz-player-joined-pin', targetPin)
+            localStorage.setItem('quiz-player-nickname', playerNick)
+          } catch (e) {
+            console.warn(e)
+          }
+          setJoined(true)
+          setPlayerScore(payload.score ?? 0)
+          setDeadHost(false)
+
+          // Restore UI state phase
+          const recoveredState = payload.gameState
+          if (recoveredState === 'intro-build' || recoveredState === 'lobby') {
+            setStatus('lobby')
+          } else if (recoveredState === 'get-ready') {
+            setStatus('get-ready')
+            setReadyCountdown(3)
+          } else if (recoveredState === 'question') {
+            if (payload.currentQuestion) {
+              setQuestionText(payload.currentQuestion.question_text)
+              setOptions(payload.currentQuestion.options)
+              setStatus('question')
+            }
+          } else if (recoveredState === 'answers') {
+            setStatus('times-up')
+          } else if (recoveredState === 'leaderboard') {
+            setStatus('correct') // default safe landing
+          } else if (recoveredState === 'ended') {
+            setStatus('ended')
+          }
+        } else {
+          handleNormalExit()
+        }
+      })
+      .on('broadcast', { event: 'sync-state' }, ({ payload }) => {
+        if (!isValidTransition('sync-state')) return
+        lastBroadcastTimeRef.current = Date.now()
+        setDeadHost(false)
+
+        if (payload.lostAnswersWindow) {
+          setLostAnswersWindow(true)
+        }
+
+        const nextPhase = payload.gameState
+        if (nextPhase === 'lobby') {
+          setStatus('lobby')
+        } else if (nextPhase === 'get-ready') {
+          setStatus('get-ready')
+          setReadyCountdown(3)
+        } else if (nextPhase === 'question') {
+          if (payload.currentQuestion) {
+            setQuestionText(payload.currentQuestion.question_text)
+            setOptions(payload.currentQuestion.options)
+            setStatus('question')
+          }
+        } else if (nextPhase === 'answers') {
+          setStatus('times-up')
+        } else if (nextPhase === 'ended') {
+          setStatus('ended')
+        }
       })
       .on('broadcast', { event: 'lobby-update' }, ({ payload }) => {
+        if (!isValidTransition('lobby-update')) return
+        lastBroadcastTimeRef.current = Date.now()
         if (payload.players) {
           setLobbyNicknames(payload.players)
         }
       })
       .on('broadcast', { event: 'get-ready' }, ({ payload }) => {
+        if (!isValidTransition('get-ready')) return
+        lastBroadcastTimeRef.current = Date.now()
         setQuestionText(payload.questionText)
         setCurrentQuestionIndex(payload.questionIndex)
         setTotalQuestions(payload.totalQuestions)
@@ -81,6 +319,8 @@ export default function QuizPlayer() {
         }, 1000)
       })
       .on('broadcast', { event: 'next-question' }, ({ payload }) => {
+        if (!isValidTransition('next-question')) return
+        lastBroadcastTimeRef.current = Date.now()
         setQuestionText(payload.questionText)
         setOptions(payload.options)
         setGameMode(payload.gameMode || 'classic')
@@ -88,12 +328,42 @@ export default function QuizPlayer() {
         setSelectedOption(null)
         selectedOptionRef.current = null
         setCorrectOption(null)
+        setLostAnswersWindow(false)
+        setShowAnswerAckWarning(false)
+        hasAnsweredRef.current = false
         startTimeRef.current = Date.now()
         setStatus('question')
+
+        // Start local countdown
+        setTimerDisplay(payload.timeLimit)
+        if (localTimerIntervalRef.current) clearInterval(localTimerIntervalRef.current)
+        localTimerIntervalRef.current = setInterval(() => {
+          setTimerDisplay(prev => {
+            if (prev <= 1) {
+              clearInterval(localTimerIntervalRef.current)
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
+      })
+      .on('broadcast', { event: 'time-sync' }, ({ payload }) => {
+        if (!isValidTransition('time-sync')) return
+        lastBroadcastTimeRef.current = Date.now()
+        setTimerDisplay(payload.remainingSeconds)
+      })
+      .on('broadcast', { event: 'answer-ack' }, ({ payload }) => {
+        if (!isValidTransition('answer-ack')) return
+        if (payload.targetPlayerId === playerId) {
+          setShowAnswerAckWarning(false)
+        }
       })
       .on('broadcast', { event: 'time-up' }, ({ payload }) => {
+        if (!isValidTransition('time-up')) return
+        lastBroadcastTimeRef.current = Date.now()
+        if (localTimerIntervalRef.current) clearInterval(localTimerIntervalRef.current)
+
         if (payload.correctOption === -1) {
-          // If standings mapped payload is included inside this final trigger
           if (payload.standings && payload.standings[playerId]) {
             setPlayerRank(payload.standings[playerId].rank)
             setPlayerScore(payload.standings[playerId].score)
@@ -116,35 +386,64 @@ export default function QuizPlayer() {
             }
           } else {
             setStreakCount(0)
-            return 'times-up' // Timeout waiting state
+            return 'times-up'
           }
         })
       })
       .on('broadcast', { event: 'podium-building' }, () => {
+        if (!isValidTransition('podium-building')) return
+        lastBroadcastTimeRef.current = Date.now()
         setStatus('podium-building')
       })
       .on('broadcast', { event: 'leaderboard-update' }, ({ payload }) => {
+        if (!isValidTransition('leaderboard-update')) return
+        lastBroadcastTimeRef.current = Date.now()
         if (payload.standings && payload.standings[playerId]) {
           setPlayerRank(payload.standings[playerId].rank)
           setPlayerScore(payload.standings[playerId].score)
         }
       })
-      .subscribe()
+      .subscribe((statusVal) => {
+        // Handle WS block detection
+        if (statusVal === 'SUBSCRIBED') {
+          setConnectionError(null)
+          if (isRejoinAttempt) {
+            channel.send({
+              type: 'broadcast',
+              event: 'player-rejoin',
+              payload: { id: playerId, nickname: playerNick }
+            })
+          } else {
+            channel.send({
+              type: 'broadcast',
+              event: 'player-join',
+              payload: { id: playerId, nickname: playerNick }
+            })
+          }
+        }
+      })
 
     channelRef.current = channel
 
-    // Send join broadcast request
+    // 10s WebSocket Block detection
     setTimeout(() => {
-      channel.send({
-        type: 'broadcast',
-        event: 'player-join',
-        payload: { id: playerId, nickname },
-      })
-    }, 1000)
+      if (channelRef.current && channelRef.current.state !== 'joined') {
+        setConnectionError('Institutional Firewall may be blocking connection. Try mobile data.')
+      }
+    }, 10000)
+  }
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!pin || !nickname) return
+    connectChannel(pin.trim(), nickname.trim(), false)
   }
 
   const submitAnswer = (optionIndex: number) => {
     if (status !== 'question') return
+    if (hasAnsweredRef.current) return // duplicate protection
+    hasAnsweredRef.current = true
+    
     setSelectedOption(optionIndex)
     selectedOptionRef.current = optionIndex
     setStatus('waiting')
@@ -160,6 +459,13 @@ export default function QuizPlayer() {
         timeSpent: Math.min(timeSpent, timeLimitRef.current),
       },
     })
+
+    // 3s Answer Acknowledgement timer
+    setTimeout(() => {
+      if (statusRef.current === 'waiting') {
+        setShowAnswerAckWarning(true)
+      }
+    }, 3000)
   }
 
   const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
@@ -168,8 +474,84 @@ export default function QuizPlayer() {
   return (
     <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box' }}>
       
+      {/* Network / Reconnection Info banner */}
+      {connectionError && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#e21b3c', color: '#fff', textAlign: 'center', padding: '8px', zIndex: 2000, fontSize: '14px', fontWeight: 600 }}>
+          ⚠️ {connectionError}
+        </div>
+      )}
+
+      {/* Dead Host Reconnection Overlay */}
+      {deadHost && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(9,9,14,0.95)', zIndex: 1999, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '24px' }}>
+          <div style={{ fontSize: '48px', animation: 'pulse 1s infinite' }}>📡</div>
+          <h2 style={{ fontSize: '24px', margin: '16px 0 8px', fontWeight: 800 }}>Connection to Presenter Lost</h2>
+          <p style={{ color: '#888', textAlign: 'center', margin: '0 0 24px', maxWidth: '360px' }}>Waiting for presenter to reconnect. Do not close this tab.</p>
+          <button onClick={handleNormalExit} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #333', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer' }}>Exit Game</button>
+        </div>
+      )}
+
+      {/* Answer Ack Warning Indicator */}
+      {showAnswerAckWarning && (
+        <div style={{ position: 'fixed', bottom: '24px', left: '24px', right: '24px', background: '#d89e00', color: '#000', borderRadius: '8px', padding: '12px', zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700 }}>⚠️ Retrying... answer not acknowledged by presenter yet.</span>
+          <button 
+            onClick={() => {
+              if (selectedOptionRef.current !== null && channelRef.current) {
+                const timeSpent = (Date.now() - startTimeRef.current) / 1000
+                channelRef.current.send({
+                  type: 'broadcast',
+                  event: 'player-answer',
+                  payload: {
+                    id: playerId,
+                    optionIndex: selectedOptionRef.current,
+                    timeSpent: Math.min(timeSpent, timeLimitRef.current)
+                  }
+                })
+              }
+            }} 
+            style={{ background: '#000', color: '#fff', border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Rejection states */}
+      {status === 'rejected_game_in_progress' && (
+        <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#e21b3c' }}>Game in Progress</h2>
+          <p style={{ color: '#888', margin: '16px 0 32px' }}>This quiz has already started. You cannot join mid-session.</p>
+          <button onClick={handleNormalExit} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 24px', fontWeight: 800, cursor: 'pointer' }}>Back</button>
+        </div>
+      )}
+
+      {status === 'rejected_name_taken' && (
+        <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#e21b3c' }}>Name Taken</h2>
+          <p style={{ color: '#888', margin: '16px 0 32px' }}>Choose a different nickname. Someone in this room is already using it.</p>
+          <button onClick={handleNormalExit} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 24px', fontWeight: 800, cursor: 'pointer' }}>Try Again</button>
+        </div>
+      )}
+
+      {status === 'rejected_session_full' && (
+        <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#e21b3c' }}>Session Full</h2>
+          <p style={{ color: '#888', margin: '16px 0 32px' }}>This quiz session has reached its player capacity limit.</p>
+          <button onClick={handleNormalExit} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 24px', fontWeight: 800, cursor: 'pointer' }}>Back</button>
+        </div>
+      )}
+
+      {status === 'rejected_quiz_ended' && (
+        <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#e21b3c' }}>Quiz Ended</h2>
+          <p style={{ color: '#888', margin: '16px 0 32px' }}>This quiz session has already finished.</p>
+          <button onClick={handleNormalExit} style={{ background: '#00BCD4', color: '#000', border: 'none', borderRadius: '8px', padding: '12px 24px', fontWeight: 800, cursor: 'pointer' }}>Back</button>
+        </div>
+      )}
+
       {/* 1. LOBBY/PIN JOIN FORM */}
-      {!joined && (
+      {!joined && !['rejected_game_in_progress', 'rejected_name_taken', 'rejected_session_full', 'rejected_quiz_ended'].includes(status) && (
         <div style={{ maxWidth: '400px', margin: '0 auto', width: '100%', padding: '20px', animation: 'fadeIn 0.5s' }}>
           <h2 style={{ fontSize: '28px', textAlign: 'center', marginBottom: '32px', fontWeight: 800 }}>Join Quiz Game</h2>
           <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -234,9 +616,14 @@ export default function QuizPlayer() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>{questionText}</h2>
             </div>
           )}
-          <p style={{ textAlign: 'center', fontSize: '13px', color: '#888', margin: '0 0 10px', fontWeight: 700, letterSpacing: '1px' }}>
-            {gameMode === 'shared' ? 'TAP THE CORRECT ANSWER' : 'TAP THE CORRECT SHAPE'}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px' }}>
+            <span style={{ fontSize: '13px', color: '#888', fontWeight: 700, letterSpacing: '1px' }}>
+              {gameMode === 'shared' ? 'TAP THE CORRECT ANSWER' : 'TAP THE CORRECT SHAPE'}
+            </span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: '#FF9800', background: 'rgba(255,152,0,0.1)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(255,152,0,0.2)' }}>
+              ⏱️ {timerDisplay}s
+            </span>
+          </div>
           <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1, minHeight: '50vh' }}>
             {options.map((opt, i) => (
               <button
@@ -320,7 +707,14 @@ export default function QuizPlayer() {
         <div style={{ textAlign: 'center', animation: 'popIn 0.4s', maxWidth: '450px', margin: '0 auto', width: '100%' }}>
           <h1 style={{ fontSize: '80px', margin: '0 0 16px' }}>⏰</h1>
           <h2 style={{ fontSize: '36px', color: '#FF9800', fontWeight: 800 }}>Time's Up!</h2>
-          <p style={{ fontSize: '16px', color: '#aaa', marginTop: '8px' }}>You didn't submit an answer in time.</p>
+          
+          {lostAnswersWindow ? (
+            <p style={{ fontSize: '14px', color: '#f87171', marginTop: '8px', padding: '12px', background: 'rgba(248,113,113,0.1)', borderRadius: '8px', border: '1px solid rgba(248,113,113,0.2)' }}>
+              ⚠️ Your answer could not be recorded due to a connection issue. No score has been deducted.
+            </p>
+          ) : (
+            <p style={{ fontSize: '16px', color: '#aaa', marginTop: '8px' }}>You didn't submit an answer in time.</p>
+          )}
 
           {playerRank !== null && (
             <div style={{ marginTop: '24px', background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px' }}>
@@ -359,14 +753,7 @@ export default function QuizPlayer() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', marginTop: '32px' }}>
             <button 
-              onClick={() => {
-                setJoined(false)
-                setStatus('lobby')
-                setLobbyNicknames([])
-                setPlayerRank(null)
-                setPlayerScore(0)
-                setStreakCount(0)
-              }} 
+              onClick={handleNormalExit} 
               style={{ background: '#00BCD4', border: 'none', borderRadius: '8px', color: '#000', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', width: '100%', maxWidth: '240px' }}
             >
               Play Again / Join New Lobby

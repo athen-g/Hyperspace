@@ -156,6 +156,7 @@ export default function ScannerPage() {
       justifyContent: 'flex-start',
       padding: '40px 24px',
       fontFamily: 'Inter, system-ui, sans-serif',
+      boxSizing: 'border-box'
     }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -205,37 +206,52 @@ export default function ScannerPage() {
           </div>
         )}
 
-        {/* Result overlay */}
+        {/* Full screen Viewport Result Overlay */}
         {result && (
           <div style={{
-            padding: '28px',
-            borderRadius: '16px',
-            background: isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a',
-            border: `1px solid ${isSuccess ? '#166534' : isAlreadyScanned ? '#713f12' : '#7f1d1d'}`,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: isSuccess ? 'rgba(5,30,5,0.96)' : isAlreadyScanned ? 'rgba(25,20,5,0.96)' : 'rgba(30,5,5,0.96)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000,
+            padding: '24px',
             textAlign: 'center',
+            backdropFilter: 'blur(8px)'
           }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>
+            <div style={{ fontSize: '72px', marginBottom: '24px', animation: 'bounce 0.5s' }}>
               {isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌'}
             </div>
             {isSuccess && 'success' in result && result.success && (
               <>
-                <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700, color: '#4ade80' }}>Check-in Successful!</p>
-                <p style={{ margin: '0 0 8px', fontSize: '16px', color: '#e5e5e5' }}>{result.studentName}</p>
-                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '13px', color: '#86efac' }}>{result.registrationNo}</p>
+                <p style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: 800, color: '#4ade80' }}>Check-in Successful!</p>
+                <p style={{ margin: '0 0 12px', fontSize: '20px', color: '#fff', fontWeight: 600 }}>{result.studentName}</p>
+                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '16px', color: '#86efac', background: 'rgba(255,255,255,0.05)', padding: '6px 16px', borderRadius: '20px' }}>{result.registrationNo}</p>
               </>
             )}
             {isAlreadyScanned && 'error' in result && (
               <>
-                <p style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700, color: '#facc15' }}>Already Scanned</p>
-                <p style={{ margin: 0, fontSize: '13px', color: '#a3a3a3' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
+                <p style={{ margin: '0 0 12px', fontSize: '26px', fontWeight: 800, color: '#facc15' }}>Already Scanned</p>
+                <p style={{ margin: 0, fontSize: '16px', color: '#d4d4d4' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
               </>
             )}
             {isError && 'error' in result && (
-              <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
+              <p style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
             )}
           </div>
         )}
       </div>
+      <style>{`
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+      `}</style>
     </div>
   )
 }

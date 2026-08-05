@@ -236,7 +236,7 @@ function PodiumColumn({ cfg }: { cfg: PodiumConfig }) {
 export default function QuizHost() {
   const { codeSlug } = useParams()
   const navigate = useNavigate()
-  const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
+  const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
 
   // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
   const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
@@ -278,6 +278,106 @@ export default function QuizHost() {
   const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0)
   const podiumTimersRef = useRef<any[]>([])
 
+  // Track players who answered current question to prevent duplicates
+  const [answeredPlayerIds, setAnsweredPlayerIds] = useState<string[]>([])
+
+  // State refs to prevent stale closures in realtime handlers
+  const gameStateRef = useRef(gameState)
+  const playersRef = useRef(players)
+  const currentIndexRef = useRef(currentIndex)
+  const questionsRef = useRef(questions)
+  const answeredPlayerIdsRef = useRef(answeredPlayerIds)
+  const answerStatsRef = useRef(answerStats)
+
+  useEffect(() => { gameStateRef.current = gameState }, [gameState])
+  useEffect(() => { playersRef.current = players }, [players])
+  useEffect(() => { currentIndexRef.current = currentIndex }, [currentIndex])
+  useEffect(() => { questionsRef.current = questions }, [questions])
+  useEffect(() => { answeredPlayerIdsRef.current = answeredPlayerIds }, [answeredPlayerIds])
+  useEffect(() => { answerStatsRef.current = answerStats }, [answerStats])
+
+  // ── beforeunload Prevention ────────────────────────────────────────────────
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (gameStateRef.current !== 'lobby' && gameStateRef.current !== 'ended') {
+        e.preventDefault()
+        e.returnValue = 'A quiz is currently in progress. Leaving will disconnect all players.'
+        return e.returnValue
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
+  // ── State Persistence (Save) ───────────────────────────────────────────────
+  const saveHostState = (stateName: string, index: number, playerList: Player[]) => {
+    try {
+      const stateToSave = {
+        pin,
+        gameState: stateName,
+        currentIndex: index,
+        players: playerList,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(`quiz-host-session-${codeSlug}`, JSON.stringify(stateToSave))
+    } catch (e) {
+      console.warn('Failed to save quiz host state to localStorage:', e)
+    }
+  }
+
+  useEffect(() => {
+    if (gameState !== 'lobby' && gameState !== 'ended') {
+      saveHostState(gameState, currentIndex, players)
+    }
+  }, [gameState, currentIndex, players])
+
+  useEffect(() => {
+    if (gameState === 'ended') {
+      try {
+        localStorage.removeItem(`quiz-host-session-${codeSlug}`)
+      } catch (e) {
+        console.warn(e)
+      }
+    }
+  }, [gameState])
+
+  // ── State Persistence (Recovery on Mount) ─────────────────────────────────
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`quiz-host-session-${codeSlug}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
+          setPin(parsed.pin)
+          setGameState(parsed.gameState)
+          setCurrentIndex(parsed.currentIndex)
+          setPlayers(parsed.players)
+          
+          const prevScores: Record<string, number> = {}
+          parsed.players.forEach((p: Player) => {
+            prevScores[p.id] = p.score
+          })
+          setPrevLeaderboard(prevScores)
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse stored host session:', e)
+    }
+  }, [codeSlug])
+
+  // ── Time synchronization broadcast ─────────────────────────────────────────
+  useEffect(() => {
+    if (gameState !== 'question' || !channelRef.current) return
+    const interval = setInterval(() => {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'time-sync',
+        payload: { remainingSeconds: timer }
+      })
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [gameState, timer])
+
   // ── Data fetching ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (codeSlug) {
@@ -310,6 +410,22 @@ export default function QuizHost() {
     showLeaderboardRef.current = showLeaderboard
   })
 
+  // Throttled batch lobby-update broadcast helper
+  const lobbyUpdateTimeoutRef = useRef<any>(null)
+  const triggerLobbyUpdate = () => {
+    if (lobbyUpdateTimeoutRef.current) return
+    lobbyUpdateTimeoutRef.current = setTimeout(() => {
+      lobbyUpdateTimeoutRef.current = null
+      if (gameStateRef.current === 'lobby') {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'lobby-update',
+          payload: { players: playersRef.current.map(p => p.nickname) }
+        })
+      }
+    }, 500)
+  }
+
   // ── Realtime channel ───────────────────────────────────────────────────────
   useEffect(() => {
     const channel = supabase.channel(`quiz-${pin}`, {
@@ -318,19 +434,108 @@ export default function QuizHost() {
 
     channel
       .on('broadcast', { event: 'player-join' }, ({ payload }) => {
+        const nameCollision = playersRef.current.some(p => p.nickname.toLowerCase() === payload.nickname.toLowerCase())
+        const MAX_PLAYERS = 100
+
+        if (gameStateRef.current !== 'lobby') {
+          channel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'game_in_progress', currentPhase: gameStateRef.current }
+          })
+          return
+        }
+
+        if (nameCollision) {
+          channel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'name_taken' }
+          })
+          return
+        }
+
+        if (playersRef.current.length >= MAX_PLAYERS) {
+          channel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'session_full' }
+          })
+          return
+        }
+
         setPlayers((prev) => {
           if (prev.some((p) => p.id === payload.id)) return prev
           const next = [...prev, { id: payload.id, nickname: payload.nickname, score: 0, answered: false }]
-          channel.send({ type: 'broadcast', event: 'lobby-update', payload: { players: next.map(p => p.nickname) } })
           return next
         })
-        channel.send({ type: 'broadcast', event: 'join-ack', payload: { pin, success: true } })
+
+        // Unicast acknowledgement specifically to the newly joined player
+        channel.send({
+          type: 'broadcast',
+          event: 'join-ack',
+          payload: { targetPlayerId: payload.id, pin, success: true }
+        })
+
+        // Fire throttled lobby update
+        triggerLobbyUpdate()
+      })
+      .on('broadcast', { event: 'player-rejoin' }, ({ payload }) => {
+        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
+        if (existingPlayer) {
+          channel.send({
+            type: 'broadcast',
+            event: 'rejoin-ack',
+            payload: {
+              targetPlayerId: payload.id,
+              success: true,
+              gameState: gameStateRef.current,
+              currentIndex: currentIndexRef.current,
+              currentQuestion: questionsRef.current[currentIndexRef.current],
+              score: existingPlayer.score
+            }
+          })
+        } else {
+          channel.send({
+            type: 'broadcast',
+            event: 'rejoin-ack',
+            payload: { targetPlayerId: payload.id, success: false, reason: 'player_not_found' }
+          })
+        }
+      })
+      .on('broadcast', { event: 'state-request' }, ({ payload }) => {
+        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
+        channel.send({
+          type: 'broadcast',
+          event: 'rejoin-ack',
+          payload: {
+            targetPlayerId: payload.id,
+            success: true,
+            gameState: gameStateRef.current,
+            currentIndex: currentIndexRef.current,
+            currentQuestion: questionsRef.current[currentIndexRef.current],
+            score: existingPlayer ? existingPlayer.score : 0
+          }
+        })
       })
       .on('broadcast', { event: 'player-answer' }, ({ payload }) => {
+        // Discard duplicates
+        if (answeredPlayerIdsRef.current.includes(payload.id)) {
+          return
+        }
+        setAnsweredPlayerIds(prev => [...prev, payload.id])
+
+        // Acknowledge receipt of answer
+        channel.send({
+          type: 'broadcast',
+          event: 'answer-ack',
+          payload: { targetPlayerId: payload.id, success: true }
+        })
+
         setPlayers((prev) => {
           const updated = prev.map((p) => {
             if (p.id === payload.id) {
-              const currentQuestion = questions[currentIndex]
+              const currentQuestion = questionsRef.current[currentIndexRef.current]
               const isCorrect = payload.optionIndex === currentQuestion.correct_option
               let points = 0
               if (isCorrect) {
@@ -355,7 +560,7 @@ export default function QuizHost() {
 
     channelRef.current = channel
     return () => { channel.unsubscribe() }
-  }, [pin, questions, currentIndex])
+  }, [pin])
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -509,6 +714,7 @@ export default function QuizHost() {
   const triggerGetReady = (index: number) => {
     setCurrentIndex(index)
     setAnswerStats([0, 0, 0, 0])
+    setAnsweredPlayerIds([])
     setPlayers(prev => prev.map(p => ({ ...p, answered: false })))
     setGameState('get-ready')
     setReadyCountdown(3)

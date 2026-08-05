@@ -17,6 +17,15 @@ export default function QuizPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [activeSession, setActiveSession] = useState<{
+    codeSlug: string
+    title: string
+    pin: string
+    gameState: string
+    currentIndex: number
+    playerCount: number
+    timeAgo: string
+  } | null>(null)
 
   const fetchQuizzes = () => {
     supabase
@@ -24,7 +33,37 @@ export default function QuizPage() {
       .select('*')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
-        if (data) setQuizzes(data)
+        if (data) {
+          setQuizzes(data)
+          // Look for active host session in localStorage
+          try {
+            data.forEach((q) => {
+              const stored = localStorage.getItem(`quiz-host-session-${q.code_slug}`)
+              if (stored) {
+                const parsed = JSON.parse(stored)
+                const ageMs = Date.now() - parsed.timestamp
+                if (ageMs < 2 * 60 * 60 * 1000) {
+                  // Under 2 hours - active session found!
+                  const minutesAgo = Math.floor(ageMs / 60000)
+                  setActiveSession({
+                    codeSlug: q.code_slug,
+                    title: q.title,
+                    pin: parsed.pin,
+                    gameState: parsed.gameState,
+                    currentIndex: parsed.currentIndex,
+                    playerCount: parsed.players ? parsed.players.length : 0,
+                    timeAgo: minutesAgo === 0 ? 'just now' : `${minutesAgo}m ago`
+                  })
+                } else {
+                  // Older than 2 hours - clear stale entry
+                  localStorage.removeItem(`quiz-host-session-${q.code_slug}`)
+                }
+              }
+            })
+          } catch (e) {
+            console.warn('Failed to parse active host session:', e)
+          }
+        }
       })
   }
 
@@ -90,6 +129,28 @@ export default function QuizPage() {
             <button onClick={() => setShowCreate(true)} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>Create New Quiz</button>
           </div>
         </div>
+
+        {/* Resume Active Session Card */}
+        {activeSession && (
+          <div style={{ background: 'linear-gradient(135deg, rgba(233,30,99,0.15) 0%, rgba(233,30,99,0.02) 100%)', border: '1px solid rgba(233,30,99,0.3)', borderRadius: '16px', padding: '24px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
+            <div>
+              <span style={{ background: '#E91E63', color: '#fff', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Session Detected</span>
+              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: '8px 0 4px' }}>{activeSession.title}</h2>
+              <div style={{ display: 'flex', gap: '20px', color: '#aaa', fontSize: '14px', marginTop: '8px' }}>
+                <span>PIN: <strong style={{ color: '#fff' }}>{activeSession.pin}</strong></span>
+                <span>•</span>
+                <span>Question: <strong style={{ color: '#fff' }}>#{activeSession.currentIndex + 1}</strong></span>
+                <span>•</span>
+                <span>Players: <strong style={{ color: '#fff' }}>{activeSession.playerCount}</strong></span>
+                <span>•</span>
+                <span>Disconnected: <strong style={{ color: '#fff' }}>{activeSession.timeAgo}</strong></span>
+              </div>
+            </div>
+            <Link to={`/admin/quiz/host/${activeSession.codeSlug}`} style={{ textDecoration: 'none', background: '#E91E63', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 700, boxShadow: '0 4px 15px rgba(233,30,99,0.4)', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+              Resume Active Session →
+            </Link>
+          </div>
+        )}
 
         {/* Modal Create form Overlay */}
         {showCreate && (
