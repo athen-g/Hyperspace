@@ -205,6 +205,60 @@ const EventPageTemplate = () => {
           }
         />
 
+        {/* Brochure & Rulebook text */}
+        <div className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
+          }`}>
+          <p className={`font-host font-bold uppercase leading-[1.1] tracking-[0.02em] text-white mx-auto ${isMobile768 ? 'text-[18px] max-w-full' : 'text-[36px] max-w-[900px]'
+            }`}>
+            EVERY <span className="text-[#E91E63]">SUCCESSFUL</span> ENDEAVOR NEEDS SOME <span className="text-[#E91E63]">RULES</span> TO BE SUCCESSFUL...SO DO WE. TAKE A LOOK AT THE <span className="text-[#E91E63]">RULEBOOK</span> AND THE <span className="text-[#E91E63]">BROCHURE</span> TO GET THE FULL IDEA ABOUT THIS WORKSHOP.
+          </p>
+
+          <div className={`flex flex-col md:flex-row justify-center items-center font-bold font-mono gap-3 mt-6 text-[#E91E63] uppercase tracking-[0.02em] ${isMobile768 ? 'text-[16px]' : 'text-[32px]'
+            }`}>
+            {event.rulebook_url ? (
+              <a href={event.rulebook_url} target="_blank" rel="noopener noreferrer" className="header-roll-link underline underline-offset-8 decoration-[#E91E63]">
+                <span className="header-roll-link__stack">
+                  <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE RULEBOOK</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE RULEBOOK</span>
+                </span>
+              </a>
+            ) : (
+              <span
+                title="Rulebook not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
+                  <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE RULEBOOK</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
+                </span>
+              </span>
+            )}
+
+            {!isMobile768 && <span>|</span>}
+
+            {event.brochure_url ? (
+              <a href={event.brochure_url} target="_blank" rel="noopener noreferrer" className="header-roll-link underline underline-offset-8 decoration-[#E91E63]">
+                <span className="header-roll-link__stack">
+                  <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE INFORMATION BROCHURE</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">DOWNLOAD THE INFORMATION BROCHURE</span>
+                </span>
+              </a>
+            ) : (
+              <span
+                title="Brochure not available yet"
+                className="header-roll-link decoration-[#E91E63] opacity-40 pointer-events-none select-none"
+                style={{ cursor: 'not-allowed' }}
+              >
+                <span className="header-roll-link__stack" style={{ cursor: 'not-allowed' }}>
+                  <span className="header-roll-link__face header-roll-link__face--current">DOWNLOAD THE INFORMATION BROCHURE</span>
+                  <span className="header-roll-link__face header-roll-link__face--next" aria-hidden="true">✕ NOT AVAILABLE</span>
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* The Plan Section */}
         <div className={
           isMobile768
