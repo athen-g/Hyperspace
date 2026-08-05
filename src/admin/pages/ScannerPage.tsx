@@ -154,22 +154,22 @@ export default function ScannerPage() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      padding: '40px 24px',
+      padding: '16px 16px',
       fontFamily: 'Inter, system-ui, sans-serif',
       boxSizing: 'border-box'
     }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div>
             <p style={{ margin: 0, fontSize: '10px', letterSpacing: '3px', color: '#555', textTransform: 'uppercase' }}>Hyperspace XR</p>
-            <h1 style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: '#fff' }}>QR Scanner</h1>
+            <h1 style={{ margin: '4px 0 0', fontSize: '20px', fontWeight: 700, color: '#fff' }}>QR Scanner</h1>
           </div>
           <Link to="/admin/dashboard" style={{ fontSize: '12px', color: '#555', textDecoration: 'none' }}>← Dashboard</Link>
         </div>
 
         {/* Event selector */}
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', marginBottom: '8px' }}>Event</label>
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', marginBottom: '6px' }}>Event</label>
           <select
             value={selectedEventId}
             onChange={e => setSelectedEventId(e.target.value)}
@@ -182,18 +182,18 @@ export default function ScannerPage() {
         </div>
 
         {/* Controls */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
           {!scanning ? (
             <button
               id="start-scanner"
               onClick={startScanner}
               disabled={!selectedEventId}
-              style={{ flex: 1, padding: '14px', background: selectedEventId ? '#fff' : '#1a1a1a', color: selectedEventId ? '#000' : '#555', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: selectedEventId ? 'pointer' : 'not-allowed' }}
+              style={{ flex: 1, padding: '12px', background: selectedEventId ? '#fff' : '#1a1a1a', color: selectedEventId ? '#000' : '#555', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: selectedEventId ? 'pointer' : 'not-allowed' }}
             >
               Start Scanning
             </button>
           ) : (
-            <button onClick={stopScanner} style={{ flex: 1, padding: '14px', background: '#1a0a0a', border: '1px solid #7f1d1d', borderRadius: '8px', color: '#f87171', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={stopScanner} style={{ flex: 1, padding: '12px', background: '#1a0a0a', border: '1px solid #7f1d1d', borderRadius: '8px', color: '#f87171', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
               Stop Scanner
             </button>
           )}
@@ -202,13 +202,14 @@ export default function ScannerPage() {
         {/* Camera feed */}
         {scanning && (
           <div style={{ 
-            width: '100%', 
-            aspectRatio: '1/1', 
+            width: '240px', 
+            height: '240px', 
             background: '#111', 
             border: '1px solid #1e1e1e', 
             borderRadius: '12px', 
             overflow: 'hidden', 
-            marginBottom: '24px',
+            marginBottom: '16px',
+            margin: '0 auto 16px',
             position: 'relative'
           }}>
             <div id="qr-reader" style={{ width: '100%', height: '100%' }} />
@@ -223,20 +224,20 @@ export default function ScannerPage() {
               boxSizing: 'border-box'
             }}>
               {/* Top-left corner */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #4ade80', borderTop: '4px solid #4ade80', borderTopLeftRadius: '8px' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #fff', borderTop: '4px solid #fff', borderTopLeftRadius: '8px' }} />
               {/* Top-right corner */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #4ade80', borderTop: '4px solid #4ade80', borderTopRightRadius: '8px' }} />
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #fff', borderTop: '4px solid #fff', borderTopRightRadius: '8px' }} />
               {/* Bottom-left corner */}
-              <div style={{ position: 'absolute', bottom: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #4ade80', borderBottom: '4px solid #4ade80', borderBottomLeftRadius: '8px' }} />
+              <div style={{ position: 'absolute', bottom: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #fff', borderBottom: '4px solid #fff', borderBottomLeftRadius: '8px' }} />
               {/* Bottom-right corner */}
-              <div style={{ position: 'absolute', bottom: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #4ade80', borderBottom: '4px solid #4ade80', borderBottomRightRadius: '8px' }} />
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #fff', borderBottom: '4px solid #fff', borderBottomRightRadius: '8px' }} />
             </div>
           </div>
         )}
 
         {/* Scan Result Status card - Always visible */}
         <div style={{
-          padding: '20px',
+          padding: '16px',
           borderRadius: '12px',
           background: result 
             ? (isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a')
@@ -247,9 +248,9 @@ export default function ScannerPage() {
               : (scanning ? '#1e3a8a' : '#222')
           }`,
           textAlign: 'center',
-          marginTop: '16px'
+          marginTop: '8px'
         }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>
+          <div style={{ fontSize: '28px', marginBottom: '6px' }}>
             {result 
               ? (isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌')
               : (scanning ? '🔍' : '💤')}
