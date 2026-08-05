@@ -20,6 +20,31 @@ interface Player {
   answered: boolean
 }
 
+const emojis = ['🚀', '👾', '🛸', '🛰️', '🪐', '💫', '☄️', '🌌', '🤖', '👽', '⭐', '✨', '⚡', '🔮']
+const gradients = [
+  'linear-gradient(135deg, #e91e63 0%, #9C27B0 100%)', // Neon Pink to Purple
+  'linear-gradient(135deg, #00BCD4 0%, #3F51B5 100%)', // Neon Cyan to Indigo
+  'linear-gradient(135deg, #9C27B0 0%, #00BCD4 100%)', // Purple to Cyan
+  'linear-gradient(135deg, #e91e63 0%, #FF5722 100%)', // Pink to Orange
+  'linear-gradient(135deg, #8A2BE2 0%, #FF00FF 100%)', // Violet to Magenta
+]
+
+const getPlayerEmoji = (id: string) => {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return emojis[Math.abs(hash) % emojis.length]
+}
+
+const getPlayerGradient = (id: string) => {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return gradients[Math.abs(hash) % gradients.length]
+}
+
 // Animation phase constants
 const PHASES = {
   IDLE:    'idle',
@@ -277,6 +302,30 @@ export default function QuizHost() {
     }).catch(() => {
       toast.error('Failed to copy link')
     })
+  }
+
+  const handleKickPlayer = (player: Player) => {
+    if (confirm(`Are you sure you want to kick "${player.nickname}" from the lobby?`)) {
+      setPlayers(prev => {
+        const next = prev.filter(p => p.id !== player.id)
+        
+        // Notify lobby update
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'lobby-update',
+          payload: { players: next.map(p => p.nickname) }
+        })
+        
+        // Unicast kick message
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'player-kicked',
+          payload: { targetPlayerId: player.id }
+        })
+
+        return next
+      })
+    }
   }
 
   useEffect(() => {
@@ -733,20 +782,34 @@ export default function QuizHost() {
 
   const startDemo = () => {
     setIsDemo(true)
-    const botPlayers: Player[] = Array.from({ length: 10 }).map((_, i) => ({
-      id: `bot${i}`,
-      nickname: `SIGBot_${i + 1} 🤖`,
-      score: 0,
-      answered: false,
-    }))
-    setPlayers(botPlayers)
-    setTimeout(() => {
-      channelRef.current.send({
-        type: 'broadcast', event: 'lobby-update',
-        payload: { players: botPlayers.map(b => b.nickname) },
-      })
-      triggerIntroBuild()
-    }, 500)
+    const botNames = [
+      'SIGBot_Alpha 🤖', 'SIGBot_Beta 🤖', 'SIGBot_Gamma 🤖', 'SIGBot_Delta 🤖',
+      'SIGBot_Epsilon 🤖', 'SIGBot_Zeta 🤖', 'SIGBot_Eta 🤖', 'SIGBot_Theta 🤖',
+      'SIGBot_Iota 🤖', 'SIGBot_Kappa 🤖'
+    ]
+    
+    botNames.forEach((name, i) => {
+      setTimeout(() => {
+        setPlayers((prev) => {
+          if (prev.some(p => p.nickname === name)) return prev
+          const newBot = {
+            id: `bot${i}`,
+            nickname: name,
+            score: 0,
+            answered: false
+          }
+          const next = [...prev, newBot]
+          
+          // Send lobby update message
+          channelRef.current.send({
+            type: 'broadcast', event: 'lobby-update',
+            payload: { players: next.map(b => b.nickname) },
+          })
+          
+          return next
+        })
+      }, (i + 1) * (Math.random() * 200 + 150))
+    })
   }
 
   const triggerIntroBuild = () => {
@@ -1097,13 +1160,50 @@ export default function QuizHost() {
             <h3 style={{ fontSize: '20px', margin: '0 0 16px', color: '#e91e63', fontWeight: 800 }}>
               {players.length === 0 ? 'Waiting for players to join...' : `Joined Players (${players.length})`}
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-              {players.map(p => (
-                <div key={p.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', fontWeight: 700, padding: '8px 20px', borderRadius: '30px', fontSize: '14px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', animation: 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                  {p.nickname}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+              {players.map((p, idx) => (
+                <div 
+                  key={p.id} 
+                  className="lobby-bubble"
+                  onClick={() => handleKickPlayer(p)}
+                  style={{ 
+                    background: getPlayerGradient(p.id),
+                    animationDelay: `${(idx % 5) * 0.4}s`
+                  }}
+                  title="Click to kick player"
+                >
+                  <span style={{ fontSize: '18px' }}>{getPlayerEmoji(p.id)}</span>
+                  <span>{p.nickname}</span>
                 </div>
               ))}
             </div>
+            <style>{`
+              @keyframes lobbyFloat {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                25% { transform: translateY(-4px) rotate(-1deg); }
+                75% { transform: translateY(2px) rotate(1deg); }
+              }
+              .lobby-bubble {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #fff;
+                font-weight: 700;
+                padding: 8px 20px;
+                border-radius: 30px;
+                font-size: 14px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border: 1px solid rgba(255,255,255,0.15);
+                animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, lobbyFloat 3s ease-in-out infinite alternate;
+              }
+              .lobby-bubble:hover {
+                transform: scale(1.1) rotate(1deg) !important;
+                box-shadow: 0 8px 20px rgba(233,30,99,0.3);
+                border-color: rgba(255,255,255,0.5);
+              }
+            `}</style>
           </div>
 
           <div style={{ margin: '20px 0', width: '100%', maxWidth: '400px', background: '#111', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #222' }}>
