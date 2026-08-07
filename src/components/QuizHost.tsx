@@ -264,8 +264,20 @@ export default function QuizHost() {
   const navigate = useNavigate()
   const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
 
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const { member } = useAuth()
   const [otherHostActive, setOtherHostActive] = useState(false)
+  const [activeHostName, setActiveHostName] = useState('')
+  const [activeHostClaimedAt, setActiveHostClaimedAt] = useState<number | null>(null)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+
+  useEffect(() => {
+    if (!activeHostClaimedAt || !otherHostActive) return
+    setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [activeHostClaimedAt, otherHostActive])
 
   // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
   const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
@@ -284,16 +296,36 @@ export default function QuizHost() {
   const [isDemo, setIsDemo] = useState(false)
   const [qrZoomed, setQrZoomed] = useState(false)
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setCurrentUser(user)
-      }
-    })
-  }, [])
-
   // Previous-round scores used as the "from" baseline for animations
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
+
+  const sendHostControl = async (event: string, payload: any = {}) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-host-control`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': supabase.supabaseKey
+        },
+        body: JSON.stringify({
+          action: event,
+          pin,
+          payload
+        })
+      })
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.message || 'Failed to send host control')
+      }
+    } catch (e: any) {
+      console.error(`Error sending host control event ${event}:`, e)
+      toast.error(`Control error: ${e.message}`)
+    }
+  }
 
   const handleShareLink = () => {
     const playUrl = `${window.location.origin}/quiz/play?pin=${pin}`
@@ -310,18 +342,10 @@ export default function QuizHost() {
         const next = prev.filter(p => p.id !== player.id)
         
         // Notify lobby update
-        channelRef.current.send({
-          type: 'broadcast',
-          event: 'lobby-update',
-          payload: { players: next.map(p => p.nickname) }
-        })
+        sendHostControl('lobby-update', { players: next.map(p => p.nickname) })
         
         // Unicast kick message
-        channelRef.current.send({
-          type: 'broadcast',
-          event: 'player-kicked',
-          payload: { targetPlayerId: player.id }
-        })
+        sendHostControl('player-kicked', { targetPlayerId: player.id })
 
         return next
       })
@@ -503,42 +527,60 @@ export default function QuizHost() {
     lobbyUpdateTimeoutRef.current = setTimeout(() => {
       lobbyUpdateTimeoutRef.current = null
       if (gameStateRef.current === 'lobby') {
-        channelRef.current.send({
-          type: 'broadcast',
-          event: 'lobby-update',
-          payload: { players: playersRef.current.map(p => p.nickname) }
-        })
+        sendHostControl('lobby-update', { players: playersRef.current.map(p => p.nickname) })
       }
     }, 500)
   }
 
   // ── Realtime channel ───────────────────────────────────────────────────────
   useEffect(() => {
-    if (!currentUser) return
+    if (!member) return
 
-    const channel = supabase.channel(`quiz-${pin}`, {
-      config: { 
-        broadcast: { self: true, ack: true },
-        presence: { key: 'host' }
-      },
+    // Host presence channel — isolated from player traffic
+    const hostPresenceChannel = supabase.channel(`quiz-host-${pin}`, {
+      config: { presence: { key: 'host' } }
     })
 
-    channel.on('presence', { event: 'sync' }, () => {
-      const state = channel.presenceState()
-      const hostPresenceList = state.host || []
-      const anotherHost = hostPresenceList.some((pres: any) => pres.user_id !== currentUser.id)
-      if (anotherHost) {
-        setOtherHostActive(true)
+    // Player broadcast channel
+    const playerChannel = supabase.channel(`quiz-${pin}`, {
+      config: { broadcast: { self: true, ack: true } }
+    })
+
+    hostPresenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = hostPresenceChannel.presenceState()
+      const hostList = state.host || []
+
+      if (hostList.length === 0) {
+        if (otherHostActive) {
+          setOtherHostActive(false)
+          toast.success('Takeover successful! You are now the active host.')
+        }
+        return
+      }
+
+      // Race occurred — tiebreak by earliest claimed_at
+      const sorted = [...hostList].sort((a, b) => a.claimed_at - b.claimed_at)
+      const winner = sorted[0]
+
+      if (winner.user_id !== member.user_id) {
+        setOtherHostActive(true) // current user lost the race
+        setActiveHostName(winner.display_name || 'Another Admin')
+        setActiveHostClaimedAt(winner.claimed_at)
+      } else {
+        if (otherHostActive) {
+          setOtherHostActive(false)
+          toast.success('Takeover successful! You are now the active host.')
+        }
       }
     })
 
-    channel
+    playerChannel
       .on('broadcast', { event: 'player-join' }, ({ payload }) => {
         const nameCollision = playersRef.current.some(p => p.nickname.toLowerCase() === payload.nickname.toLowerCase())
         const MAX_PLAYERS = 100
 
         if (gameStateRef.current !== 'lobby') {
-          channel.send({
+          playerChannel.send({
             type: 'broadcast',
             event: 'join-ack',
             payload: { targetPlayerId: payload.id, rejected: true, reason: 'game_in_progress', currentPhase: gameStateRef.current }
@@ -547,7 +589,7 @@ export default function QuizHost() {
         }
 
         if (nameCollision) {
-          channel.send({
+          playerChannel.send({
             type: 'broadcast',
             event: 'join-ack',
             payload: { targetPlayerId: payload.id, rejected: true, reason: 'name_taken' }
@@ -556,7 +598,7 @@ export default function QuizHost() {
         }
 
         if (playersRef.current.length >= MAX_PLAYERS) {
-          channel.send({
+          playerChannel.send({
             type: 'broadcast',
             event: 'join-ack',
             payload: { targetPlayerId: payload.id, rejected: true, reason: 'session_full' }
@@ -571,7 +613,7 @@ export default function QuizHost() {
         })
 
         // Unicast acknowledgement specifically to the newly joined player
-        channel.send({
+        playerChannel.send({
           type: 'broadcast',
           event: 'join-ack',
           payload: { targetPlayerId: payload.id, pin, success: true }
@@ -583,7 +625,7 @@ export default function QuizHost() {
       .on('broadcast', { event: 'player-rejoin' }, ({ payload }) => {
         const existingPlayer = playersRef.current.find(p => p.id === payload.id)
         if (existingPlayer) {
-          channel.send({
+          playerChannel.send({
             type: 'broadcast',
             event: 'rejoin-ack',
             payload: {
@@ -596,7 +638,7 @@ export default function QuizHost() {
             }
           })
         } else {
-          channel.send({
+          playerChannel.send({
             type: 'broadcast',
             event: 'rejoin-ack',
             payload: { targetPlayerId: payload.id, success: false, reason: 'player_not_found' }
@@ -605,7 +647,7 @@ export default function QuizHost() {
       })
       .on('broadcast', { event: 'state-request' }, ({ payload }) => {
         const existingPlayer = playersRef.current.find(p => p.id === payload.id)
-        channel.send({
+        playerChannel.send({
           type: 'broadcast',
           event: 'rejoin-ack',
           payload: {
@@ -626,7 +668,7 @@ export default function QuizHost() {
         setAnsweredPlayerIds(prev => [...prev, payload.id])
 
         // Acknowledge receipt of answer
-        channel.send({
+        playerChannel.send({
           type: 'broadcast',
           event: 'answer-ack',
           payload: { targetPlayerId: payload.id, success: true }
@@ -656,18 +698,25 @@ export default function QuizHost() {
           return next
         })
       })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.track({
-            user_id: currentUser.id,
-            online_at: new Date().toISOString()
-          })
-        }
-      })
 
-    channelRef.current = channel
-    return () => { channel.unsubscribe() }
-  }, [pin, currentUser])
+    // Subscribe to both
+    playerChannel.subscribe()
+    hostPresenceChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await hostPresenceChannel.track({
+          user_id: member.user_id,
+          display_name: member.name,
+          claimed_at: Date.now()
+        })
+      }
+    })
+
+    channelRef.current = playerChannel
+    return () => {
+      playerChannel.unsubscribe()
+      hostPresenceChannel.unsubscribe()
+    }
+  }, [pin, member])
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -801,10 +850,7 @@ export default function QuizHost() {
           const next = [...prev, newBot]
           
           // Send lobby update message
-          channelRef.current.send({
-            type: 'broadcast', event: 'lobby-update',
-            payload: { players: next.map(b => b.nickname) },
-          })
+          sendHostControl('lobby-update', { players: next.map(b => b.nickname) })
           
           return next
         })
@@ -816,10 +862,7 @@ export default function QuizHost() {
     setGameState('intro-build')
     setIntroCountdown(3)
     setIntroTitleShow(false)
-    channelRef.current.send({
-      type: 'broadcast', event: 'get-ready',
-      payload: { questionText: 'Get Ready...', questionIndex: 1, totalQuestions: questions.length, gameMode },
-    })
+    sendHostControl('get-ready', { questionText: 'Get Ready...', questionIndex: 1, totalQuestions: questions.length, gameMode })
     let elapsed = 3
     const introInterval = setInterval(() => {
       elapsed -= 1
@@ -839,10 +882,7 @@ export default function QuizHost() {
     setPlayers(prev => prev.map(p => ({ ...p, answered: false })))
     setGameState('get-ready')
     setReadyCountdown(3)
-    channelRef.current.send({
-      type: 'broadcast', event: 'get-ready',
-      payload: { questionText: questions[index].question_text, questionIndex: index + 1, totalQuestions: questions.length, gameMode },
-    })
+    sendHostControl('get-ready', { questionText: questions[index].question_text, questionIndex: index + 1, totalQuestions: questions.length, gameMode })
     if (readyTimerRef.current) clearInterval(readyTimerRef.current)
     readyTimerRef.current = setInterval(() => {
       setReadyCountdown(prev => {
@@ -856,10 +896,7 @@ export default function QuizHost() {
     setGameState('question')
     const q = questions[index]
     setTimer(q.time_limit)
-    channelRef.current.send({
-      type: 'broadcast', event: 'next-question',
-      payload: { questionText: q.question_text, options: q.options, timeLimit: q.time_limit, gameMode },
-    })
+    sendHostControl('next-question', { questionText: q.question_text, options: q.options, timeLimit: q.time_limit, gameMode })
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = setInterval(() => {
       setTimer(prev => {
@@ -872,10 +909,7 @@ export default function QuizHost() {
   const endQuestion = () => {
     if (timerRef.current) clearInterval(timerRef.current)
     setGameState('answers')
-    channelRef.current.send({
-      type: 'broadcast', event: 'time-up',
-      payload: { correctOption: questions[currentIndex].correct_option, answerStats },
-    })
+    sendHostControl('time-up', { correctOption: questions[currentIndex].correct_option, answerStats })
   }
 
   // ── showLeaderboard — Kahoot-style 4-phase animation with enter/leave ───────
@@ -956,10 +990,7 @@ export default function QuizHost() {
       // Notify player devices of their new rankings
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       newSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-      channelRef.current.send({
-        type: 'broadcast', event: 'leaderboard-update',
-        payload: { standings: standingsMapping },
-      })
+      sendHostControl('leaderboard-update', { standings: standingsMapping })
     }, 4300)
 
     // Cleanup if component unmounts mid-animation
@@ -998,7 +1029,7 @@ export default function QuizHost() {
     setGameState('ended')
     setEndedTab('podium')
     setPodiumRevealStep(0)
-    channelRef.current.send({ type: 'broadcast', event: 'podium-building', payload: {} })
+    sendHostControl('podium-building', {})
 
     podiumTimersRef.current.forEach(clearTimeout)
 
@@ -1027,10 +1058,7 @@ export default function QuizHost() {
       const finalSorted = [...players].sort((a, b) => b.score - a.score)
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       finalSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-      channelRef.current.send({
-        type: 'broadcast', event: 'time-up',
-        payload: { correctOption: -1, standings: standingsMapping },
-      })
+      sendHostControl('time-up', { correctOption: -1, standings: standingsMapping })
     }, 7800)
 
     podiumTimersRef.current = [t1, t2, t3]
@@ -1089,7 +1117,9 @@ export default function QuizHost() {
         <div style={{ textAlign: 'center', maxWidth: '480px', background: '#111', border: '1px solid #222', padding: '32px', borderRadius: '16px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔒</div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#e91e63', marginBottom: '12px' }}>Session Locked</h2>
-          <p style={{ color: '#888', lineHeight: 1.6, marginBottom: '24px' }}>This quiz session is currently being hosted by another administrator. Presenter control is restricted to one host at a time.</p>
+          <p style={{ color: '#888', lineHeight: 1.6, marginBottom: '24px' }}>
+            <strong>{activeHostName}</strong> is currently hosting this quiz (started {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s ago). Presenter control is restricted to one active host. You will automatically take over if they disconnect.
+          </p>
           <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(233,30,99,0.3)' }}>Return to Dashboard</button>
         </div>
       </div>

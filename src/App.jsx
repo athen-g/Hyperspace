@@ -128,7 +128,7 @@ function App() {
             <Route path="scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
             <Route path="subscribers" element={<ProtectedRoute><SubscribersPage /></ProtectedRoute>} />
             <Route path="quiz" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
-            <Route path="quiz/host/:codeSlug" element={<ProtectedRoute><QuizHost /></ProtectedRoute>} />
+            <Route path="quiz/host/:codeSlug" element={<ProtectedRoute roles={['super_admin', 'core']}><QuizHost /></ProtectedRoute>} />
             <Route path="quiz/edit/:codeSlug" element={<ProtectedRoute><QuizEditor /></ProtectedRoute>} />
             <Route path="members" element={<ProtectedRoute roles={['super_admin']}><MembersPage /></ProtectedRoute>} />
             <Route path="logs" element={<ProtectedRoute roles={['super_admin']}><AuditLogPage /></ProtectedRoute>} />

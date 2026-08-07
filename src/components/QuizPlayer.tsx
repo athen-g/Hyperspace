@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { toast } from 'react-hot-toast'
 
 export default function QuizPlayer() {
   const location = useLocation()
@@ -292,13 +293,23 @@ export default function QuizPlayer() {
         }
       })
       .on('broadcast', { event: 'lobby-update' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('lobby-update')) return
         lastBroadcastTimeRef.current = Date.now()
         if (payload.players) {
           setLobbyNicknames(payload.players)
         }
       })
+      .on('broadcast', { event: 'player-kicked' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
+        if (payload.targetPlayerId === playerId) {
+          toast.error('You have been kicked from the lobby by the host.')
+          setJoined(false)
+          setStatus('lobby')
+        }
+      })
       .on('broadcast', { event: 'get-ready' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('get-ready')) return
         lastBroadcastTimeRef.current = Date.now()
         setQuestionText(payload.questionText)
@@ -319,6 +330,7 @@ export default function QuizPlayer() {
         }, 1000)
       })
       .on('broadcast', { event: 'next-question' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('next-question')) return
         lastBroadcastTimeRef.current = Date.now()
         setQuestionText(payload.questionText)
@@ -359,6 +371,7 @@ export default function QuizPlayer() {
         }
       })
       .on('broadcast', { event: 'time-up' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('time-up')) return
         lastBroadcastTimeRef.current = Date.now()
         if (localTimerIntervalRef.current) clearInterval(localTimerIntervalRef.current)
@@ -390,12 +403,14 @@ export default function QuizPlayer() {
           }
         })
       })
-      .on('broadcast', { event: 'podium-building' }, () => {
+      .on('broadcast', { event: 'podium-building' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('podium-building')) return
         lastBroadcastTimeRef.current = Date.now()
         setStatus('podium-building')
       })
       .on('broadcast', { event: 'leaderboard-update' }, ({ payload }) => {
+        if (payload?.origin !== 'server') return
         if (!isValidTransition('leaderboard-update')) return
         lastBroadcastTimeRef.current = Date.now()
         if (payload.standings && payload.standings[playerId]) {
