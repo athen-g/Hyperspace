@@ -270,6 +270,8 @@ export default function QuizHost() {
   const [activeHostName, setActiveHostName] = useState('')
   const [activeHostClaimedAt, setActiveHostClaimedAt] = useState<number | null>(null)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [hostStatus, setHostStatus] = useState<'loading' | 'active' | 'locked'>('loading')
+  const [sessionId, setSessionId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!activeHostClaimedAt || !otherHostActive) return
@@ -285,6 +287,7 @@ export default function QuizHost() {
   const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
   const [questions, setQuestions] = useState<Question[]>([])
   const [quizTitle, setQuizTitle] = useState('')
+  const [quizId, setQuizId] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [players, setPlayers] = useState<Player[]>([])
   const [timer, setTimer] = useState(0)
@@ -313,8 +316,8 @@ export default function QuizHost() {
           'apikey': supabase.supabaseKey
         },
         body: JSON.stringify({
+          session_id: sessionId,
           action: event,
-          pin,
           payload
         })
       })
@@ -491,15 +494,49 @@ export default function QuizHost() {
 
   // ── Data fetching ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (codeSlug) {
+    if (codeSlug && member) {
+      setHostStatus('loading')
       supabase
         .from('quizzes')
         .select('id, title')
         .eq('code_slug', codeSlug)
         .single()
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           if (data) {
             setQuizTitle(data.title)
+            setQuizId(data.id)
+            
+            // Call atomic database claim RPC
+            try {
+              const { data: claimData, error: claimError } = await supabase.rpc('claim_quiz_session', {
+                p_quiz_id: data.id,
+                p_pin: pin,
+                p_user_id: member.user_id,
+                p_display: member.name
+              })
+
+              if (claimError || !claimData) {
+                console.error('Claim RPC error:', claimError)
+                toast.error('Failed to claim hosting session.')
+                setHostStatus('locked')
+                return
+              }
+
+              if (claimData.status === 'locked') {
+                setActiveHostName(claimData.host_display || 'Another Admin')
+                setActiveHostClaimedAt(claimData.claimed_at)
+                setOtherHostActive(true)
+                setHostStatus('locked')
+              } else {
+                setSessionId(claimData.session_id)
+                setOtherHostActive(false)
+                setHostStatus('active')
+              }
+            } catch (err) {
+              console.error('Error claiming session:', err)
+              setHostStatus('locked')
+            }
+
             supabase
               .from('quiz_questions')
               .select('*')
@@ -511,7 +548,79 @@ export default function QuizHost() {
           }
         })
     }
-  }, [codeSlug])
+  }, [codeSlug, member])
+
+  // ── Heartbeat & Session Cleanups ──────────────────────────────────────────
+  useEffect(() => {
+    if (hostStatus !== 'active' || !sessionId || !member) return
+
+    let accessToken = ''
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        accessToken = session.access_token
+      }
+    })
+
+    const sendHeartbeat = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        accessToken = session.access_token
+
+        await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-session-heartbeat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabase.supabaseKey
+          },
+          body: JSON.stringify({ session_id: sessionId })
+        })
+      } catch (e) {
+        console.warn('Failed to send heartbeat:', e)
+      }
+    }
+
+    const interval = setInterval(sendHeartbeat, 15000)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        sendHeartbeat()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Unload cleanup beacon
+    const handleUnloadCleanup = () => {
+      if (!accessToken) return
+      const payload = JSON.stringify({
+        session_id: sessionId,
+        access_token: accessToken
+      })
+      const blob = new Blob([payload], { type: 'application/json' })
+      navigator.sendBeacon(`${supabase.supabaseUrl}/functions/v1/quiz-session-cleanup`, blob)
+    }
+
+    window.addEventListener('unload', handleUnloadCleanup)
+
+    // Warn before navigating away
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = 'Are you sure you want to exit? This will release your hosting session.'
+      return e.returnValue
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('unload', handleUnloadCleanup)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      
+      // Trigger graceful cleanup on unmount
+      handleUnloadCleanup()
+    }
+  }, [hostStatus, sessionId, member])
 
   // Stable refs so interval callbacks can call the latest endQuestion
   const endQuestionRef = useRef<() => void>(() => {})
@@ -547,31 +656,48 @@ export default function QuizHost() {
       config: { broadcast: { self: true, ack: true } }
     })
 
-    hostPresenceChannel.on('presence', { event: 'sync' }, () => {
+    hostPresenceChannel.on('presence', { event: 'sync' }, async () => {
       const state = hostPresenceChannel.presenceState()
       const hostList = state.host || []
 
-      if (hostList.length === 0) {
-        if (otherHostActive) {
-          setOtherHostActive(false)
-          toast.success('Takeover successful! You are now the active host.')
+      const anotherHostTracked = hostList.some((h: any) => h.user_id !== member.user_id)
+      
+      if (!anotherHostTracked && otherHostActive && quizId) {
+        try {
+          const { data: claimData } = await supabase.rpc('claim_quiz_session', {
+            p_quiz_id: quizId,
+            p_pin: pin,
+            p_user_id: member.user_id,
+            p_display: member.name
+          })
+          
+          if (claimData && (claimData.status === 'claimed' || claimData.status === 'recovered')) {
+            setSessionId(claimData.session_id)
+            setOtherHostActive(false)
+            setHostStatus('active')
+            toast.success('Takeover successful! You are now the active host.')
+          } else if (claimData && claimData.status === 'locked') {
+            setActiveHostName(claimData.host_display || 'Another Admin')
+            setActiveHostClaimedAt(claimData.claimed_at)
+            setOtherHostActive(true)
+            setHostStatus('locked')
+          }
+        } catch (e) {
+          console.error('Takeover claim failed:', e)
         }
         return
       }
 
-      // Race occurred — tiebreak by earliest claimed_at
+      if (hostList.length === 0) return
+
       const sorted = [...hostList].sort((a, b) => a.claimed_at - b.claimed_at)
       const winner = sorted[0]
 
       if (winner.user_id !== member.user_id) {
-        setOtherHostActive(true) // current user lost the race
+        setOtherHostActive(true)
         setActiveHostName(winner.display_name || 'Another Admin')
         setActiveHostClaimedAt(winner.claimed_at)
-      } else {
-        if (otherHostActive) {
-          setOtherHostActive(false)
-          toast.success('Takeover successful! You are now the active host.')
-        }
+        setHostStatus('locked')
       }
     })
 
@@ -1112,6 +1238,14 @@ export default function QuizHost() {
   ]
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  if (hostStatus === 'loading') {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#09090e', color: '#555', fontSize: '14px', letterSpacing: '2px', fontFamily: 'system-ui, sans-serif' }}>
+        LOADING HOST SESSION...
+      </div>
+    )
+  }
+
   if (otherHostActive) {
     return (
       <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
