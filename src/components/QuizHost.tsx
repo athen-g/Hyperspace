@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import confetti from 'canvas-confetti'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '../hooks/useAuth'
 
 interface Question {
   id: string
