@@ -225,6 +225,7 @@ export interface Database {
           scanned_at: string
           notes: string | null
           registration_no: string
+          registered_by: string | null
           student_name: string
           student_email: string
           student_college: string | null

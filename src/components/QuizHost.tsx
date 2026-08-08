@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import confetti from 'canvas-confetti'
+import { toast } from 'react-hot-toast'
+import { useAuth } from '../hooks/useAuth'
 
 interface Question {
   id: string
@@ -17,6 +19,31 @@ interface Player {
   nickname: string
   score: number
   answered: boolean
+}
+
+const emojis = ['🚀', '👾', '🛸', '🛰️', '🪐', '💫', '☄️', '🌌', '🤖', '👽', '⭐', '✨', '⚡', '🔮']
+const gradients = [
+  'linear-gradient(135deg, #e91e63 0%, #9C27B0 100%)', // Neon Pink to Purple
+  'linear-gradient(135deg, #00BCD4 0%, #3F51B5 100%)', // Neon Cyan to Indigo
+  'linear-gradient(135deg, #9C27B0 0%, #00BCD4 100%)', // Purple to Cyan
+  'linear-gradient(135deg, #e91e63 0%, #FF5722 100%)', // Pink to Orange
+  'linear-gradient(135deg, #8A2BE2 0%, #FF00FF 100%)', // Violet to Magenta
+]
+
+const getPlayerEmoji = (id: string) => {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return emojis[Math.abs(hash) % emojis.length]
+}
+
+const getPlayerGradient = (id: string) => {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return gradients[Math.abs(hash) % gradients.length]
 }
 
 // Animation phase constants
@@ -236,13 +263,31 @@ function PodiumColumn({ cfg }: { cfg: PodiumConfig }) {
 export default function QuizHost() {
   const { codeSlug } = useParams()
   const navigate = useNavigate()
-  const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
+  const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
+
+  const { member } = useAuth()
+  const [otherHostActive, setOtherHostActive] = useState(false)
+  const [activeHostName, setActiveHostName] = useState('')
+  const [activeHostClaimedAt, setActiveHostClaimedAt] = useState<number | null>(null)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [hostStatus, setHostStatus] = useState<'loading' | 'active' | 'locked'>('loading')
+  const [sessionId, setSessionId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!activeHostClaimedAt || !otherHostActive) return
+    setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [activeHostClaimedAt, otherHostActive])
 
   // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
   const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
   const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
   const [questions, setQuestions] = useState<Question[]>([])
   const [quizTitle, setQuizTitle] = useState('')
+  const [quizId, setQuizId] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [players, setPlayers] = useState<Player[]>([])
   const [timer, setTimer] = useState(0)
@@ -257,6 +302,75 @@ export default function QuizHost() {
 
   // Previous-round scores used as the "from" baseline for animations
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
+
+  const sendHostControl = async (event: string, payload: any = {}) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-host-control`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': supabase.supabaseKey
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          action: event,
+          payload
+        })
+      })
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.message || 'Failed to send host control')
+      }
+    } catch (e: any) {
+      console.error(`Error sending host control event ${event}:`, e)
+      toast.error(`Control error: ${e.message}`)
+    }
+  }
+
+  const handleShareLink = () => {
+    const playUrl = `${window.location.origin}/quiz/play?pin=${pin}`
+    navigator.clipboard.writeText(playUrl).then(() => {
+      toast.success('Lobby join link copied to clipboard!')
+    }).catch(() => {
+      toast.error('Failed to copy link')
+    })
+  }
+
+  const handleKickPlayer = (player: Player) => {
+    if (confirm(`Are you sure you want to kick "${player.nickname}" from the lobby?`)) {
+      setPlayers(prev => {
+        const next = prev.filter(p => p.id !== player.id)
+        
+        // Notify lobby update
+        sendHostControl('lobby-update', { players: next.map(p => p.nickname) })
+        
+        // Unicast kick message
+        sendHostControl('player-kicked', { targetPlayerId: player.id })
+
+        return next
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!qrZoomed) return
+
+    const handleGlobalClick = () => {
+      setQrZoomed(false)
+    }
+    const timer = setTimeout(() => {
+      window.addEventListener('click', handleGlobalClick)
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('click', handleGlobalClick)
+    }
+  }, [qrZoomed])
 
   // Players enriched with rank/score delta data, sliced to top 5
   const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<LeaderboardPlayerData[]>([])
@@ -278,17 +392,151 @@ export default function QuizHost() {
   const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0)
   const podiumTimersRef = useRef<any[]>([])
 
+  // Track players who answered current question to prevent duplicates
+  const [answeredPlayerIds, setAnsweredPlayerIds] = useState<string[]>([])
+
+  // State refs to prevent stale closures in realtime handlers
+  const gameStateRef = useRef(gameState)
+  const playersRef = useRef(players)
+  const currentIndexRef = useRef(currentIndex)
+  const questionsRef = useRef(questions)
+  const answeredPlayerIdsRef = useRef(answeredPlayerIds)
+  const answerStatsRef = useRef(answerStats)
+
+  useEffect(() => { gameStateRef.current = gameState }, [gameState])
+  useEffect(() => { playersRef.current = players }, [players])
+  useEffect(() => { currentIndexRef.current = currentIndex }, [currentIndex])
+  useEffect(() => { questionsRef.current = questions }, [questions])
+  useEffect(() => { answeredPlayerIdsRef.current = answeredPlayerIds }, [answeredPlayerIds])
+  useEffect(() => { answerStatsRef.current = answerStats }, [answerStats])
+
+  // ── beforeunload Prevention ────────────────────────────────────────────────
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (gameStateRef.current !== 'lobby' && gameStateRef.current !== 'ended') {
+        e.preventDefault()
+        e.returnValue = 'A quiz is currently in progress. Leaving will disconnect all players.'
+        return e.returnValue
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
+  // ── State Persistence (Save) ───────────────────────────────────────────────
+  const saveHostState = (stateName: string, index: number, playerList: Player[]) => {
+    try {
+      const stateToSave = {
+        pin,
+        gameState: stateName,
+        currentIndex: index,
+        players: playerList,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(`quiz-host-session-${codeSlug}`, JSON.stringify(stateToSave))
+    } catch (e) {
+      console.warn('Failed to save quiz host state to localStorage:', e)
+    }
+  }
+
+  useEffect(() => {
+    if (gameState !== 'lobby' && gameState !== 'ended') {
+      saveHostState(gameState, currentIndex, players)
+    }
+  }, [gameState, currentIndex, players])
+
+  useEffect(() => {
+    if (gameState === 'ended') {
+      try {
+        localStorage.removeItem(`quiz-host-session-${codeSlug}`)
+      } catch (e) {
+        console.warn(e)
+      }
+    }
+  }, [gameState])
+
+  // ── State Persistence (Recovery on Mount) ─────────────────────────────────
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`quiz-host-session-${codeSlug}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
+          setPin(parsed.pin)
+          setGameState(parsed.gameState)
+          setCurrentIndex(parsed.currentIndex)
+          setPlayers(parsed.players)
+          
+          const prevScores: Record<string, number> = {}
+          parsed.players.forEach((p: Player) => {
+            prevScores[p.id] = p.score
+          })
+          setPrevLeaderboard(prevScores)
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse stored host session:', e)
+    }
+  }, [codeSlug])
+
+  // ── Time synchronization broadcast ─────────────────────────────────────────
+  useEffect(() => {
+    if (gameState !== 'question' || !channelRef.current) return
+    const interval = setInterval(() => {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'time-sync',
+        payload: { remainingSeconds: timer }
+      })
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [gameState, timer])
+
   // ── Data fetching ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (codeSlug) {
+    if (codeSlug && member) {
+      setHostStatus('loading')
       supabase
         .from('quizzes')
         .select('id, title')
         .eq('code_slug', codeSlug)
         .single()
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           if (data) {
             setQuizTitle(data.title)
+            setQuizId(data.id)
+            
+            // Call atomic database claim RPC
+            try {
+              const { data: claimData, error: claimError } = await supabase.rpc('claim_quiz_session', {
+                p_quiz_id: data.id,
+                p_pin: pin,
+                p_user_id: member.user_id,
+                p_display: member.name
+              })
+
+              if (claimError || !claimData) {
+                console.error('Claim RPC error:', claimError)
+                toast.error('Failed to claim hosting session.')
+                setHostStatus('locked')
+                return
+              }
+
+              if (claimData.status === 'locked') {
+                setActiveHostName(claimData.host_display || 'Another Admin')
+                setActiveHostClaimedAt(claimData.claimed_at)
+                setOtherHostActive(true)
+                setHostStatus('locked')
+              } else {
+                setSessionId(claimData.session_id)
+                setOtherHostActive(false)
+                setHostStatus('active')
+              }
+            } catch (err) {
+              console.error('Error claiming session:', err)
+              setHostStatus('locked')
+            }
+
             supabase
               .from('quiz_questions')
               .select('*')
@@ -300,7 +548,79 @@ export default function QuizHost() {
           }
         })
     }
-  }, [codeSlug])
+  }, [codeSlug, member])
+
+  // ── Heartbeat & Session Cleanups ──────────────────────────────────────────
+  useEffect(() => {
+    if (hostStatus !== 'active' || !sessionId || !member) return
+
+    let accessToken = ''
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        accessToken = session.access_token
+      }
+    })
+
+    const sendHeartbeat = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        accessToken = session.access_token
+
+        await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-session-heartbeat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabase.supabaseKey
+          },
+          body: JSON.stringify({ session_id: sessionId })
+        })
+      } catch (e) {
+        console.warn('Failed to send heartbeat:', e)
+      }
+    }
+
+    const interval = setInterval(sendHeartbeat, 15000)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        sendHeartbeat()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Unload cleanup beacon
+    const handleUnloadCleanup = () => {
+      if (!accessToken) return
+      const payload = JSON.stringify({
+        session_id: sessionId,
+        access_token: accessToken
+      })
+      const blob = new Blob([payload], { type: 'application/json' })
+      navigator.sendBeacon(`${supabase.supabaseUrl}/functions/v1/quiz-session-cleanup`, blob)
+    }
+
+    window.addEventListener('unload', handleUnloadCleanup)
+
+    // Warn before navigating away
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = 'Are you sure you want to exit? This will release your hosting session.'
+      return e.returnValue
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('unload', handleUnloadCleanup)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      
+      // Trigger graceful cleanup on unmount
+      handleUnloadCleanup()
+    }
+  }, [hostStatus, sessionId, member])
 
   // Stable refs so interval callbacks can call the latest endQuestion
   const endQuestionRef = useRef<() => void>(() => {})
@@ -310,27 +630,181 @@ export default function QuizHost() {
     showLeaderboardRef.current = showLeaderboard
   })
 
+  // Throttled batch lobby-update broadcast helper
+  const lobbyUpdateTimeoutRef = useRef<any>(null)
+  const triggerLobbyUpdate = () => {
+    if (lobbyUpdateTimeoutRef.current) return
+    lobbyUpdateTimeoutRef.current = setTimeout(() => {
+      lobbyUpdateTimeoutRef.current = null
+      if (gameStateRef.current === 'lobby') {
+        sendHostControl('lobby-update', { players: playersRef.current.map(p => p.nickname) })
+      }
+    }, 500)
+  }
+
   // ── Realtime channel ───────────────────────────────────────────────────────
   useEffect(() => {
-    const channel = supabase.channel(`quiz-${pin}`, {
-      config: { broadcast: { self: true, ack: true } },
+    if (!member) return
+
+    // Host presence channel — isolated from player traffic
+    const hostPresenceChannel = supabase.channel(`quiz-host-${pin}`, {
+      config: { presence: { key: 'host' } }
     })
 
-    channel
+    // Player broadcast channel
+    const playerChannel = supabase.channel(`quiz-${pin}`, {
+      config: { broadcast: { self: true, ack: true } }
+    })
+
+    hostPresenceChannel.on('presence', { event: 'sync' }, async () => {
+      const state = hostPresenceChannel.presenceState()
+      const hostList = state.host || []
+
+      const anotherHostTracked = hostList.some((h: any) => h.user_id !== member.user_id)
+      
+      if (!anotherHostTracked && otherHostActive && quizId) {
+        try {
+          const { data: claimData } = await supabase.rpc('claim_quiz_session', {
+            p_quiz_id: quizId,
+            p_pin: pin,
+            p_user_id: member.user_id,
+            p_display: member.name
+          })
+          
+          if (claimData && (claimData.status === 'claimed' || claimData.status === 'recovered')) {
+            setSessionId(claimData.session_id)
+            setOtherHostActive(false)
+            setHostStatus('active')
+            toast.success('Takeover successful! You are now the active host.')
+          } else if (claimData && claimData.status === 'locked') {
+            setActiveHostName(claimData.host_display || 'Another Admin')
+            setActiveHostClaimedAt(claimData.claimed_at)
+            setOtherHostActive(true)
+            setHostStatus('locked')
+          }
+        } catch (e) {
+          console.error('Takeover claim failed:', e)
+        }
+        return
+      }
+
+      if (hostList.length === 0) return
+
+      const sorted = [...hostList].sort((a, b) => a.claimed_at - b.claimed_at)
+      const winner = sorted[0]
+
+      if (winner.user_id !== member.user_id) {
+        setOtherHostActive(true)
+        setActiveHostName(winner.display_name || 'Another Admin')
+        setActiveHostClaimedAt(winner.claimed_at)
+        setHostStatus('locked')
+      }
+    })
+
+    playerChannel
       .on('broadcast', { event: 'player-join' }, ({ payload }) => {
+        const nameCollision = playersRef.current.some(p => p.nickname.toLowerCase() === payload.nickname.toLowerCase())
+        const MAX_PLAYERS = 100
+
+        if (gameStateRef.current !== 'lobby') {
+          playerChannel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'game_in_progress', currentPhase: gameStateRef.current }
+          })
+          return
+        }
+
+        if (nameCollision) {
+          playerChannel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'name_taken' }
+          })
+          return
+        }
+
+        if (playersRef.current.length >= MAX_PLAYERS) {
+          playerChannel.send({
+            type: 'broadcast',
+            event: 'join-ack',
+            payload: { targetPlayerId: payload.id, rejected: true, reason: 'session_full' }
+          })
+          return
+        }
+
         setPlayers((prev) => {
           if (prev.some((p) => p.id === payload.id)) return prev
           const next = [...prev, { id: payload.id, nickname: payload.nickname, score: 0, answered: false }]
-          channel.send({ type: 'broadcast', event: 'lobby-update', payload: { players: next.map(p => p.nickname) } })
           return next
         })
-        channel.send({ type: 'broadcast', event: 'join-ack', payload: { pin, success: true } })
+
+        // Unicast acknowledgement specifically to the newly joined player
+        playerChannel.send({
+          type: 'broadcast',
+          event: 'join-ack',
+          payload: { targetPlayerId: payload.id, pin, success: true }
+        })
+
+        // Fire throttled lobby update
+        triggerLobbyUpdate()
+      })
+      .on('broadcast', { event: 'player-rejoin' }, ({ payload }) => {
+        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
+        if (existingPlayer) {
+          playerChannel.send({
+            type: 'broadcast',
+            event: 'rejoin-ack',
+            payload: {
+              targetPlayerId: payload.id,
+              success: true,
+              gameState: gameStateRef.current,
+              currentIndex: currentIndexRef.current,
+              currentQuestion: questionsRef.current[currentIndexRef.current],
+              score: existingPlayer.score
+            }
+          })
+        } else {
+          playerChannel.send({
+            type: 'broadcast',
+            event: 'rejoin-ack',
+            payload: { targetPlayerId: payload.id, success: false, reason: 'player_not_found' }
+          })
+        }
+      })
+      .on('broadcast', { event: 'state-request' }, ({ payload }) => {
+        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
+        playerChannel.send({
+          type: 'broadcast',
+          event: 'rejoin-ack',
+          payload: {
+            targetPlayerId: payload.id,
+            success: true,
+            gameState: gameStateRef.current,
+            currentIndex: currentIndexRef.current,
+            currentQuestion: questionsRef.current[currentIndexRef.current],
+            score: existingPlayer ? existingPlayer.score : 0
+          }
+        })
       })
       .on('broadcast', { event: 'player-answer' }, ({ payload }) => {
+        // Discard duplicates
+        if (answeredPlayerIdsRef.current.includes(payload.id)) {
+          return
+        }
+        setAnsweredPlayerIds(prev => [...prev, payload.id])
+
+        // Acknowledge receipt of answer
+        playerChannel.send({
+          type: 'broadcast',
+          event: 'answer-ack',
+          payload: { targetPlayerId: payload.id, success: true }
+        })
+
         setPlayers((prev) => {
           const updated = prev.map((p) => {
             if (p.id === payload.id) {
-              const currentQuestion = questions[currentIndex]
+              const currentQuestion = questionsRef.current[currentIndexRef.current]
               const isCorrect = payload.optionIndex === currentQuestion.correct_option
               let points = 0
               if (isCorrect) {
@@ -351,11 +825,25 @@ export default function QuizHost() {
           return next
         })
       })
-      .subscribe()
 
-    channelRef.current = channel
-    return () => { channel.unsubscribe() }
-  }, [pin, questions, currentIndex])
+    // Subscribe to both
+    playerChannel.subscribe()
+    hostPresenceChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await hostPresenceChannel.track({
+          user_id: member.user_id,
+          display_name: member.name,
+          claimed_at: Date.now()
+        })
+      }
+    })
+
+    channelRef.current = playerChannel
+    return () => {
+      playerChannel.unsubscribe()
+      hostPresenceChannel.unsubscribe()
+    }
+  }, [pin, member])
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -470,30 +958,38 @@ export default function QuizHost() {
 
   const startDemo = () => {
     setIsDemo(true)
-    const botPlayers: Player[] = Array.from({ length: 10 }).map((_, i) => ({
-      id: `bot${i}`,
-      nickname: `SIGBot_${i + 1} 🤖`,
-      score: 0,
-      answered: false,
-    }))
-    setPlayers(botPlayers)
-    setTimeout(() => {
-      channelRef.current.send({
-        type: 'broadcast', event: 'lobby-update',
-        payload: { players: botPlayers.map(b => b.nickname) },
-      })
-      triggerIntroBuild()
-    }, 500)
+    const botNames = [
+      'SIGBot_Alpha 🤖', 'SIGBot_Beta 🤖', 'SIGBot_Gamma 🤖', 'SIGBot_Delta 🤖',
+      'SIGBot_Epsilon 🤖', 'SIGBot_Zeta 🤖', 'SIGBot_Eta 🤖', 'SIGBot_Theta 🤖',
+      'SIGBot_Iota 🤖', 'SIGBot_Kappa 🤖'
+    ]
+    
+    botNames.forEach((name, i) => {
+      setTimeout(() => {
+        setPlayers((prev) => {
+          if (prev.some(p => p.nickname === name)) return prev
+          const newBot = {
+            id: `bot${i}`,
+            nickname: name,
+            score: 0,
+            answered: false
+          }
+          const next = [...prev, newBot]
+          
+          // Send lobby update message
+          sendHostControl('lobby-update', { players: next.map(b => b.nickname) })
+          
+          return next
+        })
+      }, (i + 1) * (Math.random() * 200 + 150))
+    })
   }
 
   const triggerIntroBuild = () => {
     setGameState('intro-build')
     setIntroCountdown(3)
     setIntroTitleShow(false)
-    channelRef.current.send({
-      type: 'broadcast', event: 'get-ready',
-      payload: { questionText: 'Get Ready...', questionIndex: 1, totalQuestions: questions.length, gameMode },
-    })
+    sendHostControl('get-ready', { questionText: 'Get Ready...', questionIndex: 1, totalQuestions: questions.length, gameMode })
     let elapsed = 3
     const introInterval = setInterval(() => {
       elapsed -= 1
@@ -509,13 +1005,11 @@ export default function QuizHost() {
   const triggerGetReady = (index: number) => {
     setCurrentIndex(index)
     setAnswerStats([0, 0, 0, 0])
+    setAnsweredPlayerIds([])
     setPlayers(prev => prev.map(p => ({ ...p, answered: false })))
     setGameState('get-ready')
     setReadyCountdown(3)
-    channelRef.current.send({
-      type: 'broadcast', event: 'get-ready',
-      payload: { questionText: questions[index].question_text, questionIndex: index + 1, totalQuestions: questions.length, gameMode },
-    })
+    sendHostControl('get-ready', { questionText: questions[index].question_text, questionIndex: index + 1, totalQuestions: questions.length, gameMode })
     if (readyTimerRef.current) clearInterval(readyTimerRef.current)
     readyTimerRef.current = setInterval(() => {
       setReadyCountdown(prev => {
@@ -529,10 +1023,7 @@ export default function QuizHost() {
     setGameState('question')
     const q = questions[index]
     setTimer(q.time_limit)
-    channelRef.current.send({
-      type: 'broadcast', event: 'next-question',
-      payload: { questionText: q.question_text, options: q.options, timeLimit: q.time_limit, gameMode },
-    })
+    sendHostControl('next-question', { questionText: q.question_text, options: q.options, timeLimit: q.time_limit, gameMode })
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = setInterval(() => {
       setTimer(prev => {
@@ -545,10 +1036,7 @@ export default function QuizHost() {
   const endQuestion = () => {
     if (timerRef.current) clearInterval(timerRef.current)
     setGameState('answers')
-    channelRef.current.send({
-      type: 'broadcast', event: 'time-up',
-      payload: { correctOption: questions[currentIndex].correct_option, answerStats },
-    })
+    sendHostControl('time-up', { correctOption: questions[currentIndex].correct_option, answerStats })
   }
 
   // ── showLeaderboard — Kahoot-style 4-phase animation with enter/leave ───────
@@ -629,10 +1117,7 @@ export default function QuizHost() {
       // Notify player devices of their new rankings
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       newSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-      channelRef.current.send({
-        type: 'broadcast', event: 'leaderboard-update',
-        payload: { standings: standingsMapping },
-      })
+      sendHostControl('leaderboard-update', { standings: standingsMapping })
     }, 4300)
 
     // Cleanup if component unmounts mid-animation
@@ -671,7 +1156,7 @@ export default function QuizHost() {
     setGameState('ended')
     setEndedTab('podium')
     setPodiumRevealStep(0)
-    channelRef.current.send({ type: 'broadcast', event: 'podium-building', payload: {} })
+    sendHostControl('podium-building', {})
 
     podiumTimersRef.current.forEach(clearTimeout)
 
@@ -700,10 +1185,7 @@ export default function QuizHost() {
       const finalSorted = [...players].sort((a, b) => b.score - a.score)
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       finalSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-      channelRef.current.send({
-        type: 'broadcast', event: 'time-up',
-        payload: { correctOption: -1, standings: standingsMapping },
-      })
+      sendHostControl('time-up', { correctOption: -1, standings: standingsMapping })
     }, 7800)
 
     podiumTimersRef.current = [t1, t2, t3]
@@ -756,8 +1238,57 @@ export default function QuizHost() {
   ]
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  if (hostStatus === 'loading') {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#09090e', color: '#555', fontSize: '14px', letterSpacing: '2px', fontFamily: 'system-ui, sans-serif' }}>
+        LOADING HOST SESSION...
+      </div>
+    )
+  }
+
+  if (otherHostActive) {
+    return (
+      <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ textAlign: 'center', maxWidth: '480px', background: '#111', border: '1px solid #222', padding: '32px', borderRadius: '16px' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔒</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#e91e63', marginBottom: '12px' }}>Session Locked</h2>
+          <p style={{ color: '#888', lineHeight: 1.6, marginBottom: '24px' }}>
+            <strong>{activeHostName}</strong> is currently hosting this quiz (started {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s ago). Presenter control is restricted to one active host. You will automatically take over if they disconnect.
+          </p>
+          <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(233,30,99,0.3)' }}>Return to Dashboard</button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '12px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+
+      {/* ── Zoomed QR Modal ── */}
+      {qrZoomed && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(9, 9, 14, 0.95)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={500} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK ANYWHERE TO CLOSE</div>
+          </div>
+          <h1 style={{ fontSize: '64px', margin: '24px 0 8px', letterSpacing: '-1px', fontWeight: 900 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
+          <p style={{ fontSize: '20px', color: '#888', fontWeight: 700 }}>Joined Players: <strong style={{ color: '#fff' }}>{players.length}</strong></p>
+        </div>
+      )}
 
       {/* Return to Dashboard corner button */}
       <button
@@ -771,27 +1302,73 @@ export default function QuizHost() {
       {gameState === 'lobby' && (
         <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
           <p style={{ fontSize: '18px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: '0 0 10px' }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
-          <h1 style={{ fontSize: '90px', margin: '0 0 16px', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900, lineHeight: 1 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
+          <h1 style={{ fontSize: '90px', margin: '0 0 16px', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+            PIN: <span style={{ color: '#e91e63' }}>{pin}</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleShareLink() }} 
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', borderRadius: '50%', width: '48px', height: '48px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s' }}
+              title="Copy Join Link"
+            >
+              🔗
+            </button>
+          </h1>
 
           <div
-            onClick={() => setQrZoomed(!qrZoomed)}
-            style={{ background: '#fff', padding: '16px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', cursor: 'pointer', transform: qrZoomed ? 'scale(1.8)' : 'scale(1)', transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)', zIndex: 99, position: 'relative' }}
+            onClick={(e) => { e.stopPropagation(); setQrZoomed(true) }}
+            style={{ background: '#fff', padding: '16px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', cursor: 'pointer', zIndex: 99, position: 'relative' }}
           >
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={qrZoomed ? 200 : 130} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>{qrZoomed ? 'CLICK TO MINIMIZE' : 'CLICK TO ENLARGE'}</div>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={130} level="M" includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK TO ENLARGE</div>
           </div>
 
           <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px 40px', width: '100%', maxWidth: '95%', flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '30vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '20px', margin: '0 0 16px', color: '#e91e63', fontWeight: 800 }}>
               {players.length === 0 ? 'Waiting for players to join...' : `Joined Players (${players.length})`}
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-              {players.map(p => (
-                <div key={p.id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', fontWeight: 700, padding: '8px 20px', borderRadius: '30px', fontSize: '14px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', animation: 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                  {p.nickname}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+              {players.map((p, idx) => (
+                <div 
+                  key={p.id} 
+                  className="lobby-bubble"
+                  onClick={() => handleKickPlayer(p)}
+                  style={{ 
+                    background: getPlayerGradient(p.id),
+                    animationDelay: `${(idx % 5) * 0.4}s`
+                  }}
+                  title="Click to kick player"
+                >
+                  <span style={{ fontSize: '18px' }}>{getPlayerEmoji(p.id)}</span>
+                  <span>{p.nickname}</span>
                 </div>
               ))}
             </div>
+            <style>{`
+              @keyframes lobbyFloat {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                25% { transform: translateY(-4px) rotate(-1deg); }
+                75% { transform: translateY(2px) rotate(1deg); }
+              }
+              .lobby-bubble {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #fff;
+                font-weight: 700;
+                padding: 8px 20px;
+                border-radius: 30px;
+                font-size: 14px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border: 1px solid rgba(255,255,255,0.15);
+                animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, lobbyFloat 3s ease-in-out infinite alternate;
+              }
+              .lobby-bubble:hover {
+                transform: scale(1.1) rotate(1deg) !important;
+                box-shadow: 0 8px 20px rgba(233,30,99,0.3);
+                border-color: rgba(255,255,255,0.5);
+              }
+            `}</style>
           </div>
 
           <div style={{ margin: '20px 0', width: '100%', maxWidth: '400px', background: '#111', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #222' }}>

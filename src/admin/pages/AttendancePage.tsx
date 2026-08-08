@@ -19,12 +19,13 @@ export default function AttendancePage() {
       'Year': a.student_year ?? '',
       'Branch': a.student_branch ?? '',
       'Division': a.student_division ?? '',
+      'Type': a.registered_by ? 'Walk-in' : 'Online',
     })), `attendance-${eventId}`)
   }
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Sr. No.', 'Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division'],
+      ['Sr. No.', 'Reg No.', 'Name', 'College', 'PRN', 'Year', 'Branch', 'Division', 'Type'],
       attendance.map((a, index) => [
         index + 1,
         a.registration_no,
@@ -33,7 +34,8 @@ export default function AttendancePage() {
         a.student_prn ?? '',
         a.student_year ?? '',
         a.student_branch ?? '',
-        a.student_division ?? ''
+        a.student_division ?? '',
+        a.registered_by ? 'Walk-in' : 'Online'
       ]) as (string | number | null)[][],
       attendance[0]?.event_title ?? 'Event',
       `attendance-${eventId}`,
@@ -67,18 +69,24 @@ export default function AttendancePage() {
               <th style={thStyle}>Reg No.</th>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Email</th>
+              <th style={thStyle}>Type</th>
               <th style={thStyle}>Scanned At</th>
               <th style={thStyle}>Scanned By</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && attendance.length === 0 && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
+            {loading && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && attendance.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
             {attendance.map(a => (
               <tr key={a.id}>
                 <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{a.registration_no}</td>
                 <td style={{ ...tdStyle, color: '#e5e5e5' }}>{a.student_name}</td>
                 <td style={tdStyle}>{a.student_email}</td>
+                <td style={tdStyle}>
+                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: a.registered_by ? '#1a1a0a' : '#0a0a1a', color: a.registered_by ? '#facc15' : '#818cf8', border: `1px solid ${a.registered_by ? '#713f12' : '#3730a3'}` }}>
+                    {a.registered_by ? `Walk-in` : 'Online'}
+                  </span>
+                </td>
                 <td style={tdStyle}>{format(new Date(a.scanned_at), 'dd MMM yyyy, HH:mm:ss')}</td>
                 <td style={tdStyle}>{a.scanned_by_name}</td>
               </tr>
