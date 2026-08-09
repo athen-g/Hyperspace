@@ -31,12 +31,12 @@ What You'll Receive:
 Coordinators will distribute all required files on pendrives or external drives - no downloads needed on the day. You'll also receive two workshop documents: a step-by-step workflow guide and a companion reference document, both yours to keep and use after the event.
 
 Event Details:
-📅 Dates: 13 - 14 August 2026
-⏰ Time: 1:00 PM - 4:00 PM each day
-📍 Venue: Room 518, Wadia College of Engineering
-🎓 Eligibility: Open to All (Laptop requirements apply - see Rulebook)
+Dates: 13 - 14 August 2026
+Time: 1:00 PM - 4:00 PM each day
+Venue: Room 518, Wadia College of Engineering
+Eligibility: Open to All (Laptop requirements apply - see Rulebook)
 
-⚠️ Pre-registration is mandatory. Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.
+Pre-registration is mandatory. Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.
 
 The 3D world isn't going to render itself.
 - Hyperspace XR SIG`
@@ -45,6 +45,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
   const [title, setTitle] = useState(DEFAULT_TITLE)
   const [message, setMessage] = useState(DEFAULT_MESSAGE)
   const [testEmail, setTestEmail] = useState('')
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
 
   const [eventsList, setEventsList] = useState<EventItem[]>([])
   const [targetEventId, setTargetEventId] = useState<string>('')
@@ -70,56 +71,48 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
     setTitle(DEFAULT_TITLE)
     setMessage(DEFAULT_MESSAGE)
     setTestEmail('')
+    setActiveTab('edit')
     onClose()
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Generate full HTML string for dispatch & live preview
+  const generateFullHtml = () => {
+    const renderImageUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/final-render.jpeg'
 
-    if (!targetEventId) {
-      toast.error('Please select a target event.')
-      return
-    }
+    // Clean inline SVG icons replacing emojis
+    const calendarIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`
+    const clockIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`
+    const pinIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`
+    const badgeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>`
+    const alertIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
 
-    if (!title.trim() || !message.trim()) {
-      toast.error('Please provide both title and announcement message.')
-      return
-    }
+    const formattedParagraphs = message
+      .replace(/—/g, '-')
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        if (line.startsWith('"') && line.endsWith('"')) {
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:13.5px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;">${line}</p></td></tr></table>`
+        }
+        if (line.toLowerCase().startsWith('pre-registration is mandatory')) {
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.3);border-radius:4px;padding:14px 18px;"><p style="margin:0;font-size:13px;color:rgba(245,210,225,0.95);line-height:1.6;">${alertIcon}<strong style="color:#D84B7E;">Pre-registration is mandatory.</strong> Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.</p></td></tr></table>`
+        }
+        if (line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
+          return `<p style="margin:20px 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;font-weight:700;">${line}</p>`
+        }
+        // Icon line replacements
+        let formattedLine = line
+        if (line.startsWith('Dates:')) formattedLine = `${calendarIcon}<strong style="color:#ffffff;">Dates:</strong> ${line.replace('Dates:', '').trim()}`
+        else if (line.startsWith('Time:')) formattedLine = `${clockIcon}<strong style="color:#ffffff;">Time:</strong> ${line.replace('Time:', '').trim()}`
+        else if (line.startsWith('Venue:')) formattedLine = `${pinIcon}<strong style="color:#ffffff;">Venue:</strong> ${line.replace('Venue:', '').trim()}`
+        else if (line.startsWith('Eligibility:')) formattedLine = `${badgeIcon}<strong style="color:#ffffff;">Eligibility:</strong> ${line.replace('Eligibility:', '').trim()}`
 
-    setSubmitting(true)
+        return `<p style="margin:0 0 16px;font-size:14px;color:rgba(235,215,225,0.9);line-height:1.75;">${formattedLine}</p>`
+      })
+      .join('')
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast.error('Session expired. Please log in again.')
-        setSubmitting(false)
-        return
-      }
-
-      const renderImageUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/final-render.jpeg'
-
-      // Format raw message text without em dashes and clean layout
-      const formattedParagraphs = message
-        .replace(/—/g, '-')
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => {
-          if (line.startsWith('"') && line.endsWith('"')) {
-            return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:13.5px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;">${line}</p></td></tr></table>`
-          }
-          if (line.startsWith('⚠️')) {
-            return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.3);border-radius:4px;padding:14px 18px;"><p style="margin:0;font-size:13px;color:rgba(245,210,225,0.95);line-height:1.6;"><strong style="color:#D84B7E;">⚠️ Pre-registration is mandatory.</strong> Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.</p></td></tr></table>`
-          }
-          if (line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
-            return `<p style="margin:20px 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;font-weight:700;">${line}</p>`
-          }
-          return `<p style="margin:0 0 16px;font-size:14px;color:rgba(235,215,225,0.9);line-height:1.75;">${line}</p>`
-        })
-        .join('')
-
-      // Dark warm espresso / beige tone template matching the render image (zero neon glow, zero em dashes)
-      const htmlContent = `
+    return `
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -257,6 +250,32 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
 
 </body>
 </html>`
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!targetEventId) {
+      toast.error('Please select a target event.')
+      return
+    }
+
+    if (!title.trim() || !message.trim()) {
+      toast.error('Please provide both title and announcement message.')
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('Session expired. Please log in again.')
+        setSubmitting(false)
+        return
+      }
+
+      const htmlContent = generateFullHtml()
 
       const res = await supabase.functions.invoke('send-newsletter', {
         body: {
@@ -298,8 +317,8 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      backdropFilter: 'blur(4px)',
+      backgroundColor: 'rgba(0,0,0,0.85)',
+      backdropFilter: 'blur(6px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -311,16 +330,17 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
         border: '1px solid #2a2a2a',
         borderRadius: '16px',
         width: '100%',
-        maxWidth: '640px',
+        maxWidth: activeTab === 'preview' ? '720px' : '640px',
         maxHeight: '90vh',
         overflowY: 'auto',
         padding: '28px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.7)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
         color: '#e5e5e5',
-        fontFamily: 'Inter, sans-serif'
+        fontFamily: 'Inter, sans-serif',
+        transition: 'all 0.2s ease'
       }}>
         {/* Modal Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #222', paddingBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #222', paddingBottom: '16px' }}>
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
               📢 Event Announcement Newsletter
@@ -337,151 +357,220 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Target Event Dropdown */}
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
-              Target Event
-            </label>
-            <select
-              value={targetEventId}
-              onChange={e => setTargetEventId(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: '#141414',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-            >
-              {eventsList.map(ev => (
-                <option key={ev.id} value={ev.id}>{ev.title}</option>
-              ))}
-            </select>
-          </div>
+        {/* Tab Switcher */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: '#141414', padding: '4px', borderRadius: '8px', border: '1px solid #222' }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('edit')}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: activeTab === 'edit' ? '#222' : 'transparent',
+              color: activeTab === 'edit' ? '#fff' : '#888',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            ✏️ Edit Content
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('preview')}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: activeTab === 'preview' ? '#E91E63' : 'transparent',
+              color: activeTab === 'preview' ? '#fff' : '#888',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            👁️ Live Email Preview
+          </button>
+        </div>
 
-          {/* Title Input */}
+        {activeTab === 'preview' ? (
+          /* Live Email Preview Frame */
           <div>
-            <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
-              Email Title / Subject
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder={DEFAULT_TITLE}
-              required
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: '#141414',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
-
-          {/* Message Body Field */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <label style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>
-                Announcement Message
-              </label>
-              <span style={{ fontSize: '11px', color: '#666' }}>
-                Variables: &#123;subscriber_name&#125;, &#123;target_event_name&#125;, &#123;event_date&#125;, &#123;venue&#125;, &#123;event_slug&#125;
-              </span>
+            <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #333', background: '#140F11', maxHeight: '560px', overflowY: 'auto' }}>
+              <iframe
+                title="Email Preview"
+                srcDoc={generateFullHtml().replaceAll('{subscriber_name}', 'Subscriber').replaceAll('{event_slug}', 'texture-distortion').replaceAll('{subscriber_email}', 'subscriber@example.com')}
+                style={{ width: '100%', height: '560px', border: 'none', background: '#140F11' }}
+              />
             </div>
-            <textarea
-              rows={11}
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder={DEFAULT_MESSAGE}
-              required
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: '#141414',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                lineHeight: 1.5,
-                outline: 'none',
-                fontFamily: 'monospace',
-                boxSizing: 'border-box'
-              }}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setActiveTab('edit')}
+                style={{ padding: '10px 16px', background: '#1c1c1c', border: '1px solid #333', borderRadius: '8px', color: '#ccc', fontSize: '13px', cursor: 'pointer' }}
+              >
+                ← Back to Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{ padding: '10px 24px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                {submitting ? 'Dispatching...' : testEmail ? '✉️ Send Test Email' : '📢 Broadcast Announcement'}
+              </button>
+            </div>
           </div>
+        ) : (
+          /* Edit Form */
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Target Event Dropdown */}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
+                Target Event
+              </label>
+              <select
+                value={targetEventId}
+                onChange={e => setTargetEventId(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: '#141414',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none'
+                }}
+              >
+                {eventsList.map(ev => (
+                  <option key={ev.id} value={ev.id}>{ev.title}</option>
+                ))}
+              </select>
+            </div>
 
-          {/* Test Email Optional Field */}
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
-              Send Test Email To (Optional)
-            </label>
-            <input
-              type="email"
-              placeholder="e.g. admin@example.com (leave blank to send to all subscribers)"
-              value={testEmail}
-              onChange={e => setTestEmail(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                background: '#141414',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
+            {/* Title Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
+                Email Title / Subject
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder={DEFAULT_TITLE}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: '#141414',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
 
-          {/* Form Actions */}
-          <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-            <button
-              type="submit"
-              disabled={submitting}
-              style={{
-                flex: 1,
-                padding: '14px',
-                background: '#E91E63',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              {submitting ? 'Dispatching Announcement...' : testEmail ? '✉️ Send Test Email' : '📢 Broadcast Event Announcement'}
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={submitting}
-              style={{
-                padding: '14px 24px',
-                background: 'transparent',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#888',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+            {/* Message Body Field */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>
+                  Announcement Message
+                </label>
+                <span style={{ fontSize: '11px', color: '#666' }}>
+                  Variables: &#123;subscriber_name&#125;, &#123;target_event_name&#125;, &#123;event_date&#125;, &#123;venue&#125;, &#123;event_slug&#125;
+                </span>
+              </div>
+              <textarea
+                rows={11}
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder={DEFAULT_MESSAGE}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: '#141414',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  lineHeight: 1.5,
+                  outline: 'none',
+                  fontFamily: 'monospace',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Test Email Optional Field */}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
+                Send Test Email To (Optional)
+              </label>
+              <input
+                type="email"
+                placeholder="e.g. admin@example.com (leave blank to send to all subscribers)"
+                value={testEmail}
+                onChange={e => setTestEmail(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: '#141414',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Form Actions */}
+            <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: '#E91E63',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                {submitting ? 'Dispatching Announcement...' : testEmail ? '✉️ Send Test Email' : '📢 Broadcast Event Announcement'}
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={submitting}
+                style={{
+                  padding: '14px 24px',
+                  background: 'transparent',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  color: '#888',
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   )
