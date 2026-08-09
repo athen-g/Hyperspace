@@ -97,12 +97,12 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
           return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:13.5px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;">${line}</p></td></tr></table>`
         }
 
-        // Subheaders using Petit Formal Script as requested
+        // Subheaders using Petit Formal Script with Georgia/Playfair fallbacks
         if (line.startsWith('What You\'ll') || line.startsWith('What You’ll') || line.startsWith('The Briefing') || line.startsWith('The Collective')) {
-          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
+          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script','Playfair Display',Georgia,'Times New Roman',serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
         }
         if (line.startsWith('Event Details:')) {
-          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
+          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script','Playfair Display',Georgia,'Times New Roman',serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
         }
 
         if (line.toLowerCase().startsWith('pre-registration is mandatory')) {
@@ -130,10 +130,10 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
   <meta name="x-apple-disable-message-reformatting" />
   <title>${title}</title>
 
-  <!-- Google Fonts: Orbitron for TEXTURE & Button, Petit Formal Script for Distortion & Subheaders, Inter for body -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Petit+Formal+Script&family=Space+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Petit+Formal+Script&family=Playfair+Display:ital,wght@1,600;1,700&family=Space+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:#140F11;font-family:'Inter',system-ui,sans-serif;color:#F0E6EA;">
 
@@ -187,13 +187,13 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             </td>
           </tr>
 
-          <!-- Event Name Block -->
+          <!-- Event Name Block (Greenth/Orbitron for TEXTURE, Petit Formal Script for Distortion) -->
           <tr>
             <td style="padding:32px 40px 0;border-top:1px solid #2D2125;">
               <p style="margin:0 0 6px;font-family:'Mokoto','Space Grotesk','Orbitron',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:700;">Hyperspace XR SIG Presents</p>
               <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:#F8EFF3;letter-spacing:0.1em;line-height:1.05;">
                 TEXTURE<br/>
-                <span style="font-family:'Petit Formal Script',cursive,serif;font-style:italic;color:#D84B7E;font-size:28px;font-weight:400;letter-spacing:0.02em;">Distortion</span>
+                <span style="font-family:'Petit Formal Script','Playfair Display',Georgia,'Times New Roman',serif;font-style:italic;color:#D84B7E;font-size:28px;font-weight:400;letter-spacing:0.02em;">Distortion</span>
               </h1>
               <p style="margin:10px 0 0;font-family:'Space Grotesk','Inter',sans-serif;font-size:13px;color:rgba(210,180,195,0.75);letter-spacing:0.04em;">A two-day hands-on Blender workshop</p>
             </td>
@@ -205,8 +205,28 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
 
               ${formattedParagraphs}
 
-              <!-- Google Drive Brochure Attachment Card -->
-              <p style="margin:24px 0 8px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">Attachments</p>
+              <!-- Google Drive Attachments Section (Rulebook & Brochure) -->
+              <p style="margin:24px 0 8px;font-family:'Petit Formal Script','Playfair Display',Georgia,'Times New Roman',serif;font-style:italic;font-size:17px;color:#D84B7E;">Attachments</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 12px;background:#251C1F;border:1px solid #382A2E;border-radius:6px;">
+                <tr>
+                  <td style="padding:14px 18px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="middle">
+                          <p style="margin:0;font-size:13px;font-weight:700;color:#FFFFFF;font-family:'Inter',sans-serif;">Texture_Distortion_Rulebook.pdf</p>
+                          <p style="margin:2px 0 0;font-size:11px;color:rgba(200,175,185,0.6);font-family:'Inter',sans-serif;">Google Drive PDF Document</p>
+                        </td>
+                        <td valign="middle" align="right">
+                          <a href="https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing" target="_blank" style="display:inline-block;padding:8px 16px;background:#D84B7E;color:#FFFFFF;text-decoration:none;font-size:11px;font-weight:700;border-radius:4px;font-family:'Space Grotesk','Orbitron',sans-serif;letter-spacing:0.06em;text-transform:uppercase;">
+                            Download &rarr;
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;background:#251C1F;border:1px solid #382A2E;border-radius:6px;">
                 <tr>
                   <td style="padding:14px 18px;">
@@ -214,7 +234,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
                       <tr>
                         <td valign="middle">
                           <p style="margin:0;font-size:13px;font-weight:700;color:#FFFFFF;font-family:'Inter',sans-serif;">Hyperspace_XR_Brochure.pdf</p>
-                          <p style="margin:2px 0 0;font-size:11px;color:rgba(200,175,185,0.6);font-family:'Inter',sans-serif;">37 MB · Google Drive PDF Document</p>
+                          <p style="margin:2px 0 0;font-size:11px;color:rgba(200,175,185,0.6);font-family:'Inter',sans-serif;">Google Drive PDF Document</p>
                         </td>
                         <td valign="middle" align="right">
                           <a href="https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing" target="_blank" style="display:inline-block;padding:8px 16px;background:#D84B7E;color:#FFFFFF;text-decoration:none;font-size:11px;font-weight:700;border-radius:4px;font-family:'Space Grotesk','Orbitron',sans-serif;letter-spacing:0.06em;text-transform:uppercase;">
