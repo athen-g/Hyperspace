@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
+import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
 
 type RegDetail = Database['public']['Views']['registration_details']['Row']
 
@@ -18,6 +19,9 @@ export default function RegistrationsPage() {
   const { member } = useAuth()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
+
+  // Add Student Modal State
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
 
   // College inline editing state
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null)
@@ -143,13 +147,26 @@ export default function RegistrationsPage() {
         <Link to={`/admin/events/${eventId}`} style={{ fontSize: '12px', color: '#555', textDecoration: 'none' }}>← Event Detail</Link>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>Registrations <span style={{ fontSize: '16px', color: '#555', fontWeight: 400 }}>({filtered.length})</span></h1>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setIsAddStudentModalOpen(true)}
+              style={{ padding: '10px 16px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+            >
+              + Register Existing Student
+            </button>
             <Link to={`/admin/events/${eventId}/walkin`} style={{ padding: '10px 16px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', fontSize: '13px', textDecoration: 'none' }}>+ Walk-in</Link>
             <button onClick={handleExportXLSX} style={{ padding: '10px 16px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#aaa', fontSize: '13px', cursor: 'pointer' }}>Export XLSX</button>
             <button onClick={handleExportPDF} style={{ padding: '10px 16px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#aaa', fontSize: '13px', cursor: 'pointer' }}>Export PDF</button>
           </div>
         </div>
       </div>
+
+      <AddStudentRegistrationModal
+        isOpen={isAddStudentModalOpen}
+        onClose={() => setIsAddStudentModalOpen(false)}
+        eventId={eventId}
+        onSuccess={refetch}
+      />
 
       {/* Search */}
       <input

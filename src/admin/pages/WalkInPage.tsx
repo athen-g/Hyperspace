@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useEvents } from '../../hooks/useEvent'
+import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
 
 const inputStyle: React.CSSProperties = { width: '100%', padding: '10px 14px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', marginBottom: '6px' }
@@ -14,6 +15,7 @@ export default function WalkInPage() {
   const [form, setForm] = useState(emptyForm)
   const [loading, setLoading] = useState(false)
   const [lastReg, setLastReg] = useState<string | null>(null)
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
 
   const f = (k: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm(prev => ({ ...prev, [k]: e.target.value }))
@@ -82,11 +84,29 @@ export default function WalkInPage() {
 
   return (
     <div style={{ maxWidth: '560px' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <Link to={`/admin/events/${eventId}`} style={{ fontSize: '12px', color: '#555', textDecoration: 'none' }}>← Event Detail</Link>
-        <h1 style={{ margin: '12px 0 4px', fontSize: '24px', fontWeight: 700, color: '#fff' }}>Walk-in Registration</h1>
-        <p style={{ margin: 0, color: '#555', fontSize: '13px' }}>Bypass capacity and deadline limits.</p>
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <Link to={`/admin/events/${eventId}`} style={{ fontSize: '12px', color: '#555', textDecoration: 'none' }}>← Event Detail</Link>
+          <h1 style={{ margin: '12px 0 4px', fontSize: '24px', fontWeight: 700, color: '#fff' }}>Walk-in Registration</h1>
+          <p style={{ margin: 0, color: '#555', fontSize: '13px' }}>Bypass capacity and deadline limits.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsAddStudentModalOpen(true)}
+          style={{ padding: '10px 16px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', marginTop: '12px' }}
+        >
+          + Register Existing Student
+        </button>
       </div>
+
+      <AddStudentRegistrationModal
+        isOpen={isAddStudentModalOpen}
+        onClose={() => setIsAddStudentModalOpen(false)}
+        eventId={eventId}
+        onSuccess={() => {
+          toast.success('Student registered successfully!')
+        }}
+      />
 
       {lastReg && (
         <div style={{ background: '#0a2a0a', border: '1px solid #166534', borderRadius: '10px', padding: '16px 20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
