@@ -16,21 +16,30 @@ interface SendEventAnnouncementModalProps {
   onSuccess?: () => void
 }
 
-const DEFAULT_TITLE = 'Exciting Announcement: {target_event_name} is coming soon!'
+const DEFAULT_TITLE = 'Texture Distortion — Hyperspace XR SIG'
 
 const DEFAULT_MESSAGE = `Hi {subscriber_name},
 
-We are excited to announce our upcoming event: {target_event_name}!
+Hyperspace XR SIG is bringing you its most hands-on event yet — a two-day Blender workshop where you will go from a completely blank viewport to a fully modelled, textured, lit, and rendered 3D scene, built entirely by you.
 
-📅 Date: {event_date}
-📍 Venue: {venue}
+"From a blank cube to a fully rendered 3D scene — in six hours."
 
-Join us for an immersive hands-on experience in 3D creation and Extended Reality. Seats are limited, so reserve your spot early!
+What You'll Build:
+Following a structured donut tutorial, you'll model a donut, icing, mug, and plate — then apply physically-based materials, UV-unwrap every surface, scatter sprinkles using Blender's scatter system, and produce a final cinematic render under a three-light setup. The same render you see above is your target. No prior 3D experience required.
 
-Click here to register: https://hyperspacesig.tech/events/{event_slug}
+What You'll Receive:
+Coordinators will distribute all required files on pendrives or external drives — no downloads needed on the day. You'll also receive two workshop documents: a step-by-step workflow guide and a companion reference document, both yours to keep and use after the event.
 
-See you there!
-— Hyperspace XR Team`
+Event Details:
+📅 Dates: 13 – 14 August 2026
+⏰ Time: 1:00 PM – 4:00 PM each day
+📍 Venue: Room 518, Wadia College of Engineering
+🎓 Eligibility: Open to All (Laptop requirements apply — see Rulebook)
+
+⚠️ Pre-registration is mandatory. Walk-in participation is not permitted under any circumstances. Seats are limited — register before they fill up.
+
+The 3D world isn't going to render itself.
+— Hyperspace XR SIG`
 
 export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess }: SendEventAnnouncementModalProps) {
   const [title, setTitle] = useState(DEFAULT_TITLE)
@@ -87,14 +96,28 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
         return
       }
 
-      // Format raw message text into beautiful dark-mode HTML template
+      const renderImageUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/final-render.jpeg'
+
+      // Format raw message text into clean paragraphs
       const formattedParagraphs = message
         .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0)
-        .map(line => `<p style="margin:0 0 16px;font-size:15px;color:#d4d4d4;line-height:1.6;">${line}</p>`)
+        .map(line => {
+          if (line.startsWith('"') && line.endsWith('"')) {
+            return `<div style="background:#F4EFE6;border-left:3px solid #A62B56;border-radius:4px;padding:14px 18px;margin:16px 0;font-style:italic;color:#3D3336;font-size:14px;line-height:1.6;">${line}</div>`
+          }
+          if (line.startsWith('⚠️')) {
+            return `<div style="background:#FFF5F5;border:1px solid #FED7D7;border-radius:6px;padding:14px 18px;margin:18px 0;color:#9B2C2C;font-size:13px;line-height:1.6;">${line}</div>`
+          }
+          if (line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
+            return `<h3 style="margin:20px 0 6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#A62B56;font-weight:700;">${line}</h3>`
+          }
+          return `<p style="margin:0 0 14px;font-size:15px;color:#2B2527;line-height:1.7;">${line}</p>`
+        })
         .join('')
 
+      // Elegant, light beige color scheme (no neon/pink glow)
       const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -103,53 +126,90 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#e5e5e5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 0;">
+<body style="margin:0;padding:0;background:#F7F4EF;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#2B2527;">
+  <!-- Preheader -->
+  <div style="display:none;font-size:1px;color:#F7F4EF;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+    A hands-on Blender workshop — model, texture, light, and render a complete 3D scene. 13–14 August, Room 518.
+  </div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F4EF;padding:32px 12px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #222;border-radius:12px;overflow:hidden;">
-          <!-- Header -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #E6DFD5;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.04);">
+          
+          <!-- Top Accent Bar -->
           <tr>
-            <td style="background:linear-gradient(135deg,#0f0f0f 0%,#1a1a1a 100%);padding:40px 40px 32px;border-bottom:1px solid #222;">
-              <p style="margin:0 0 8px;font-size:11px;letter-spacing:4px;color:#E91E63;text-transform:uppercase;font-weight:bold;">Hyperspace XR Announcement</p>
-              <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">${title}</h1>
+            <td style="height:4px;background:#A62B56;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- Header Wordmark -->
+          <tr>
+            <td style="padding:28px 36px 20px;border-bottom:1px solid #F0EADF;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#A62B56;">HYPERSPACE XR SIG</p>
+                    <p style="margin:2px 0 0;font-size:10px;color:#7A7073;">Wadia College of Engineering · Dept. of Computer Engineering</p>
+                  </td>
+                  <td align="right">
+                    <span style="display:inline-block;padding:4px 12px;background:#F6E8EE;border:1px solid #E3B4C5;border-radius:20px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#A62B56;font-weight:700;">New Workshop</span>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
-          <!-- Body -->
-          <tr>
-            <td style="padding:40px;">
-              <div style="background:#141414;border:1px solid #2a2a2a;border-left:4px solid #E91E63;border-radius:8px;padding:24px;margin-bottom:32px;">
-                ${formattedParagraphs}
-              </div>
 
-              <!-- Button CTA -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+          <!-- Hero Final Render Image -->
+          <tr>
+            <td style="padding:0;background:#111;">
+              <a href="https://hyperspacesig.tech/events/{event_slug}" target="_blank" style="display:block;text-decoration:none;">
+                <img src="${renderImageUrl}" alt="Texture Distortion 3D Scene Render" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;" />
+              </a>
+            </td>
+          </tr>
+
+          <!-- Title Block -->
+          <tr>
+            <td style="padding:28px 36px 8px;background:#FAFAF7;border-bottom:1px solid #F0EADF;">
+              <p style="margin:0 0 4px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A7073;font-weight:600;">Hyperspace XR SIG Presents</p>
+              <h1 style="margin:0;font-size:28px;font-weight:800;color:#1A1416;letter-spacing:-0.5px;line-height:1.1;">
+                TEXTURE <span style="color:#A62B56;">Distortion</span>
+              </h1>
+              <p style="margin:6px 0 0;font-size:13px;color:#6E6367;font-style:italic;">A two-day hands-on Blender workshop</p>
+            </td>
+          </tr>
+
+          <!-- Content Body -->
+          <tr>
+            <td style="padding:32px 36px;">
+              ${formattedParagraphs}
+
+              <!-- Register CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;">
                 <tr>
                   <td align="center">
-                    <a href="https://hyperspacesig.tech/events/{event_slug}" target="_blank" style="display:inline-block;padding:14px 32px;background:#E91E63;color:#ffffff;text-decoration:none;font-weight:bold;font-size:14px;border-radius:8px;letter-spacing:1px;text-transform:uppercase;">
-                      Register Now →
+                    <a href="https://hyperspacesig.tech/events/{event_slug}" target="_blank" style="display:inline-block;padding:14px 32px;background:#A62B56;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;">
+                      Register for Texture Distortion →
                     </a>
                   </td>
                 </tr>
               </table>
-
-              <p style="margin:0;font-size:14px;color:#555;line-height:1.8;border-top:1px solid #222;padding-top:20px;">
-                Hyperspace XR SIG<br/>
-                <strong style="color:#888;">Immersive Technology Community</strong>
-              </p>
             </td>
           </tr>
+
           <!-- Footer -->
           <tr>
-            <td style="background:#0d0d0d;padding:20px 40px;border-top:1px solid #1a1a1a;">
-              <p style="margin:0 0 8px;font-size:11px;color:#444;text-align:center;">
-                Hyperspace XR · Official Event Announcement
+            <td style="background:#F2EDE4;padding:24px 36px;border-top:1px solid #E6DFD5;">
+              <p style="margin:0 0 6px;font-size:10px;color:#7A7073;text-align:center;line-height:1.4;">
+                Hyperspace XR SIG · Wadia College of Engineering · Dept. of Computer Engineering, Pune
               </p>
-              <p style="margin:0;font-size:11px;color:#555;text-align:center;">
-                If you prefer not to receive future event updates, you can <a href="https://hyperspacesig.tech/unsubscribe?email={subscriber_email}" target="_blank" style="color:#777;text-decoration:underline;">unsubscribe here</a>.
+              <p style="margin:0;font-size:10px;color:#7A7073;text-align:center;">
+                You are receiving this because you subscribed at hyperspacesig.tech · 
+                <a href="https://hyperspacesig.tech/unsubscribe?email={subscriber_email}" target="_blank" style="color:#5C5255;text-decoration:underline;">Unsubscribe</a>
               </p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
@@ -299,7 +359,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
               </span>
             </div>
             <textarea
-              rows={9}
+              rows={11}
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder={DEFAULT_MESSAGE}
