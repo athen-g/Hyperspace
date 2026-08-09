@@ -33,6 +33,8 @@ export default function RegistrationsPage() {
     const [successData, setSuccessData] = useState(null);
     const [readRulebook, setReadRulebook] = useState(false);
 
+    const rulebookUrl = constantsEvent?.rulebook_url || event?.rulebook_url || 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing';
+
     /* Pick questions for this event */
     const questions =
         registrationQuestions[slug] ?? registrationQuestions['default'];
@@ -461,7 +463,7 @@ export default function RegistrationsPage() {
                                     <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor={`reg-${q.id}`}>
                                         {q.id === 'blender_specs' ? (
                                             <>
-                                                DOES YOUR LAPTOP MEET THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
+                                                DOES YOUR LAPTOP MEET THE <a href={rulebookUrl} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
                                             </>
                                         ) : (
                                             q.label
@@ -587,7 +589,7 @@ export default function RegistrationsPage() {
                                     className={`font-mono uppercase tracking-[0.05em] text-white cursor-pointer select-none ${isMobile768 ? 'text-[12px]' : 'text-[13px]'}`}
                                     style={{ lineHeight: 1.5, fontWeight: 600 }}
                                 >
-                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>RULEBOOK</a> FOR THIS EVENT. *
+                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={rulebookUrl} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>RULEBOOK</a> FOR THIS EVENT. *
                                 </label>
                             </div>
 
