@@ -76,7 +76,9 @@ Deno.serve(async (req) => {
       .single()
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
-    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=200`
+    
+    // Special VIP Winner QR Code: Hyperspace Pink/Royal Purple modules + center emblem logo + high error correction
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=E5195E&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
@@ -105,43 +107,45 @@ Deno.serve(async (req) => {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 0;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #222;border-radius:12px;overflow:hidden;">
-          <!-- Header -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #333;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(233,30,99,0.15);">
+          <!-- Winner Gold/Pink Gradient Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#0f0f0f 0%,#1a1a1a 100%);padding:40px 40px 32px;border-bottom:1px solid #222;">
-              <p style="margin:0 0 8px;font-size:11px;letter-spacing:4px;color:#E91E63;text-transform:uppercase;font-weight:bold;">Hyperspace XR Winners</p>
-              <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">${title}</h1>
+            <td style="background:linear-gradient(135deg,#1f0914 0%,#2d0e23 50%,#0f0f1a 100%);padding:40px 40px 32px;border-bottom:1px solid #333;">
+              <div style="display:inline-block;padding:4px 12px;background:#E91E63/20;border:1px solid #E91E63;border-radius:20px;margin-bottom:12px;">
+                <p style="margin:0;font-size:11px;letter-spacing:3px;color:#ff69b4;text-transform:uppercase;font-weight:bold;">🏆 VIP Winner Pass</p>
+              </div>
+              <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.2;">${title}</h1>
             </td>
           </tr>
           <!-- Body -->
           <tr>
             <td style="padding:40px;">
               <!-- Custom Winner Message -->
-              <div style="background:#141414;border:1px solid #2a2a2a;border-left:4px solid #E91E63;border-radius:8px;padding:24px;margin-bottom:32px;">
+              <div style="background:#181016;border:1px solid #E91E63/40;border-left:4px solid #E91E63;border-radius:10px;padding:24px;margin-bottom:32px;">
                 ${formattedMessage}
               </div>
 
               <!-- Ticket Info Header -->
-              <p style="margin:0 0 16px;font-size:12px;letter-spacing:3px;color:#888;text-transform:uppercase;font-weight:bold;">Your Event Pass & Ticket</p>
+              <p style="margin:0 0 16px;font-size:12px;letter-spacing:3px;color:#E91E63;text-transform:uppercase;font-weight:bold;">🏆 Your Winner VIP Event Ticket</p>
 
               <!-- Event Details -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;margin-bottom:24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:24px;">
                 <tr>
                   <td style="padding:20px;">
                     <table width="100%" cellpadding="0" cellspacing="6">
                       <tr>
-                        <td style="font-size:11px;letter-spacing:3px;color:#555;text-transform:uppercase;padding-bottom:4px;">Event</td>
-                        <td style="font-size:15px;color:#fff;font-weight:600;">${reg.event_title}</td>
+                        <td style="font-size:11px;letter-spacing:3px;color:#666;text-transform:uppercase;padding-bottom:4px;">Event</td>
+                        <td style="font-size:15px;color:#fff;font-weight:700;">${reg.event_title}</td>
                       </tr>
                       <tr><td colspan="2" style="padding:6px 0;"><hr style="border:none;border-top:1px solid #2a2a2a;" /></td></tr>
                       <tr>
-                        <td style="font-size:11px;letter-spacing:3px;color:#555;text-transform:uppercase;padding-bottom:4px;">Date</td>
+                        <td style="font-size:11px;letter-spacing:3px;color:#666;text-transform:uppercase;padding-bottom:4px;">Date</td>
                         <td style="font-size:15px;color:#e5e5e5;">${eventDate}</td>
                       </tr>
                       ${reg.venue ? `
                       <tr><td colspan="2" style="padding:6px 0;"><hr style="border:none;border-top:1px solid #2a2a2a;" /></td></tr>
                       <tr>
-                        <td style="font-size:11px;letter-spacing:3px;color:#555;text-transform:uppercase;padding-bottom:4px;">Venue</td>
+                        <td style="font-size:11px;letter-spacing:3px;color:#666;text-transform:uppercase;padding-bottom:4px;">Venue</td>
                         <td style="font-size:15px;color:#e5e5e5;">${reg.venue}</td>
                       </tr>` : ''}
                     </table>
@@ -150,26 +154,27 @@ Deno.serve(async (req) => {
               </table>
 
               <!-- Registration Number -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;border:1px solid #333;border-radius:8px;margin-bottom:24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#181016 0%,#0d0d0d 100%);border:1px solid #E91E63/40;border-radius:10px;margin-bottom:28px;">
                 <tr>
-                  <td align="center" style="padding:20px;">
-                    <p style="margin:0 0 6px;font-size:11px;letter-spacing:4px;color:#555;text-transform:uppercase;">Winner Ticket Number</p>
-                    <p style="margin:0;font-size:26px;font-weight:700;color:#E91E63;letter-spacing:2px;font-family:'Courier New',monospace;">${reg.registration_no}</p>
+                  <td align="center" style="padding:22px;">
+                    <p style="margin:0 0 6px;font-size:11px;letter-spacing:4px;color:#aaa;text-transform:uppercase;font-weight:bold;">Winner Ticket Number</p>
+                    <p style="margin:0;font-size:28px;font-weight:800;color:#E91E63;letter-spacing:3px;font-family:'Courier New',monospace;">${reg.registration_no}</p>
                   </td>
                 </tr>
               </table>
 
               ${!reg.is_waitlisted ? `
-              <!-- QR Code -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <!-- Special VIP Winner QR Code Pass -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                 <tr>
                   <td align="center">
-                    <p style="margin:0 0 14px;font-size:12px;color:#666;letter-spacing:1px;text-transform:uppercase;">Entry QR Pass</p>
-                    <div style="display:inline-block;background:#ffffff;padding:14px;border-radius:12px;">
-                      <img src="${qrImageUrl}" width="180" height="180" alt="QR Code" style="display:block;" />
+                    <p style="margin:0 0 14px;font-size:12px;color:#E91E63;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">🏆 Official VIP Winner QR Entry Pass</p>
+                    <div style="display:inline-block;background:#ffffff;padding:18px;border-radius:16px;box-shadow:0 8px 24px rgba(233,30,99,0.25);border:2px solid #E91E63;">
+                      <img src="${qrImageUrl}" width="220" height="220" alt="Winner VIP QR Code" style="display:block;" />
                     </div>
-                    <p style="margin:14px 0 0;font-size:12px;color:#555;">
-                      Show this QR pass at the entrance for direct check-in.
+                    <p style="margin:16px 0 0;font-size:13px;color:#aaa;line-height:1.5;">
+                      Show this VIP QR pass at the event entrance for priority check-in.<br/>
+                      <strong style="color:#fff;">Congratulations on your achievement!</strong>
                     </p>
                   </td>
                 </tr>
