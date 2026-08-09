@@ -113,6 +113,37 @@ Deno.serve(async (req) => {
     const venueName = eventDetails?.venue || 'Room 518'
     const eventSlug = eventDetails?.slug || 'events'
 
+    // Google Drive direct download URL helper
+    const getGoogleDriveDirectUrl = (url: string | null | undefined): string | null => {
+      if (!url) return null
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/)
+      if (match && match[1]) {
+        return `https://drive.google.com/uc?export=download&id=${match[1]}`
+      }
+      return url
+    }
+
+    const rulebookDirectUrl = getGoogleDriveDirectUrl(
+      eventDetails?.rulebook_url || 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing'
+    )
+    const brochureDirectUrl = getGoogleDriveDirectUrl(
+      'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing'
+    )
+
+    const attachmentsList: { path: string; filename: string }[] = []
+    if (rulebookDirectUrl) {
+      attachmentsList.push({
+        path: rulebookDirectUrl,
+        filename: 'Texture_Distortion_Rulebook.pdf',
+      })
+    }
+    if (brochureDirectUrl) {
+      attachmentsList.push({
+        path: brochureDirectUrl,
+        filename: 'Hyperspace_XR_Brochure.pdf',
+      })
+    }
+
     // Batch send using Resend API (100 per chunk)
     const batchSize = 100
     let sentCount = 0
@@ -149,6 +180,7 @@ Deno.serve(async (req) => {
             'List-Unsubscribe': `<${unsubscribeUrl}>`,
             'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           },
+          attachments: attachmentsList.length > 0 ? attachmentsList : undefined,
         }
       })
 
