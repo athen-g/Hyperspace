@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
     
     // Special VIP Winner QR Code: Hyperspace Pink/Royal Purple modules + center emblem logo + high error correction
-    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=E5195E&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=E91E63&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
