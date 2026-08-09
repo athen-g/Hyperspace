@@ -251,7 +251,7 @@ export default function EventOngoingTemplate() {
                             )}
                           </div>
 
-                          <div className="flex-1 max-w-[450px]">
+                          <div className="flex-1 max-w-[450px] max-[490px]:pl-[5px]">
                             <h3 className="font-host font-extrabold text-[20px] sm:text-[26px] uppercase tracking-wide text-white mb-3 leading-snug">
                               {item.title}
                             </h3>
@@ -266,7 +266,7 @@ export default function EventOngoingTemplate() {
                       <div className="w-[93.056%] mx-auto flex flex-col-reverse md:grid md:grid-cols-12 items-center gap-6">
                         {/* Text */}
                         <div className="w-full md:col-span-4 flex justify-end">
-                          <div className="w-full max-w-[450px]">
+                          <div className="w-full max-w-[450px] max-[490px]:pl-[5px]">
                             <h3 className="font-host font-extrabold text-[20px] sm:text-[26px] uppercase tracking-wide text-white mb-3 leading-snug">
                               {item.title}
                             </h3>

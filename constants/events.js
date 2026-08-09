@@ -1,4 +1,14 @@
 import textureDistortion from '../src/assets/images/event-backdrops/texture-distortion-backdrop.png'
+import sched01 from '../src/assets/images/schedule/01.png'
+import sched02 from '../src/assets/images/schedule/02.png'
+import sched03 from '../src/assets/images/schedule/03.png'
+import sched04 from '../src/assets/images/schedule/04.png'
+import sched05 from '../src/assets/images/schedule/05.png'
+import sched06 from '../src/assets/images/schedule/06.png'
+import sched07 from '../src/assets/images/schedule/07.png'
+import sched08 from '../src/assets/images/schedule/08.png'
+import sched09 from '../src/assets/images/schedule/09.png'
+import sched10 from '../src/assets/images/schedule/10.png'
 // Format:-
 // {
 //     id: ,
@@ -42,21 +52,21 @@ const eventsOngoing = [
       {
         day: 'Day 1 - Thursday, 13th August',
         items: [
-          { title: 'Setup & Orientation', description: 'Laptop and Blender setup. Grab lunch if you haven\'t already, coordinators will have you ready to go within the first 30 minutes.' },
-          { title: 'Interface, Navigation & Your First Mesh', description: 'An introduction to the Blender interface, viewport navigation, essential hotkeys, and the foundational modelling tools you will use throughout the workshop.' },
-          { title: 'Foundation of 3D Modelling', description: 'Using a structured tutorial, you will model a donut base, build a mug with a handle, a plate, and apply icing with organic deformation.' },
-          { title: 'Break & Day 1 Quiz', description: 'A short break for refreshments. Immediately after, a fast-paced quiz based on the day\'s content. Top 3 scorers win cool prizes.' },
-          { title: 'Workshop Continues', description: 'The session resumes after the quiz, covering camera placement, material setup, and a first look at rendering.' },
+          { title: 'Setup & Orientation', description: 'Laptop and Blender setup. Grab lunch if you haven\'t already, coordinators will have you ready to go within the first 30 minutes.', image: sched01 },
+          { title: 'Interface, Navigation & Your First Mesh', description: 'An introduction to the Blender interface, viewport navigation, essential hotkeys, and the foundational modelling tools you will use throughout the workshop.', image: sched02 },
+          { title: 'Foundation of 3D Modelling', description: 'Using a structured tutorial, you will model a donut base, build a mug with a handle, a plate, and apply icing with organic deformation.', image: sched03 },
+          { title: 'Break & Day 1 Quiz', description: 'A short break for refreshments. Immediately after, a fast-paced quiz based on the day\'s content. Top 3 scorers win cool prizes.', image: sched04 },
+          { title: 'Workshop Continues', description: 'The session resumes after the quiz, covering camera placement, material setup, and a first look at rendering.', image: sched05 },
         ],
       },
       {
         day: 'Day 2 - Friday, 14th August',
         items: [
-          { title: 'Setup & Orientation', description: 'Laptop setup and a quick recap of Day 1 progress before diving in.' },
-          { title: 'PBR Materials & UV Texturing', description: 'You will apply physically-based materials to every surface, learn UV unwrapping, and connect real texture maps into Blender\'s shader editor.' },
-          { title: 'Scatter System, Lighting & Final Render', description: 'Scatter sprinkles across the icing using Blender\'s scatter system, build a three-light setup, and produce the final rendered image of your complete scene.' },
-          { title: 'Break & Day 2 Quiz', description: 'A short break for refreshments, followed by the Day 2 quiz. A fresh top 3: Fresh prizes.' },
-          { title: 'Instagram Challenge', description: 'Share your completed render, tag @mescoe_hyperspace, and the post with the most likes by the deadline wins a special reward. The virtual world isn\'t going to render itself: show yours off.' },
+          { title: 'Setup & Orientation', description: 'Laptop setup and a quick recap of Day 1 progress before diving in.', image: sched06 },
+          { title: 'PBR Materials & UV Texturing', description: 'You will apply physically-based materials to every surface, learn UV unwrapping, and connect real texture maps into Blender\'s shader editor.', image: sched07 },
+          { title: 'Scatter System, Lighting & Final Render', description: 'Scatter sprinkles across the icing using Blender\'s scatter system, build a three-light setup, and produce the final rendered image of your complete scene.', image: sched08 },
+          { title: 'Break & Day 2 Quiz', description: 'A short break for refreshments, followed by the Day 2 quiz. A fresh top 3: Fresh prizes.', image: sched09 },
+          { title: 'Final Showcase', description: 'YOUR WORK. YOUR MOMENT. YOUR ACHIEVEMENT. INSTAGRAM CHALLENGE: POST → TAG → GET LIKES → WIN. WORKSHOP CERTIFICATE: Complete the 2-day experience and receive your certificate.', image: sched10 },
         ],
       },
     ],
