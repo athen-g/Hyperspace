@@ -24,7 +24,8 @@ Hyperspace XR SIG is bringing you its most hands-on event yet - a two-day Blende
 
 "From a blank cube to a fully rendered 3D scene - in six hours."
 
-What You'll Build:
+The Briefing
+WHAT IS TEXTURE DISTORTION?
 Following a structured donut tutorial, you'll model a donut, icing, mug, and plate - then apply physically-based materials, UV-unwrap every surface, scatter sprinkles using Blender's scatter system, and produce a final cinematic render under a three-light setup. The same render you see above is your target. No prior 3D experience required.
 
 What You'll Receive:
@@ -75,11 +76,11 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
     onClose()
   }
 
-  // Generate full HTML string for dispatch & live preview
+  // Generate full HTML string matching Brochure Fonts
   const generateFullHtml = () => {
     const renderImageUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/final-render.jpeg'
 
-    // Clean inline SVG icons replacing emojis
+    // Clean inline SVG icons
     const calendarIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`
     const clockIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`
     const pinIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D84B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`
@@ -93,14 +94,18 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
       .filter(line => line.length > 0)
       .map(line => {
         if (line.startsWith('"') && line.endsWith('"')) {
-          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:13.5px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;">${line}</p></td></tr></table>`
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:14px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Playfair Display','Italiana',serif;">${line}</p></td></tr></table>`
+        }
+        if (line.toLowerCase().startsWith('the briefing') || line.toLowerCase().startsWith('the collective')) {
+          return `<p style="margin:20px 0 2px;font-family:'Petit Formal Script','Playfair Display',serif;font-style:italic;font-size:16px;color:#D84B7E;">${line}</p>`
+        }
+        if (line.startsWith('WHAT IS') || line.startsWith('ABOUT HYPERSPACE') || line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
+          return `<h2 style="margin:4px 0 12px;font-family:'Orbitron','Space Grotesk',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.15em;text-transform:uppercase;color:#D84B7E;">${line}</h2>`
         }
         if (line.toLowerCase().startsWith('pre-registration is mandatory')) {
-          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.3);border-radius:4px;padding:14px 18px;"><p style="margin:0;font-size:13px;color:rgba(245,210,225,0.95);line-height:1.6;">${alertIcon}<strong style="color:#D84B7E;">Pre-registration is mandatory.</strong> Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.</p></td></tr></table>`
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.3);border-radius:4px;padding:14px 18px;"><p style="margin:0;font-size:13px;color:rgba(245,210,225,0.95);line-height:1.6;font-family:'Inter',sans-serif;">${alertIcon}<strong style="color:#D84B7E;">Pre-registration is mandatory.</strong> Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.</p></td></tr></table>`
         }
-        if (line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
-          return `<p style="margin:20px 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;font-weight:700;">${line}</p>`
-        }
+
         // Icon line replacements
         let formattedLine = line
         if (line.startsWith('Dates:')) formattedLine = `${calendarIcon}<strong style="color:#ffffff;">Dates:</strong> ${line.replace('Dates:', '').trim()}`
@@ -108,7 +113,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
         else if (line.startsWith('Venue:')) formattedLine = `${pinIcon}<strong style="color:#ffffff;">Venue:</strong> ${line.replace('Venue:', '').trim()}`
         else if (line.startsWith('Eligibility:')) formattedLine = `${badgeIcon}<strong style="color:#ffffff;">Eligibility:</strong> ${line.replace('Eligibility:', '').trim()}`
 
-        return `<p style="margin:0 0 16px;font-size:14px;color:rgba(235,215,225,0.9);line-height:1.75;">${formattedLine}</p>`
+        return `<p style="margin:0 0 16px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:rgba(235,215,225,0.92);line-height:1.75;">${formattedLine}</p>`
       })
       .join('')
 
@@ -121,8 +126,13 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="x-apple-disable-message-reformatting" />
   <title>${title}</title>
+
+  <!-- Brochure Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Orbitron:wght@700;800;900&family=Petit+Formal+Script&family=Playfair+Display:ital,wght@1,600;1,700&family=Space+Grotesk:wght@700&family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0;padding:0;background:#140F11;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#F0E6EA;">
+<body style="margin:0;padding:0;background:#140F11;font-family:'Inter',system-ui,sans-serif;color:#F0E6EA;">
 
   <!-- Preheader -->
   <div style="display:none;font-size:1px;color:#140F11;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
@@ -148,14 +158,14 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             <td style="padding:32px 40px 24px;border-bottom:1px solid #2D2125;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <!-- Wordmark -->
+                  <!-- Wordmark (Orbitron/Syne) -->
                   <td valign="middle">
-                    <p style="margin:0;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
-                    <p style="margin:3px 0 0;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(200,175,185,0.6);">Wadia College of Engineering · Dept. of Computer Engineering</p>
+                    <p style="margin:0;font-family:'Orbitron','Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
+                    <p style="margin:3px 0 0;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(200,175,185,0.6);">Wadia College of Engineering · Dept. of Computer Engineering</p>
                   </td>
                   <!-- Event label -->
                   <td valign="middle" align="right">
-                    <span style="display:inline-block;padding:4px 12px;background:rgba(216,75,126,0.12);border:1px solid rgba(216,75,126,0.35);border-radius:20px;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#D84B7E;font-weight:600;">New Event</span>
+                    <span style="display:inline-block;padding:4px 12px;background:rgba(216,75,126,0.12);border:1px solid rgba(216,75,126,0.35);border-radius:20px;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#D84B7E;font-weight:600;">New Event</span>
                   </td>
                 </tr>
               </table>
@@ -174,15 +184,15 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             </td>
           </tr>
 
-          <!-- Event Name Block -->
+          <!-- Event Name Block (Greenth/Orbitron for TEXTURE, The Seasons/Playfair for Distortion) -->
           <tr>
             <td style="padding:32px 40px 0;border-top:1px solid #2D2125;">
-              <p style="margin:0 0 6px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:600;">Hyperspace XR SIG Presents</p>
-              <h1 style="margin:0;font-size:30px;font-weight:800;color:#F8EFF3;letter-spacing:-0.5px;line-height:1.05;">
+              <p style="margin:0 0 6px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:700;">Hyperspace XR SIG Presents</p>
+              <h1 style="margin:0;font-family:'Orbitron','Syne',sans-serif;font-size:32px;font-weight:900;color:#F8EFF3;letter-spacing:0.1em;line-height:1.05;">
                 TEXTURE<br/>
-                <span style="color:#D84B7E;font-size:22px;font-weight:700;letter-spacing:0.06em;">Distortion</span>
+                <span style="font-family:'Playfair Display','Italiana',serif;font-style:italic;color:#D84B7E;font-size:26px;font-weight:700;letter-spacing:0.04em;">Distortion</span>
               </h1>
-              <p style="margin:10px 0 0;font-size:13px;color:rgba(210,180,195,0.7);letter-spacing:0.04em;font-style:italic;">A two-day hands-on Blender workshop</p>
+              <p style="margin:10px 0 0;font-family:'Playfair Display','Italiana',serif;font-size:13px;color:rgba(210,180,195,0.7);letter-spacing:0.04em;font-style:italic;">A two-day hands-on Blender workshop</p>
             </td>
           </tr>
 
@@ -198,7 +208,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
                   <td style="background:#D84B7E;border-radius:5px;">
                     <a href="https://hyperspacesig.tech/events/{event_slug}"
                        target="_blank"
-                       style="display:inline-block;padding:14px 32px;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+                       style="display:inline-block;padding:14px 32px;font-family:'Orbitron','Space Grotesk',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
                       Register for Texture Distortion &rarr;
                     </a>
                   </td>
@@ -213,7 +223,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
               </table>
 
               <!-- Sign-off -->
-              <p style="margin:0;font-size:13px;color:rgba(200,175,185,0.6);line-height:1.8;">
+              <p style="margin:0;font-family:'Inter',sans-serif;font-size:13px;color:rgba(200,175,185,0.6);line-height:1.8;">
                 The 3D world isn't going to render itself.<br/>
                 <strong style="color:rgba(245,225,235,0.85);">- Hyperspace XR SIG</strong>
               </p>
@@ -227,10 +237,10 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td>
-                    <p style="margin:0 0 6px;font-size:10px;color:rgba(200,175,185,0.45);letter-spacing:0.08em;">
+                    <p style="margin:0 0 6px;font-family:'Inter',sans-serif;font-size:10px;color:rgba(200,175,185,0.45);letter-spacing:0.08em;">
                       Hyperspace XR SIG · Wadia College of Engineering · Dept. of Computer Engineering, Pune
                     </p>
-                    <p style="margin:0;font-size:10px;color:rgba(200,175,185,0.35);">
+                    <p style="margin:0;font-family:'Inter',sans-serif;font-size:10px;color:rgba(200,175,185,0.35);">
                       You are receiving this because you subscribed at
                       <a href="https://hyperspacesig.tech" target="_blank" style="color:rgba(216,75,126,0.6);text-decoration:none;">hyperspacesig.tech</a>. 
                       <a href="https://hyperspacesig.tech/unsubscribe?email={subscriber_email}" target="_blank" style="color:rgba(200,175,185,0.4);text-decoration:underline;">Unsubscribe</a>
