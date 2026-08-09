@@ -39,8 +39,9 @@ const eventsOngoing = [
     type: 'HANDS-ON WORKSHOP',
     sponsors: ['COMING SOON!'],
     plan: 'COMING SOON!',
-    brochure_url: '',
-    registration_open: false,
+    rulebook_url: 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing',
+    brochure_url: 'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing',
+    registration_open: true,
   },
 ]
 

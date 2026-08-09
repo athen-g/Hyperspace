@@ -325,7 +325,7 @@ export default function EventOngoingTemplate() {
         )}
 
         {/* Brochure & Rulebook text */}
-        <div className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
+        <div id="rulebook" className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
           }`}>
           <p className={`font-host font-bold uppercase leading-[1.1] tracking-[0.02em] text-white mx-auto ${isMobile768 ? 'text-[18px] max-w-full' : 'text-[36px] max-w-[900px]'
             }`}>

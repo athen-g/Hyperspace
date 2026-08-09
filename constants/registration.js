@@ -1,4 +1,13 @@
 const registrationQuestions = {
+    'texture-distortion': [
+        {
+            id: 'blender_specs',
+            label: 'DOES YOUR LAPTOP MEET THE MINIMUM SPECIFICATIONS TO RUN BLENDER?',
+            type: 'select',
+            options: ['YES', 'NO'],
+            placeholder: '—',
+        },
+    ],
     'commence-synchronisation': [
         {
             id: 'attended_before',

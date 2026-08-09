@@ -31,6 +31,7 @@ export default function RegistrationsPage() {
     const [loadingEvent, setLoadingEvent] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [successData, setSuccessData] = useState(null);
+    const [readRulebook, setReadRulebook] = useState(false);
 
     /* Pick questions for this event */
     const questions =
@@ -94,6 +95,19 @@ export default function RegistrationsPage() {
         if (!event) return;
         if (!form.name || !form.email || !form.contact || !form.prn || !form.college || !form.year || !form.branch || !form.division) {
             toast.error('Please fill in all required fields.');
+            return;
+        }
+
+        // Contact validation (exactly 10 digits, no country code)
+        const cleanContact = form.contact.trim();
+        if (!/^\d{10}$/.test(cleanContact)) {
+            toast.error('Please enter a valid 10-digit contact number.');
+            return;
+        }
+
+        // Rulebook validation
+        if (!readRulebook) {
+            toast.error('You must read and confirm the rulebook before registering.');
             return;
         }
 
@@ -427,24 +441,37 @@ export default function RegistrationsPage() {
                             {questions.map((q) => (
                                 <Field key={q.id}>
                                     <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor={`reg-${q.id}`}>
-                                        {q.label}
+                                        {q.id === 'blender_specs' ? (
+                                            <>
+                                                DOES YOUR LAPTOP MEET THE <a href={`/events/${slug}#rulebook`} className="underline hover:text-[#E91E63] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
+                                            </>
+                                        ) : (
+                                            q.label
+                                        )}
                                     </label>
 
                                     {q.type === 'select' ? (
-                                        <RegSelect
-                                            id={`reg-${q.id}`}
-                                            name={q.id}
-                                            value={form[q.id]}
-                                            onChange={handleChange}
-                                            onFocus={() => setFocused(q.id)}
-                                            onBlur={() => setFocused(null)}
-                                            className={isMobile768 ? '!text-[14px]' : ''}
-                                        >
-                                            <option value="">{q.placeholder}</option>
-                                            {q.options?.map((opt) => (
-                                                <option key={opt} value={opt}>{opt}</option>
-                                            ))}
-                                        </RegSelect>
+                                        <>
+                                            <RegSelect
+                                                id={`reg-${q.id}`}
+                                                name={q.id}
+                                                value={form[q.id]}
+                                                onChange={handleChange}
+                                                onFocus={() => setFocused(q.id)}
+                                                onBlur={() => setFocused(null)}
+                                                className={isMobile768 ? '!text-[14px]' : ''}
+                                            >
+                                                <option value="">{q.placeholder}</option>
+                                                {q.options?.map((opt) => (
+                                                    <option key={opt} value={opt}>{opt}</option>
+                                                ))}
+                                            </RegSelect>
+                                            {q.id === 'blender_specs' && (
+                                                <p style={{ marginTop: '8px', fontSize: '11px', color: '#888', fontStyle: 'italic', fontFamily: 'monospace', letterSpacing: '0.02em', textTransform: 'uppercase', lineHeight: '1.4' }}>
+                                                    * EVEN IF YOUR LAPTOP DOES NOT MEET THE REQUIREMENTS, FEEL FREE TO CONTACT THE HYPERSPACE TEAM. WE CAN MAKE ARRANGEMENTS FOR YOU.
+                                                </p>
+                                            )}
+                                        </>
                                     ) : (
                                         <textarea
                                             id={`reg-${q.id}`}
@@ -500,6 +527,48 @@ export default function RegistrationsPage() {
                                     style={{ lineHeight: 1.5 }}
                                 >
                                     SUBSCRIBE TO THE HYPERSPACE XR NEWSLETTER — BE THE FIRST TO KNOW ABOUT UPCOMING EVENTS, WORKSHOPS, AND OPPORTUNITIES.
+                                </label>
+                            </div>
+
+                            {/* ── Rulebook confirmation checkbox ── */}
+                            <div className={`flex items-start gap-3 ${isMobile768 ? 'mb-6 mt-2' : 'mb-8 mt-4'}`}>
+                                <div
+                                    id="reg-rulebook-box"
+                                    onClick={() => setReadRulebook(!readRulebook)}
+                                    role="checkbox"
+                                    aria-checked={readRulebook}
+                                    tabIndex={0}
+                                    onKeyDown={e => (e.key === ' ' || e.key === 'Enter') && setReadRulebook(!readRulebook)}
+                                    className="reg-checkbox-box"
+                                    style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        minWidth: '20px',
+                                        border: `1.5px solid ${readRulebook ? '#E91E63' : '#555'}`,
+                                        borderRadius: '4px',
+                                        background: readRulebook ? '#E91E63' : 'transparent',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease',
+                                        marginTop: '2px',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    {readRulebook && (
+                                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                                            <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <label
+                                    htmlFor="reg-rulebook-box"
+                                    onClick={() => setReadRulebook(!readRulebook)}
+                                    className={`font-mono uppercase tracking-[0.05em] text-[#ABABAB] cursor-pointer select-none ${isMobile768 ? 'text-[11px]' : 'text-[12px]'}`}
+                                    style={{ lineHeight: 1.5 }}
+                                >
+                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={`/events/${slug}#rulebook`} className="underline hover:text-[#E91E63] transition-colors" target="_blank" rel="noopener noreferrer">RULEBOOK</a> FOR THIS EVENT. *
                                 </label>
                             </div>
 
