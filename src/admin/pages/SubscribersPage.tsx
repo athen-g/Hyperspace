@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import SendWinnersModal from '../components/SendWinnersModal'
+import SendEventAnnouncementModal from '../components/SendEventAnnouncementModal'
 
 interface Subscriber {
   id: string
@@ -20,6 +21,7 @@ export default function SubscribersPage() {
   // Compose modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isWinnersModalOpen, setIsWinnersModalOpen] = useState(false)
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false)
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [sending, setSending] = useState(false)
@@ -109,6 +111,21 @@ export default function SubscribersPage() {
         </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button
+            onClick={() => setIsEventModalOpen(true)}
+            style={{
+              background: '#E91E63',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#fff',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            📢 Announce Event
+          </button>
+          <button
             onClick={() => setIsWinnersModalOpen(true)}
             style={{
               background: '#111',
@@ -126,10 +143,10 @@ export default function SubscribersPage() {
           <button
             onClick={() => setIsModalOpen(true)}
             style={{
-              background: '#E91E63',
-              border: 'none',
+              background: '#141414',
+              border: '1px solid #333',
               borderRadius: '6px',
-              color: '#fff',
+              color: '#aaa',
               padding: '8px 16px',
               fontSize: '14px',
               fontWeight: 600,
@@ -331,6 +348,11 @@ export default function SubscribersPage() {
       <SendWinnersModal
         isOpen={isWinnersModalOpen}
         onClose={() => setIsWinnersModalOpen(false)}
+      />
+
+      <SendEventAnnouncementModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
       />
     </div>
   )
