@@ -327,9 +327,38 @@ export default function RegistrationsPage() {
                 </td>
                 <td style={tdStyle}>{format(new Date(r.registered_at), 'dd MMM, HH:mm')}</td>
                 <td style={tdStyle}>
-                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: r.registered_by_name ? '#1a1a0a' : '#0a0a1a', color: r.registered_by_name ? '#facc15' : '#818cf8', border: `1px solid ${r.registered_by_name ? '#713f12' : '#3730a3'}` }}>
-                    {r.registered_by_name ? `Walk-in` : 'Online'}
-                  </span>
+                  {(() => {
+                    const isWinner = r.registration_no?.includes('WINNERS')
+                    const isWalkIn = r.registered_by_name && !isWinner && r.registration_no?.includes('WALKIN')
+                    const isAdminAdded = r.registered_by_name && !isWinner && !isWalkIn
+
+                    if (isWinner) {
+                      return (
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: '#3b0764', color: '#e9d5ff', border: '1px solid #7e22ce', fontWeight: 600 }}>
+                          🏆 Winner
+                        </span>
+                      )
+                    }
+                    if (isWalkIn) {
+                      return (
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: '#1a1a0a', color: '#facc15', border: '1px solid #713f12' }}>
+                          Walk-in
+                        </span>
+                      )
+                    }
+                    if (isAdminAdded) {
+                      return (
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: '#032b1d', color: '#6ee7b7', border: '1px solid #047857' }}>
+                          Admin
+                        </span>
+                      )
+                    }
+                    return (
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: '#0a0a1a', color: '#818cf8', border: '1px solid #3730a3' }}>
+                        Online
+                      </span>
+                    )
+                  })()}
                 </td>
                 {/* Status Column Indicator */}
                 <td style={tdStyle}>
