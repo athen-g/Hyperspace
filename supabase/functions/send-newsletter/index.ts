@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { encodeBase64 } from "https://deno.land/std@0.208.0/encoding/base64.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -113,36 +114,40 @@ Deno.serve(async (req) => {
     const venueName = eventDetails?.venue || 'Room 518'
     const eventSlug = eventDetails?.slug || 'events'
 
-    // Google Drive direct download URL helper
-    const getGoogleDriveDirectUrl = (url: string | null | undefined): string | null => {
-      if (!url) return null
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/)
-      if (match && match[1]) {
-        return `https://drive.google.com/uc?export=download&id=${match[1]}`
+    // Helper to fetch Google Drive PDF file and convert to Base64
+    const fetchDriveAttachment = async (fileId: string, filename: string) => {
+      try {
+        const directUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`
+        const res = await fetch(directUrl)
+        if (!res.ok) {
+          console.error(`Failed to fetch attachment ${filename}: ${res.statusText}`)
+          return null
+        }
+        const arrayBuffer = await res.arrayBuffer()
+        const base64Content = encodeBase64(new Uint8Array(arrayBuffer))
+        return {
+          filename,
+          content: base64Content,
+        }
+      } catch (err) {
+        console.error(`Error fetching attachment ${filename}:`, err)
+        return null
       }
-      return url
     }
 
-    const rulebookDirectUrl = getGoogleDriveDirectUrl(
-      eventDetails?.rulebook_url || 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing'
-    )
-    const brochureDirectUrl = getGoogleDriveDirectUrl(
-      'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing'
-    )
+    // Fetch rulebook and brochure attachments concurrently
+    const attachmentsList: { filename: string; content: string }[] = []
 
-    const attachmentsList: { path: string; filename: string }[] = []
-    if (rulebookDirectUrl) {
-      attachmentsList.push({
-        path: rulebookDirectUrl,
-        filename: 'Texture_Distortion_Rulebook.pdf',
-      })
-    }
-    if (brochureDirectUrl) {
-      attachmentsList.push({
-        path: brochureDirectUrl,
-        filename: 'Hyperspace_XR_Brochure.pdf',
-      })
-    }
+    const rulebookFileId = '1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53'
+    const brochureFileId = '1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu'
+
+    const [rulebookAtt, brochureAtt] = await Promise.all([
+      fetchDriveAttachment(rulebookFileId, 'Texture_Distortion_Rulebook.pdf'),
+      fetchDriveAttachment(brochureFileId, 'Hyperspace_XR_Brochure.pdf'),
+    ])
+
+    if (rulebookAtt) attachmentsList.push(rulebookAtt)
+    if (brochureAtt) attachmentsList.push(brochureAtt)
 
     // Batch send using Resend API (100 per chunk)
     const batchSize = 100
