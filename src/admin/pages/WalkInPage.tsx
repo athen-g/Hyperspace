@@ -52,7 +52,16 @@ export default function WalkInPage() {
         body: { ...form, year: parseInt(form.year), event_id: eventId, custom_field_data: {} },
       })
 
-      if (error) throw error
+      if (error) {
+        let errMsg = error.message
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const body = await error.context.clone().json()
+            errMsg = body.error || body.message || errMsg
+          } catch (e) {}
+        }
+        throw new Error(errMsg)
+      }
 
       if (data.alreadyRegistered) {
         toast(`${form.name} is already registered: ${data.registrationNo}`, { icon: 'ℹ️' })

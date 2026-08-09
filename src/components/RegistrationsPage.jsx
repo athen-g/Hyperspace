@@ -138,7 +138,16 @@ export default function RegistrationsPage() {
                 }
             });
 
-            if (error) throw error;
+            if (error) {
+                let errMsg = error.message;
+                if (error.context && typeof error.context.json === 'function') {
+                    try {
+                        const body = await error.context.clone().json();
+                        errMsg = body.error || body.message || errMsg;
+                    } catch (e) {}
+                }
+                throw new Error(errMsg);
+            }
 
             if (data.alreadyRegistered) {
                 toast.success('You have already registered for this event!');

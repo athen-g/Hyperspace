@@ -46,7 +46,16 @@ export default function ScannerPage() {
       const processToken = async () => {
         try {
           const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
-          if (error) throw error
+          if (error) {
+            let errMsg = error.message;
+            if (error.context && typeof error.context.json === 'function') {
+              try {
+                const body = await error.context.clone().json();
+                errMsg = body.error || body.message || errMsg;
+              } catch (e) {}
+            }
+            throw new Error(errMsg);
+          }
           setResult(data)
           playBeep(!!data.success)
           setTimeout(() => {
@@ -94,7 +103,16 @@ export default function ScannerPage() {
 
             const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
 
-            if (error) throw error
+            if (error) {
+              let errMsg = error.message;
+              if (error.context && typeof error.context.json === 'function') {
+                try {
+                  const body = await error.context.clone().json();
+                  errMsg = body.error || body.message || errMsg;
+                } catch (e) {}
+              }
+              throw new Error(errMsg);
+            }
 
             setResult(data)
             playBeep(!!data.success)

@@ -61,7 +61,14 @@ export default function SubscribersPage() {
       })
 
       if (res.error) {
-        throw new Error(res.error)
+        let errMsg = res.error.message || String(res.error)
+        if (res.error.context && typeof res.error.context.json === 'function') {
+          try {
+            const body = await res.error.context.clone().json()
+            errMsg = body.error || body.message || errMsg
+          } catch (e) {}
+        }
+        throw new Error(errMsg)
       }
 
       if (res.data?.success) {

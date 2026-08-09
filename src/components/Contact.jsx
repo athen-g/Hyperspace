@@ -31,7 +31,14 @@ const Contact = () => {
       });
 
       if (error) {
-        throw new Error(error.message || 'Failed to dispatch message');
+        let errMsg = error.message;
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const body = await error.context.clone().json();
+            errMsg = body.error || body.message || errMsg;
+          } catch (e) {}
+        }
+        throw new Error(errMsg);
       }
 
       setStatus('success');
