@@ -205,6 +205,28 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
 
               ${formattedParagraphs}
 
+              <!-- Google Drive Brochure Attachment Card -->
+              <p style="margin:24px 0 8px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">Attachments</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;background:#251C1F;border:1px solid #382A2E;border-radius:6px;">
+                <tr>
+                  <td style="padding:14px 18px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="middle">
+                          <p style="margin:0;font-size:13px;font-weight:700;color:#FFFFFF;font-family:'Inter',sans-serif;">Hyperspace_XR_Brochure.pdf</p>
+                          <p style="margin:2px 0 0;font-size:11px;color:rgba(200,175,185,0.6);font-family:'Inter',sans-serif;">37 MB · Google Drive PDF Document</p>
+                        </td>
+                        <td valign="middle" align="right">
+                          <a href="https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing" target="_blank" style="display:inline-block;padding:8px 16px;background:#D84B7E;color:#FFFFFF;text-decoration:none;font-size:11px;font-weight:700;border-radius:4px;font-family:'Space Grotesk','Orbitron',sans-serif;letter-spacing:0.06em;text-transform:uppercase;">
+                            Download &rarr;
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
               <!-- CTA Button (Linking to Event Page, Shortened to "Register for Texture", using HK Modular / Space Grotesk / Orbitron) -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 32px;">
                 <tr>
