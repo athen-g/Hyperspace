@@ -57,6 +57,7 @@ Deno.serve(async (req) => {
 
     // 3. Determine if we should waitlist
     let shouldWaitlist = event.slug === 'texture-distortion'
+    let waitlistReason: 'manual' | 'capacity' | null = shouldWaitlist ? 'manual' : null
 
     if (!shouldWaitlist && event.capacity !== null) {
       const { count } = await supabase
@@ -67,6 +68,7 @@ Deno.serve(async (req) => {
 
       if ((count ?? 0) >= event.capacity) {
         shouldWaitlist = true
+        waitlistReason = 'capacity'
       }
     }
 
@@ -94,7 +96,7 @@ Deno.serve(async (req) => {
 
     if (existing) {
       return new Response(
-        JSON.stringify({ alreadyRegistered: true, isWaitlisted: existing.is_waitlisted }),
+        JSON.stringify({ alreadyRegistered: true, isWaitlisted: existing.is_waitlisted, waitlistReason: existing.is_waitlisted ? (event.slug === 'texture-distortion' ? 'manual' : 'capacity') : null }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -154,7 +156,7 @@ Deno.serve(async (req) => {
     })
 
     return new Response(
-      JSON.stringify({ success: true, registrationNo: regNo, studentId: student.id, waitlisted: shouldWaitlist }),
+      JSON.stringify({ success: true, registrationNo: regNo, studentId: student.id, waitlisted: shouldWaitlist, waitlistReason }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
