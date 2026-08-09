@@ -93,7 +93,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
       .filter(line => line.length > 0)
       .map(line => {
         if (line.startsWith('"') && line.endsWith('"')) {
-          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:14px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Petit Formal Script','Playfair Display',serif;">${line}</p></td></tr></table>`
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:13.5px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;">${line}</p></td></tr></table>`
         }
 
         // Subheaders using Petit Formal Script as requested
@@ -194,7 +194,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
                 TEXTURE<br/>
                 <span style="font-family:'Petit Formal Script',cursive,serif;font-style:italic;color:#D84B7E;font-size:28px;font-weight:400;letter-spacing:0.02em;">Distortion</span>
               </h1>
-              <p style="margin:10px 0 0;font-family:'Petit Formal Script',cursive,serif;font-size:14px;color:rgba(210,180,195,0.7);font-style:italic;">A two-day hands-on Blender workshop</p>
+              <p style="margin:10px 0 0;font-family:'Space Grotesk','Inter',sans-serif;font-size:13px;color:rgba(210,180,195,0.75);letter-spacing:0.04em;">A two-day hands-on Blender workshop</p>
             </td>
           </tr>
 
