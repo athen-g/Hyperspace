@@ -24,8 +24,7 @@ Hyperspace XR SIG is bringing you its most hands-on event yet - a two-day Blende
 
 "From a blank cube to a fully rendered 3D scene - in six hours."
 
-The Briefing
-WHAT IS TEXTURE DISTORTION?
+What You'll Build:
 Following a structured donut tutorial, you'll model a donut, icing, mug, and plate - then apply physically-based materials, UV-unwrap every surface, scatter sprinkles using Blender's scatter system, and produce a final cinematic render under a three-light setup. The same render you see above is your target. No prior 3D experience required.
 
 What You'll Receive:
@@ -76,7 +75,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
     onClose()
   }
 
-  // Generate full HTML string matching Brochure Fonts
+  // Generate full HTML string per exact user specifications
   const generateFullHtml = () => {
     const renderImageUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/final-render.jpeg'
 
@@ -94,14 +93,17 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
       .filter(line => line.length > 0)
       .map(line => {
         if (line.startsWith('"') && line.endsWith('"')) {
-          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:14px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Playfair Display','Italiana',serif;">${line}</p></td></tr></table>`
+          return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.22);border-left:3px solid #D84B7E;border-radius:4px;padding:16px 20px;"><p style="margin:0;font-size:14px;color:rgba(240,230,236,0.95);line-height:1.7;font-style:italic;font-family:'Petit Formal Script','Playfair Display',serif;">${line}</p></td></tr></table>`
         }
-        if (line.toLowerCase().startsWith('the briefing') || line.toLowerCase().startsWith('the collective')) {
-          return `<p style="margin:20px 0 2px;font-family:'Petit Formal Script','Playfair Display',serif;font-style:italic;font-size:16px;color:#D84B7E;">${line}</p>`
+
+        // Subheaders using Petit Formal Script as requested
+        if (line.startsWith('What You\'ll') || line.startsWith('What You’ll') || line.startsWith('The Briefing') || line.startsWith('The Collective')) {
+          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
         }
-        if (line.startsWith('WHAT IS') || line.startsWith('ABOUT HYPERSPACE') || line.startsWith('What You\'ll') || line.startsWith('Event Details:')) {
-          return `<h2 style="margin:4px 0 12px;font-family:'Orbitron','Space Grotesk',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.15em;text-transform:uppercase;color:#D84B7E;">${line}</h2>`
+        if (line.startsWith('Event Details:')) {
+          return `<p style="margin:22px 0 6px;font-family:'Petit Formal Script',cursive,serif;font-style:italic;font-size:17px;color:#D84B7E;">${line}</p>`
         }
+
         if (line.toLowerCase().startsWith('pre-registration is mandatory')) {
           return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;"><tr><td style="background:rgba(216,75,126,0.08);border:1px solid rgba(216,75,126,0.3);border-radius:4px;padding:14px 18px;"><p style="margin:0;font-size:13px;color:rgba(245,210,225,0.95);line-height:1.6;font-family:'Inter',sans-serif;">${alertIcon}<strong style="color:#D84B7E;">Pre-registration is mandatory.</strong> Walk-in participation is not permitted under any circumstances. Seats are limited - register before they fill up.</p></td></tr></table>`
         }
@@ -127,10 +129,10 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
   <meta name="x-apple-disable-message-reformatting" />
   <title>${title}</title>
 
-  <!-- Brochure Google Fonts -->
+  <!-- Google Fonts: Orbitron for TEXTURE & Button, Petit Formal Script for Distortion & Subheaders, Inter for body -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Orbitron:wght@700;800;900&family=Petit+Formal+Script&family=Playfair+Display:ital,wght@1,600;1,700&family=Space+Grotesk:wght@700&family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Petit+Formal+Script&family=Space+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:#140F11;font-family:'Inter',system-ui,sans-serif;color:#F0E6EA;">
 
@@ -158,9 +160,9 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             <td style="padding:32px 40px 24px;border-bottom:1px solid #2D2125;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <!-- Wordmark (Orbitron/Syne) -->
+                  <!-- Wordmark (Orbitron) -->
                   <td valign="middle">
-                    <p style="margin:0;font-family:'Orbitron','Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
+                    <p style="margin:0;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
                     <p style="margin:3px 0 0;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(200,175,185,0.6);">Wadia College of Engineering · Dept. of Computer Engineering</p>
                   </td>
                   <!-- Event label -->
@@ -172,7 +174,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             </td>
           </tr>
 
-          <!-- Hero Image (Final Donut Render) -->
+          <!-- Hero Image (Final Donut Render linking to Event Page) -->
           <tr>
             <td style="padding:0;background:#0d0a0b;">
               <a href="https://hyperspacesig.tech/events/{event_slug}" target="_blank" style="display:block;text-decoration:none;">
@@ -184,15 +186,15 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             </td>
           </tr>
 
-          <!-- Event Name Block (Greenth/Orbitron for TEXTURE, The Seasons/Playfair for Distortion) -->
+          <!-- Event Name Block (Greenth/Orbitron for TEXTURE, Petit Formal Script for Distortion) -->
           <tr>
             <td style="padding:32px 40px 0;border-top:1px solid #2D2125;">
               <p style="margin:0 0 6px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:700;">Hyperspace XR SIG Presents</p>
-              <h1 style="margin:0;font-family:'Orbitron','Syne',sans-serif;font-size:32px;font-weight:900;color:#F8EFF3;letter-spacing:0.1em;line-height:1.05;">
+              <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:#F8EFF3;letter-spacing:0.1em;line-height:1.05;">
                 TEXTURE<br/>
-                <span style="font-family:'Playfair Display','Italiana',serif;font-style:italic;color:#D84B7E;font-size:26px;font-weight:700;letter-spacing:0.04em;">Distortion</span>
+                <span style="font-family:'Petit Formal Script',cursive,serif;font-style:italic;color:#D84B7E;font-size:28px;font-weight:400;letter-spacing:0.02em;">Distortion</span>
               </h1>
-              <p style="margin:10px 0 0;font-family:'Playfair Display','Italiana',serif;font-size:13px;color:rgba(210,180,195,0.7);letter-spacing:0.04em;font-style:italic;">A two-day hands-on Blender workshop</p>
+              <p style="margin:10px 0 0;font-family:'Petit Formal Script',cursive,serif;font-size:14px;color:rgba(210,180,195,0.7);font-style:italic;">A two-day hands-on Blender workshop</p>
             </td>
           </tr>
 
@@ -202,14 +204,14 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
 
               ${formattedParagraphs}
 
-              <!-- CTA Button -->
+              <!-- CTA Button (Linking to Event Page, Shortened to "Register for Texture", using HK Modular / Space Grotesk / Orbitron) -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 32px;">
                 <tr>
                   <td style="background:#D84B7E;border-radius:5px;">
                     <a href="https://hyperspacesig.tech/events/{event_slug}"
                        target="_blank"
-                       style="display:inline-block;padding:14px 32px;font-family:'Orbitron','Space Grotesk',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
-                      Register for Texture Distortion &rarr;
+                       style="display:inline-block;padding:14px 32px;font-family:'Space Grotesk','Orbitron',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+                      Register for Texture &rarr;
                     </a>
                   </td>
                 </tr>
