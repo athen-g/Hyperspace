@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Validate admin token (Service role validation or JWT confirmation)
+  // Validate admin token
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
     return new Response(JSON.stringify({ error: 'Missing auth header' }), {
@@ -51,32 +51,13 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json()
-    const { subject, htmlContent, testEmail } = body
+    const { subject, htmlContent, testEmail, targetEventId } = body
 
     if (!subject || !htmlContent) {
       return new Response(JSON.stringify({ error: 'Missing subject or htmlContent' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
-    }
-
-    // 1. Fetch active subscribers or override with test email
-    let emails: string[] = []
-    if (testEmail) {
-      emails = [testEmail]
-    } else {
-      const { data: subscribers, error: subError } = await supabase
-        .from('newsletter_subscribers')
-        .select('email')
-        .eq('is_active', true)
-
-      if (subError || !subscribers || subscribers.length === 0) {
-        return new Response(JSON.stringify({ success: true, count: 0, message: 'No active subscribers found.' }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
-      emails = subscribers.map(sub => sub.email)
     }
 
     if (!RESEND_API_KEY) {
@@ -86,21 +67,83 @@ Deno.serve(async (req) => {
       })
     }
 
-    // 2. Batch send using Resend API
-    // Resend batch limit is 100 emails per request
+    // Fetch Target Event details if provided
+    let eventDetails: { title: string; event_date: string; venue: string | null; slug: string } | null = null
+    if (targetEventId) {
+      const { data: evData } = await supabase
+        .from('events')
+        .select('title, event_date, venue, slug')
+        .eq('id', targetEventId)
+        .single()
+
+      if (evData) {
+        eventDetails = evData
+      }
+    }
+
+    // Fetch active subscribers or override with test email
+    let subscribersList: { email: string; name: string | null }[] = []
+    if (testEmail) {
+      subscribersList = [{ email: testEmail, name: 'Test User' }]
+    } else {
+      const { data: subs, error: subError } = await supabase
+        .from('newsletter_subscribers')
+        .select('email, name')
+        .eq('is_active', true)
+
+      if (subError || !subs || subs.length === 0) {
+        return new Response(JSON.stringify({ success: true, count: 0, message: 'No active subscribers found.' }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      subscribersList = subs
+    }
+
+    const formattedEventDate = eventDetails?.event_date
+      ? new Date(eventDetails.event_date).toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'TBA'
+
+    const targetEventName = eventDetails?.title || 'Upcoming Event'
+    const venueName = eventDetails?.venue || 'Room 518'
+    const eventSlug = eventDetails?.slug || 'events'
+
+    // Batch send using Resend API (100 per chunk)
     const batchSize = 100
     let sentCount = 0
 
-    for (let i = 0; i < emails.length; i += batchSize) {
-      const chunk = emails.slice(i, i + batchSize)
-      
-      // We map the chunk to Resend batch payloads
-      const payload = chunk.map(email => ({
-        from: FROM_EMAIL,
-        to: email,
-        subject: subject,
-        html: htmlContent,
-      }))
+    for (let i = 0; i < subscribersList.length; i += batchSize) {
+      const chunk = subscribersList.slice(i, i + batchSize)
+
+      const payload = chunk.map(sub => {
+        const subName = sub.name || 'Subscriber'
+
+        const personalizedSubject = subject
+          .replaceAll('{subscriber_name}', subName)
+          .replaceAll('{target_event_name}', targetEventName)
+          .replaceAll('{event_name}', targetEventName)
+
+        // Substitute placeholders in HTML body
+        const personalizedHtml = htmlContent
+          .replaceAll('{subscriber_name}', subName)
+          .replaceAll('{target_event_name}', targetEventName)
+          .replaceAll('{event_name}', targetEventName)
+          .replaceAll('{event_date}', formattedEventDate)
+          .replaceAll('{venue}', venueName)
+          .replaceAll('{event_slug}', eventSlug)
+
+        return {
+          from: FROM_EMAIL,
+          to: sub.email,
+          subject: personalizedSubject,
+          html: personalizedHtml,
+        }
+      })
 
       const res = await fetch('https://api.resend.com/emails/batch', {
         method: 'POST',
@@ -115,7 +158,7 @@ Deno.serve(async (req) => {
         sentCount += chunk.length
       } else {
         const errorText = await res.text()
-        console.error(`Resend batch sending failed for chunk starting at index ${i}:`, errorText)
+        console.error(`Resend batch sending failed for chunk at index ${i}:`, errorText)
       }
     }
 
@@ -123,7 +166,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Newsletter sending failed:', err)
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,

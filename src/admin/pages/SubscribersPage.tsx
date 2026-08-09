@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
+import SendWinnersModal from '../components/SendWinnersModal'
+import SendEventAnnouncementModal from '../components/SendEventAnnouncementModal'
 
 interface Subscriber {
   id: string
@@ -18,6 +20,8 @@ export default function SubscribersPage() {
   
   // Compose modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isWinnersModalOpen, setIsWinnersModalOpen] = useState(false)
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false)
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [sending, setSending] = useState(false)
@@ -105,14 +109,44 @@ export default function SubscribersPage() {
           <p style={{ margin: '0 0 4px', fontSize: '12px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase' }}>Overview</p>
           <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: '#fff' }}>Newsletter Subscribers</h1>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsEventModalOpen(true)}
             style={{
               background: '#E91E63',
               border: 'none',
               borderRadius: '6px',
               color: '#fff',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            📢 Announce Event
+          </button>
+          <button
+            onClick={() => setIsWinnersModalOpen(true)}
+            style={{
+              background: '#111',
+              border: '1px solid #E91E63',
+              borderRadius: '6px',
+              color: '#E91E63',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            🏆 Winners
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            style={{
+              background: '#141414',
+              border: '1px solid #333',
+              borderRadius: '6px',
+              color: '#aaa',
               padding: '8px 16px',
               fontSize: '14px',
               fontWeight: 600,
@@ -310,6 +344,16 @@ export default function SubscribersPage() {
           </div>
         </div>
       )}
+
+      <SendWinnersModal
+        isOpen={isWinnersModalOpen}
+        onClose={() => setIsWinnersModalOpen(false)}
+      />
+
+      <SendEventAnnouncementModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+      />
     </div>
   )
 }

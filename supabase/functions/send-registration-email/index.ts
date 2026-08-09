@@ -135,8 +135,9 @@ Deno.serve(async (req) => {
       .single()
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
+    const logoUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/hyperspace-logo.png'
 
-    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=200`
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=240&dark=E91E63&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent(logoUrl)}&centerImageWidth=50&centerImageHeight=50`
     console.log('Generated QR URL:', qrImageUrl)
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
