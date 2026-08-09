@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
 import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
+import SendWinnersModal from '../components/SendWinnersModal'
 
 type RegDetail = Database['public']['Views']['registration_details']['Row']
 
@@ -22,6 +23,7 @@ export default function RegistrationsPage() {
 
   // Add Student Modal State
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
+  const [isWinnersModalOpen, setIsWinnersModalOpen] = useState(false)
 
   // College inline editing state
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null)
@@ -222,6 +224,12 @@ export default function RegistrationsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>Registrations <span style={{ fontSize: '16px', color: '#555', fontWeight: 400 }}>({filtered.length})</span></h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setIsWinnersModalOpen(true)}
+              style={{ padding: '10px 16px', background: '#111', border: '1px solid #E91E63', borderRadius: '8px', color: '#E91E63', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              🏆 Winners
+            </button>
             {waitlistedCount > 0 && (
               <button
                 onClick={() => setIsBatchConfirmOpen(true)}
@@ -247,6 +255,12 @@ export default function RegistrationsPage() {
         isOpen={isAddStudentModalOpen}
         onClose={() => setIsAddStudentModalOpen(false)}
         eventId={eventId}
+        onSuccess={refetch}
+      />
+
+      <SendWinnersModal
+        isOpen={isWinnersModalOpen}
+        onClose={() => setIsWinnersModalOpen(false)}
         onSuccess={refetch}
       />
 

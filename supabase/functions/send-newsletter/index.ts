@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
-const FROM_EMAIL = 'Hyperspace XR <newsletter@hyperspacesig.tech>'
+const FROM_EMAIL = 'Hyperspace XR <events@hyperspacesig.tech>'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
