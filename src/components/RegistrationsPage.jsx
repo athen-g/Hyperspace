@@ -147,8 +147,9 @@ export default function RegistrationsPage() {
                 toast.success('You have already registered for this event!');
                 setSuccessData({ registrationNo: data.registrationNo || 'ALREADY_REGISTERED', status: 'already' });
             } else if (data.waitlisted) {
-                toast.success('Event capacity full. You are added to the waitlist!');
-                setSuccessData({ status: 'waitlisted' });
+                const isManual = data.waitlistReason === 'manual' || slug === 'texture-distortion';
+                toast.success(isManual ? 'Added to waitlist for review!' : 'Event capacity full. You are added to the waitlist!');
+                setSuccessData({ status: 'waitlisted', waitlistReason: isManual ? 'manual' : 'capacity' });
             } else if (data.success) {
                 toast.success('Registration successful!');
                 setSuccessData({ registrationNo: data.registrationNo, status: 'success' });
@@ -234,8 +235,20 @@ export default function RegistrationsPage() {
 
                     {successData ? (
                         <div style={{ textAlign: 'center', padding: isMobile768 ? '20px' : '40px 20px', fontFamily: 'Inter, sans-serif' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                                {successData.status === 'waitlisted' ? '⏳' : '🎟️'}
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                                {successData.status === 'waitlisted' ? (
+                                    <div className="w-16 h-16 rounded-full bg-[#E91E63]/10 border border-[#E91E63]/40 flex items-center justify-center">
+                                        <svg className="w-8 h-8 text-[#E91E63]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                ) : (
+                                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center">
+                                        <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
                             </div>
                             
                             <h2 style={{
@@ -244,15 +257,17 @@ export default function RegistrationsPage() {
                                 color: '#fff',
                                 textTransform: 'uppercase',
                                 letterSpacing: '2px',
-                                marginBottom: '8px'
+                                marginBottom: '12px'
                             }}>
                                 {successData.status === 'waitlisted' ? 'Added to Waitlist' : 
                                  successData.status === 'already' ? 'Already Registered' : 'Registration Confirmed'}
                             </h2>
 
-                            <p style={{ color: '#888', fontSize: '14px', maxWidth: '480px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+                            <p style={{ color: '#aaa', fontSize: '14px', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.6 }}>
                                 {successData.status === 'waitlisted' 
-                                    ? 'This event is currently at full capacity. We have added you to the waitlist and will notify you if a slot opens up.'
+                                    ? (successData.waitlistReason === 'manual' || slug === 'texture-distortion'
+                                        ? 'You have been added to the waitlist. Our team will check seat and system availability for the event and will get back to you by email. Confirmation of your registration should take only a few hours. Thank you very much for your interest and patience.'
+                                        : 'This event is currently at full capacity. We have added you to the waitlist and will notify you if a slot opens up.')
                                     : 'Your registration was processed successfully. A confirmation email with your entry QR code has been sent to your inbox.'}
                             </p>
 

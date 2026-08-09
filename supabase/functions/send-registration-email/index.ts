@@ -73,8 +73,10 @@ Deno.serve(async (req) => {
               </p>
 
               <!-- Message -->
-              <p style="margin:0 0 24px;font-size:14px;color:#888;line-height:1.6;">
-                This event is currently waitlist-only. Your registration is registered under waitlisted status. We will notify you via email as soon as your slot is confirmed by the organizers.
+              <p style="margin:0 0 24px;font-size:14px;color:#aaa;line-height:1.6;">
+                ${reg.event_slug === 'texture-distortion' 
+                  ? 'You have been added to the waitlist. Our team will check seat and system availability for the event and will get back to you by email. Confirmation of your registration should take only a few hours. Thank you very much for your interest and patience.'
+                  : 'This event is currently waitlist-only. Your registration is registered under waitlisted status. We will notify you via email as soon as your slot is confirmed by the organizers.'}
               </p>
 
               <!-- Registration Number -->
