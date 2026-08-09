@@ -9,6 +9,59 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const FROM_EMAIL = 'Hyperspace XR <events@hyperspacesig.tech>'
 const SITE_DOMAIN = 'https://hyperspacesig.tech'
 
+const POSITION_THEMES = [
+  {
+    // 1st Place - Gold Champion
+    badgeText: '🥇 1st Place Champion Pass',
+    qrDarkHex: 'F59E0B', // Gold
+    badgeBg: 'rgba(245, 158, 11, 0.15)',
+    badgeBorder: '#F59E0B',
+    badgeTextCol: '#fbbf24',
+    headerBg: 'linear-gradient(135deg, #2b1f06 0%, #1c1300 50%, #0f0f1a 100%)',
+    ticketBorder: '#F59E0B',
+  },
+  {
+    // 2nd Place - Platinum Silver
+    badgeText: '🥈 2nd Place VIP Pass',
+    qrDarkHex: '38BDF8', // Electric Silver / Cyan-Silver Accent
+    badgeBg: 'rgba(56, 189, 248, 0.15)',
+    badgeBorder: '#38BDF8',
+    badgeTextCol: '#7dd3fc',
+    headerBg: 'linear-gradient(135deg, #0c2338 0%, #0f172a 100%)',
+    ticketBorder: '#38BDF8',
+  },
+  {
+    // 3rd Place - Bronze
+    badgeText: '🥉 3rd Place VIP Pass',
+    qrDarkHex: 'D97706', // Bronze / Amber
+    badgeBg: 'rgba(217, 119, 6, 0.15)',
+    badgeBorder: '#D97706',
+    badgeTextCol: '#f59e0b',
+    headerBg: 'linear-gradient(135deg, #2b1704 0%, #120a02 100%)',
+    ticketBorder: '#D97706',
+  },
+  {
+    // 4th Place - Hyperspace Pink
+    badgeText: '🎖️ 4th Place VIP Pass',
+    qrDarkHex: 'E91E63', // Hyperspace Pink
+    badgeBg: 'rgba(233, 30, 99, 0.15)',
+    badgeBorder: '#E91E63',
+    badgeTextCol: '#ff69b4',
+    headerBg: 'linear-gradient(135deg, #1f0914 0%, #0f0f1a 100%)',
+    ticketBorder: '#E91E63',
+  },
+  {
+    // 5th Place - Royal Purple
+    badgeText: '⭐ 5th Place VIP Pass',
+    qrDarkHex: 'A855F7', // Royal Purple
+    badgeBg: 'rgba(168, 85, 247, 0.15)',
+    badgeBorder: '#A855F7',
+    badgeTextCol: '#c084fc',
+    headerBg: 'linear-gradient(135deg, #1e0b2b 0%, #0b0514 100%)',
+    ticketBorder: '#A855F7',
+  },
+]
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -46,7 +99,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { registrationId, title, message } = await req.json()
+    const { registrationId, title, message, positionIdx } = await req.json()
 
     if (!registrationId || !title || !message) {
       return new Response(
@@ -54,6 +107,10 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // Determine theme based on position (0=1st, 1=2nd, 2=3rd, 3=4th, 4=5th)
+    const validIdx = typeof positionIdx === 'number' && positionIdx >= 0 && positionIdx < POSITION_THEMES.length ? positionIdx : 3
+    const theme = POSITION_THEMES[validIdx]
 
     // 2. Fetch registration details
     const { data: reg, error: regError } = await supabase
@@ -77,8 +134,8 @@ Deno.serve(async (req) => {
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
     
-    // Special VIP Winner QR Code: Hyperspace Pink/Royal Purple modules + center emblem logo + high error correction
-    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=E91E63&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
+    // Position-specific QR Code: Position dark module color + center emblem logo + high error correction
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=${theme.qrDarkHex}&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
@@ -107,12 +164,12 @@ Deno.serve(async (req) => {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 0;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #333;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(233,30,99,0.15);">
-          <!-- Winner Gold/Pink Gradient Header -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid ${theme.ticketBorder};border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+          <!-- Winner Position Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#1f0914 0%,#2d0e23 50%,#0f0f1a 100%);padding:40px 40px 32px;border-bottom:1px solid #333;">
-              <div style="display:inline-block;padding:4px 12px;background:#E91E63/20;border:1px solid #E91E63;border-radius:20px;margin-bottom:12px;">
-                <p style="margin:0;font-size:11px;letter-spacing:3px;color:#ff69b4;text-transform:uppercase;font-weight:bold;">🏆 VIP Winner Pass</p>
+            <td style="background:${theme.headerBg};padding:40px 40px 32px;border-bottom:1px solid #333;">
+              <div style="display:inline-block;padding:4px 14px;background:${theme.badgeBg};border:1px solid ${theme.badgeBorder};border-radius:20px;margin-bottom:12px;">
+                <p style="margin:0;font-size:11px;letter-spacing:3px;color:${theme.badgeTextCol};text-transform:uppercase;font-weight:bold;">${theme.badgeText}</p>
               </div>
               <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.2;">${title}</h1>
             </td>
@@ -121,12 +178,12 @@ Deno.serve(async (req) => {
           <tr>
             <td style="padding:40px;">
               <!-- Custom Winner Message -->
-              <div style="background:#181016;border:1px solid #E91E63/40;border-left:4px solid #E91E63;border-radius:10px;padding:24px;margin-bottom:32px;">
+              <div style="background:#141414;border:1px solid #2a2a2a;border-left:4px solid ${theme.ticketBorder};border-radius:10px;padding:24px;margin-bottom:32px;">
                 ${formattedMessage}
               </div>
 
               <!-- Ticket Info Header -->
-              <p style="margin:0 0 16px;font-size:12px;letter-spacing:3px;color:#E91E63;text-transform:uppercase;font-weight:bold;">🏆 Your Winner VIP Event Ticket</p>
+              <p style="margin:0 0 16px;font-size:12px;letter-spacing:3px;color:${theme.badgeTextCol};text-transform:uppercase;font-weight:bold;">🏆 Your Winner VIP Event Ticket</p>
 
               <!-- Event Details -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;margin-bottom:24px;">
@@ -154,22 +211,22 @@ Deno.serve(async (req) => {
               </table>
 
               <!-- Registration Number -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#181016 0%,#0d0d0d 100%);border:1px solid #E91E63/40;border-radius:10px;margin-bottom:28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;border:1px solid ${theme.ticketBorder};border-radius:10px;margin-bottom:28px;">
                 <tr>
                   <td align="center" style="padding:22px;">
                     <p style="margin:0 0 6px;font-size:11px;letter-spacing:4px;color:#aaa;text-transform:uppercase;font-weight:bold;">Winner Ticket Number</p>
-                    <p style="margin:0;font-size:28px;font-weight:800;color:#E91E63;letter-spacing:3px;font-family:'Courier New',monospace;">${reg.registration_no}</p>
+                    <p style="margin:0;font-size:28px;font-weight:800;color:${theme.badgeTextCol};letter-spacing:3px;font-family:'Courier New',monospace;">${reg.registration_no}</p>
                   </td>
                 </tr>
               </table>
 
               ${!reg.is_waitlisted ? `
-              <!-- Special VIP Winner QR Code Pass -->
+              <!-- Special Position VIP Winner QR Code Pass -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                 <tr>
                   <td align="center">
-                    <p style="margin:0 0 14px;font-size:12px;color:#E91E63;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">🏆 Official VIP Winner QR Entry Pass</p>
-                    <div style="display:inline-block;background:#ffffff;padding:18px;border-radius:16px;box-shadow:0 8px 24px rgba(233,30,99,0.25);border:2px solid #E91E63;">
+                    <p style="margin:0 0 14px;font-size:12px;color:${theme.badgeTextCol};letter-spacing:2px;text-transform:uppercase;font-weight:bold;">${theme.badgeText}</p>
+                    <div style="display:inline-block;background:#ffffff;padding:18px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.3);border:2px solid ${theme.ticketBorder};">
                       <img src="${qrImageUrl}" width="220" height="220" alt="Winner VIP QR Code" style="display:block;" />
                     </div>
                     <p style="margin:16px 0 0;font-size:13px;color:#aaa;line-height:1.5;">

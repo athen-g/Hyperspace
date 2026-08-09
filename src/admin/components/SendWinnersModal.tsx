@@ -268,7 +268,8 @@ export default function SendWinnersModal({ isOpen, onClose, onSuccess }: SendWin
           body: {
             registrationId: reg.id,
             title: personalizedTitle,
-            message: personalizedMsg
+            message: personalizedMsg,
+            positionIdx: posIdx
           },
           headers: {
             Authorization: `Bearer ${session.access_token}`
