@@ -135,19 +135,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch rulebook and brochure attachments concurrently
+    // Fetch rulebook attachment (lightweight PDF)
     const attachmentsList: { filename: string; content: string }[] = []
-
     const rulebookFileId = '1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53'
-    const brochureFileId = '1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu'
-
-    const [rulebookAtt, brochureAtt] = await Promise.all([
-      fetchDriveAttachment(rulebookFileId, 'Texture_Distortion_Rulebook.pdf'),
-      fetchDriveAttachment(brochureFileId, 'Hyperspace_XR_Brochure.pdf'),
-    ])
+    const rulebookAtt = await fetchDriveAttachment(rulebookFileId, 'Texture_Distortion_Rulebook.pdf')
 
     if (rulebookAtt) attachmentsList.push(rulebookAtt)
-    if (brochureAtt) attachmentsList.push(brochureAtt)
 
     // Batch send using Resend API (100 per chunk)
     const batchSize = 100

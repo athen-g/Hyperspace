@@ -8,6 +8,7 @@ import { registrationQuestions } from '../../constants/registration';
 import RegSelect from './ui/RegSelect';
 import { useMediaQuery } from 'react-responsive';
 import { supabase } from '../lib/supabase';
+import { parseEdgeFunctionError } from '../lib/functions';
 import toast from 'react-hot-toast';
 import { eventsOngoing } from '../../constants/events';
 
@@ -135,13 +136,7 @@ export default function RegistrationsPage() {
             });
 
             if (error) {
-                let errMsg = error.message;
-                if (error.context && typeof error.context.json === 'function') {
-                    try {
-                        const body = await error.context.clone().json();
-                        errMsg = body.error || body.message || errMsg;
-                    } catch (e) {}
-                }
+                const errMsg = await parseEdgeFunctionError(error);
                 throw new Error(errMsg);
             }
 

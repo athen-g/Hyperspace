@@ -5,6 +5,7 @@ import { useRegistrations } from '../../hooks/useRegistrations'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
 import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
@@ -121,7 +122,10 @@ export default function RegistrationsPage() {
       const { error } = await supabase.functions.invoke('send-registration-email', {
         body: { registrationId: r.id }
       })
-      if (error) throw error
+      if (error) {
+        const detail = await parseEdgeFunctionError(error)
+        throw new Error(detail)
+      }
       toast.success(`Ticket email sent to ${r.student_name}!`)
     } catch (err: any) {
       toast.error(err.message || 'Failed to send ticket email.')

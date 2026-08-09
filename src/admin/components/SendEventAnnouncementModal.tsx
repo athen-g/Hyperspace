@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import toast from 'react-hot-toast'
 
 interface EventItem {
@@ -302,7 +303,8 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
       })
 
       if (res.error) {
-        throw new Error(res.error.message || 'Failed to dispatch event announcement.')
+        const detail = await parseEdgeFunctionError(res.error)
+        throw new Error(detail)
       }
 
       if (testEmail.trim()) {

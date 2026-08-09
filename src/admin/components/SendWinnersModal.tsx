@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import toast from 'react-hot-toast'
 
 interface Student {
@@ -277,7 +278,9 @@ export default function SendWinnersModal({ isOpen, onClose, onSuccess }: SendWin
         })
 
         if (res.error) {
-          console.error('Winner email send failed for:', student.name, res.error)
+          const detail = await parseEdgeFunctionError(res.error)
+          console.error('Winner email send failed for:', student.name, detail)
+          toast.error(`Failed to send email to ${student.name}: ${detail}`)
         } else {
           successCount++
         }
