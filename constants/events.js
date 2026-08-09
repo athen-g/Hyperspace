@@ -66,7 +66,7 @@ const eventsOngoing = [
           { title: 'PBR Materials & UV Texturing', description: 'You will apply physically-based materials to every surface, learn UV unwrapping, and connect real texture maps into Blender\'s shader editor.', image: sched07 },
           { title: 'Scatter System, Lighting & Final Render', description: 'Scatter sprinkles across the icing using Blender\'s scatter system, build a three-light setup, and produce the final rendered image of your complete scene.', image: sched08 },
           { title: 'Break & Day 2 Quiz', description: 'A short break for refreshments, followed by the Day 2 quiz. A fresh top 3: Fresh prizes.', image: sched09 },
-          { title: 'Instagram Challenge', description: 'Share your completed render, tag @mescoe_hyperspace, and the post with the most likes by the deadline wins a special reward. The virtual world isn\'t going to render itself: show yours off.', image: sched10 },
+          { title: 'Final Showcase', description: 'YOUR WORK. YOUR MOMENT. YOUR ACHIEVEMENT. INSTAGRAM CHALLENGE: POST → TAG → GET LIKES → WIN. WORKSHOP CERTIFICATE: Complete the 2-day experience and receive your certificate.', image: sched10 },
         ],
       },
     ],
