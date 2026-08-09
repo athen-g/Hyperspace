@@ -327,9 +327,9 @@ export default function RegistrationsPage() {
                       </button>
                     </div>
                   ) : (
-                    <span 
+                    <span
                       onClick={() => handleStartEditCollege(r)}
-                      style={{ 
+                      style={{
                         cursor: isAuthorizedToEdit ? 'pointer' : 'default',
                         borderBottom: isAuthorizedToEdit ? '1px dotted #555' : 'none'
                       }}
@@ -488,7 +488,7 @@ export default function RegistrationsPage() {
             maxHeight: '90vh',
             overflowY: 'auto'
           }} onClick={e => e.stopPropagation()}>
-            
+
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #1a1a1a', paddingBottom: '12px' }}>
               <h2 style={{ fontSize: '16px', color: '#fff', fontWeight: 600, margin: 0, letterSpacing: '1px' }}>REGISTRATION DETAILS</h2>
@@ -505,7 +505,7 @@ export default function RegistrationsPage() {
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Registered At</label>
                 <div style={{ color: '#aaa', fontSize: '14px', marginTop: '4px' }}>{format(new Date(selectedReg.registered_at), 'dd MMM yyyy, HH:mm')}</div>
               </div>
-              
+
               <div>
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Full Name</label>
                 <div style={{ color: '#e5e5e5', fontSize: '14px', fontWeight: 500, marginTop: '4px' }}>{selectedReg.student_name}</div>

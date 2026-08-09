@@ -142,8 +142,11 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
           <!-- Footer -->
           <tr>
             <td style="background:#0d0d0d;padding:20px 40px;border-top:1px solid #1a1a1a;">
-              <p style="margin:0;font-size:11px;color:#444;text-align:center;">
+              <p style="margin:0 0 8px;font-size:11px;color:#444;text-align:center;">
                 Hyperspace XR · Official Event Announcement
+              </p>
+              <p style="margin:0;font-size:11px;color:#555;text-align:center;">
+                If you prefer not to receive future event updates, you can <a href="https://hyperspacesig.tech/unsubscribe?email={subscriber_email}" target="_blank" style="color:#777;text-decoration:underline;">unsubscribe here</a>.
               </p>
             </td>
           </tr>
