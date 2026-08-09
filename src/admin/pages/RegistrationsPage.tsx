@@ -26,6 +26,7 @@ export default function RegistrationsPage() {
 
   // Registration details modal state
   const [selectedReg, setSelectedReg] = useState<RegDetail | null>(null)
+  const [confirmingRegId, setConfirmingRegId] = useState<string | null>(null)
 
   const isAuthorizedToEdit = member?.role === 'super_admin' || member?.role === 'core'
 
@@ -90,6 +91,46 @@ export default function RegistrationsPage() {
       toast.error(err.message || 'Failed to update college')
     } finally {
       setSavingCollege(false)
+    }
+  }
+
+  const handleConfirmRegistration = async (regId: string) => {
+    setConfirmingRegId(regId)
+    try {
+      const { error: updateError } = await supabase
+        .from('registrations')
+        .update({ is_waitlisted: false })
+        .eq('id', regId)
+
+      if (updateError) throw updateError
+
+      const { data: rawReg } = await supabase
+        .from('registrations')
+        .select('student_id, event_id')
+        .eq('id', regId)
+        .single()
+
+      if (rawReg) {
+        await supabase
+          .from('waitlist')
+          .delete()
+          .eq('student_id', rawReg.student_id)
+          .eq('event_id', rawReg.event_id)
+      }
+
+      supabase.functions.invoke('send-registration-email', {
+        body: { registrationId: regId }
+      }).catch((_e) => {
+        console.error('Failed to trigger confirmation email send:', _e)
+      })
+
+      toast.success('Registration confirmed successfully!')
+      setSelectedReg(null)
+      refetch()
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to confirm registration')
+    } finally {
+      setConfirmingRegId(null)
     }
   }
 
@@ -337,7 +378,27 @@ export default function RegistrationsPage() {
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', borderTop: '1px solid #1a1a1a', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid #1a1a1a', paddingTop: '16px' }}>
+              {isAuthorizedToEdit && selectedReg.is_waitlisted ? (
+                <button
+                  onClick={() => handleConfirmRegistration(selectedReg.id!)}
+                  disabled={confirmingRegId !== null}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#E91E63',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    cursor: confirmingRegId !== null ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 12px rgba(233,30,99,0.3)',
+                    opacity: confirmingRegId !== null ? 0.6 : 1
+                  }}
+                >
+                  {confirmingRegId === selectedReg.id ? 'CONFIRMING...' : 'CONFIRM REGISTRATION'}
+                </button>
+              ) : <div />}
               <button onClick={() => setSelectedReg(null)} style={{ padding: '10px 20px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', cursor: 'pointer', fontSize: '13px' }}>Close</button>
             </div>
 

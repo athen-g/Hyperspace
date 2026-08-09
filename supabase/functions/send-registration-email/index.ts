@@ -44,6 +44,87 @@ Deno.serve(async (req) => {
       )
     }
 
+    if (reg.is_waitlisted) {
+      const waitlistHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Waitlisted — \${reg.event_title}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#e5e5e5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#111111;border:1px solid #222;border-radius:12px;overflow:hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#0f0f0f 0%,#1a1a1a 100%);padding:40px 40px 32px;border-bottom:1px solid #222;">
+              <p style="margin:0 0 8px;font-size:11px;letter-spacing:4px;color:#666;text-transform:uppercase;">Hyperspace XR</p>
+              <h1 style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Added to Waitlist</h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <p style="margin:0 0 24px;font-size:16px;color:#aaa;line-height:1.6;">
+                Hi <strong style="color:#fff;">\${reg.student_name}</strong>, you have been added to the waitlist for <strong style="color:#fff;">\${reg.event_title}</strong>.
+              </p>
+
+              <!-- Message -->
+              <p style="margin:0 0 24px;font-size:14px;color:#888;line-height:1.6;">
+                This event is currently waitlist-only. Your registration is registered under waitlisted status. We will notify you via email as soon as your slot is confirmed by the organizers.
+              </p>
+
+              <!-- Registration Number -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;border:1px solid #333;border-radius:8px;margin-bottom:32px;">
+                <tr>
+                  <td align="center" style="padding:24px;">
+                    <p style="margin:0 0 8px;font-size:11px;letter-spacing:4px;color:#555;text-transform:uppercase;">Waitlist Reference Number</p>
+                    <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:2px;font-family:'Courier New',monospace;">\${reg.registration_no}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:14px;color:#555;line-height:1.8;border-top:1px solid #222;padding-top:24px;">
+                Thank you for your interest!<br/>
+                <strong style="color:#888;">— Hyperspace XR Team</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer \${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: FROM_EMAIL,
+          to: [reg.student_email],
+          subject: `Added to Waitlist for \${reg.event_title} — \${reg.registration_no}`,
+          html: waitlistHtml,
+        }),
+      })
+
+      if (!resendResponse.ok) {
+        const resendError = await resendResponse.text()
+        console.error('Resend error:', resendError)
+      }
+
+      return new Response(
+        JSON.stringify({ sent: true, waitlisted: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Also fetch qr_token from raw registrations table
     const { data: rawReg } = await supabase
       .from('registrations')
