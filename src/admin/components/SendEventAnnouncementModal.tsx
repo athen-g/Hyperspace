@@ -211,7 +211,7 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
                     <a href="https://hyperspacesig.tech/events/{event_slug}"
                        target="_blank"
                        style="display:inline-block;padding:14px 32px;font-family:'Space Grotesk','Orbitron',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
-                      Register for Texture &rarr;
+                      Register &rarr;
                     </a>
                   </td>
                 </tr>
