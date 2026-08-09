@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Waitlisted — \${reg.event_title}</title>
+  <title>Waitlisted — ${reg.event_title}</title>
 </head>
 <body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#e5e5e5;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 0;">
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
           <tr>
             <td style="padding:40px;">
               <p style="margin:0 0 24px;font-size:16px;color:#aaa;line-height:1.6;">
-                Hi <strong style="color:#fff;">\${reg.student_name}</strong>, you have been added to the waitlist for <strong style="color:#fff;">\${reg.event_title}</strong>.
+                Hi <strong style="color:#fff;">${reg.student_name}</strong>, you have been added to the waitlist for <strong style="color:#fff;">${reg.event_title}</strong>.
               </p>
 
               <!-- Message -->
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
                 <tr>
                   <td align="center" style="padding:24px;">
                     <p style="margin:0 0 8px;font-size:11px;letter-spacing:4px;color:#555;text-transform:uppercase;">Waitlist Reference Number</p>
-                    <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:2px;font-family:'Courier New',monospace;">\${reg.registration_no}</p>
+                    <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:2px;font-family:'Courier New',monospace;">${reg.registration_no}</p>
                   </td>
                 </tr>
               </table>
@@ -103,13 +103,13 @@ Deno.serve(async (req) => {
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer \${RESEND_API_KEY}`,
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: FROM_EMAIL,
           to: [reg.student_email],
-          subject: `Added to Waitlist for \${reg.event_title} — \${reg.registration_no}`,
+          subject: `Added to Waitlist for ${reg.event_title} — ${reg.registration_no}`,
           html: waitlistHtml,
         }),
       })

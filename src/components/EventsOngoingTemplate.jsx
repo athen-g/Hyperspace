@@ -163,7 +163,18 @@ export default function EventOngoingTemplate() {
         </div>
 
         {/* Section: Schedule OR The Plan */}
-        {hasSchedule ? (
+        {hasSchedule ? (() => {
+          // Support both flat schedule [{title,description}] and multi-day [{day, items: [...]}]
+          const isMultiDay = schedule.length > 0 && Array.isArray(schedule[0]?.items);
+          const flatItems = isMultiDay
+            ? schedule.flatMap(dayBlock => [
+                { _dayHeader: dayBlock.day },
+                ...dayBlock.items,
+              ])
+            : schedule;
+
+          let stepCounter = 0;
+          return (
           <div className="relative z-10 my-10 md:my-[80px]">
             {/* Section Heading */}
             <div className={isMobile768 ? "w-[93.056%] mx-auto mb-10 p-4" : "w-[93.056%] mx-auto mb-24 p-20"}>
@@ -175,8 +186,22 @@ export default function EventOngoingTemplate() {
 
             {/* Schedule Items */}
             <div className={`flex flex-col ${isMobile768 ? 'gap-16' : 'gap-32'}`}>
-              {schedule.map((item, index) => {
-                const stepNum = index + 1;
+              {flatItems.map((item, index) => {
+                // Day header divider
+                if (item._dayHeader) {
+                  return (
+                    <div key={`day-${index}`} className="w-[93.056%] mx-auto">
+                      <div className={`border-t border-[#333] ${isMobile768 ? 'pt-6 pb-2' : 'pt-10 pb-4'}`}>
+                        <span className={`font-host font-extrabold uppercase tracking-[0.04em] text-white/60 ${isMobile768 ? 'text-[22px]' : 'text-[clamp(28px,3vw,42px)]'}`}>
+                          {item._dayHeader}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                stepCounter++;
+                const stepNum = stepCounter;
                 const isEven = stepNum % 2 === 0;
                 const dotLeftPercentage = isEven ? 74.306 : 25.694;
 
@@ -191,49 +216,31 @@ export default function EventOngoingTemplate() {
                     </div>
 
                     {!isEven ? (
-                      /* Step 1 & Odd Steps */
+                      /* Odd Steps */
                       <div className="w-[93.056%] mx-auto grid grid-cols-1 md:grid-cols-12 items-center gap-6">
                         {/* Number */}
                         <div className={`flex items-center ${isMobile768 ? 'justify-start' : 'md:col-span-3 justify-end pr-6 md:pr-10'}`}>
                           <span className={`font-clash font-bold leading-none text-white tracking-tight ${isMobile768 ? 'text-[90px]' : 'text-[clamp(90px,11vw,170px)]'
                             }`}>
-                            {stepNum}
+                            {String(stepNum).padStart(2, '0')}
                           </span>
                         </div>
 
-                        {/* Gap for Line 2 Dot */}
+                        {/* Gap for Dot */}
                         <div className="hidden md:block md:col-span-1"></div>
 
-                        {/* Image + Text */}
-                        <div className="md:col-span-8 flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                          <div className="w-full md:w-[380px] lg:w-[420px] aspect-[16/10] bg-[#1a1a1a] border border-light-grey p-2 overflow-hidden shrink-0">
-                            {item.image ? (
-                              <img
-                                src={item.image}
-                                alt={item.title || `Step ${stepNum}`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-[#1e1e24] flex items-center justify-center border border-white/10">
-                                <svg className="w-12 h-12 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7l-3 4-2-3-3 4h14l-4-5z" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex-1 max-w-[450px]">
-                            <h3 className="font-host font-extrabold text-[20px] sm:text-[26px] uppercase tracking-wide text-white mb-3 leading-snug">
-                              {item.title}
-                            </h3>
-                            <p className="font-mono text-[13px] sm:text-[14px] uppercase leading-relaxed text-[#B0B0B0] tracking-wide">
-                              {item.description}
-                            </p>
-                          </div>
+                        {/* Text */}
+                        <div className="md:col-span-8 flex flex-col gap-3">
+                          <h3 className="font-host font-extrabold text-[20px] sm:text-[26px] uppercase tracking-wide text-white leading-snug">
+                            {item.title}
+                          </h3>
+                          <p className="font-mono text-[13px] sm:text-[14px] uppercase leading-relaxed text-[#B0B0B0] tracking-wide max-w-[550px]">
+                            {item.description}
+                          </p>
                         </div>
                       </div>
                     ) : (
-                      /* Step 2 & Even Steps */
+                      /* Even Steps */
                       <div className="w-[93.056%] mx-auto flex flex-col-reverse md:grid md:grid-cols-12 items-center gap-6">
                         {/* Text */}
                         <div className="w-full md:col-span-4 flex justify-end">
@@ -247,33 +254,15 @@ export default function EventOngoingTemplate() {
                           </div>
                         </div>
 
-                        {/* Image */}
-                        <div className="w-full md:col-span-4 flex justify-start">
-                          <div className="w-full md:w-[380px] lg:w-[420px] aspect-[16/10] bg-[#1a1a1a] border border-light-grey p-2 overflow-hidden shrink-0">
-                            {item.image ? (
-                              <img
-                                src={item.image}
-                                alt={item.title || `Step ${stepNum}`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-[#1e1e24] flex items-center justify-center border border-white/10">
-                                <svg className="w-12 h-12 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7l-3 4-2-3-3 4h14l-4-5z" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Spacer */}
+                        {/* Spacer for dot alignment */}
+                        <div className="hidden md:block md:col-span-4"></div>
                         <div className="hidden md:block md:col-span-1"></div>
 
                         {/* Number */}
                         <div className={`w-full flex items-center ${isMobile768 ? 'justify-start' : 'md:col-span-3 justify-start pl-6 md:pl-10'}`}>
                           <span className={`font-clash font-bold leading-none text-white tracking-tight ${isMobile768 ? 'text-[90px]' : 'text-[clamp(90px,11vw,170px)]'
                             }`}>
-                            {stepNum}
+                            {String(stepNum).padStart(2, '0')}
                           </span>
                         </div>
                       </div>
@@ -283,7 +272,8 @@ export default function EventOngoingTemplate() {
               })}
             </div>
           </div>
-        ) : (
+          );
+        })() : (
           /* Fallback: THE PLAN section matching EventPageTemplate */
           <div className={
             isMobile768

@@ -98,12 +98,6 @@ export default function RegistrationsPage() {
             return;
         }
 
-        // Contact validation (exactly 10 digits, no country code)
-        const cleanContact = form.contact.trim();
-        if (!/^\d{10}$/.test(cleanContact)) {
-            toast.error('Please enter a valid 10-digit contact number.');
-            return;
-        }
 
         // Rulebook validation
         if (!readRulebook) {
@@ -452,7 +446,7 @@ export default function RegistrationsPage() {
                                     <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor={`reg-${q.id}`}>
                                         {q.id === 'blender_specs' ? (
                                             <>
-                                                DOES YOUR LAPTOP MEET THE <a href={`/events/${slug}#rulebook`} className="underline hover:text-[#E91E63] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
+                                                DOES YOUR LAPTOP MEET THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
                                             </>
                                         ) : (
                                             q.label
@@ -535,25 +529,27 @@ export default function RegistrationsPage() {
                                     className={`font-mono uppercase tracking-[0.05em] text-[#ABABAB] cursor-pointer select-none ${isMobile768 ? 'text-[11px]' : 'text-[12px]'}`}
                                     style={{ lineHeight: 1.5 }}
                                 >
-                                    SUBSCRIBE TO THE HYPERSPACE XR NEWSLETTER — BE THE FIRST TO KNOW ABOUT UPCOMING EVENTS, WORKSHOPS, AND OPPORTUNITIES.
+                                    SUBSCRIBE TO THE HYPERSPACE XR NEWSLETTER - BE THE FIRST TO KNOW ABOUT UPCOMING EVENTS, WORKSHOPS, AND OPPORTUNITIES.
                                 </label>
                             </div>
 
                             {/* ── Rulebook confirmation checkbox ── */}
-                            <div className={`flex items-start gap-3 ${isMobile768 ? 'mb-6 mt-2' : 'mb-8 mt-4'}`}>
+                            <div
+                                className={`flex items-start gap-3 border rounded-lg cursor-pointer select-none transition-all duration-200 ${isMobile768 ? 'mb-6 mt-4 p-3' : 'mb-8 mt-6 p-4'} ${readRulebook ? 'border-[#E91E63] bg-[#E91E63]/10' : 'border-[#E91E63]/50 bg-[#E91E63]/5'}`}
+                                onClick={() => setReadRulebook(!readRulebook)}
+                            >
                                 <div
                                     id="reg-rulebook-box"
-                                    onClick={() => setReadRulebook(!readRulebook)}
                                     role="checkbox"
                                     aria-checked={readRulebook}
                                     tabIndex={0}
                                     onKeyDown={e => (e.key === ' ' || e.key === 'Enter') && setReadRulebook(!readRulebook)}
                                     className="reg-checkbox-box"
                                     style={{
-                                        width: '20px',
-                                        height: '20px',
-                                        minWidth: '20px',
-                                        border: `1.5px solid ${readRulebook ? '#E91E63' : '#555'}`,
+                                        width: '22px',
+                                        height: '22px',
+                                        minWidth: '22px',
+                                        border: `2px solid ${readRulebook ? '#E91E63' : '#E91E63'}`,
                                         borderRadius: '4px',
                                         background: readRulebook ? '#E91E63' : 'transparent',
                                         cursor: 'pointer',
@@ -573,11 +569,10 @@ export default function RegistrationsPage() {
                                 </div>
                                 <label
                                     htmlFor="reg-rulebook-box"
-                                    onClick={() => setReadRulebook(!readRulebook)}
-                                    className={`font-mono uppercase tracking-[0.05em] text-[#ABABAB] cursor-pointer select-none ${isMobile768 ? 'text-[11px]' : 'text-[12px]'}`}
-                                    style={{ lineHeight: 1.5 }}
+                                    className={`font-mono uppercase tracking-[0.05em] text-white cursor-pointer select-none ${isMobile768 ? 'text-[12px]' : 'text-[13px]'}`}
+                                    style={{ lineHeight: 1.5, fontWeight: 600 }}
                                 >
-                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={`/events/${slug}#rulebook`} className="underline hover:text-[#E91E63] transition-colors" target="_blank" rel="noopener noreferrer">RULEBOOK</a> FOR THIS EVENT. *
+                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>RULEBOOK</a> FOR THIS EVENT. *
                                 </label>
                             </div>
 
