@@ -32,7 +32,22 @@ export default function RegistrationsPage() {
   const [selectedReg, setSelectedReg] = useState<RegDetail | null>(null)
   const [confirmingRegId, setConfirmingRegId] = useState<string | null>(null)
 
+  // Resend Tix state
+  const [sendingTixId, setSendingTixId] = useState<string | null>(null)
+
+  // Single Confirm modal state
+  const [singleConfirmTarget, setSingleConfirmTarget] = useState<RegDetail | null>(null)
+  const [singleSendMail, setSingleSendMail] = useState(true)
+  const [confirmingSingle, setConfirmingSingle] = useState(false)
+
+  // Batch Confirm modal state
+  const [isBatchConfirmOpen, setIsBatchConfirmOpen] = useState(false)
+  const [batchSendMail, setBatchSendMail] = useState(true)
+  const [confirmingBatch, setConfirmingBatch] = useState(false)
+
   const isAuthorizedToEdit = member?.role === 'super_admin' || member?.role === 'core'
+
+  const waitlistedCount = useMemo(() => registrations.filter(r => r.is_waitlisted).length, [registrations])
 
   const filtered = useMemo(() =>
     registrations.filter(r =>
@@ -98,43 +113,102 @@ export default function RegistrationsPage() {
     }
   }
 
-  const handleConfirmRegistration = async (regId: string) => {
-    setConfirmingRegId(regId)
+  const handleSendTix = async (r: RegDetail) => {
+    setSendingTixId(r.id)
+    try {
+      const { error } = await supabase.functions.invoke('send-registration-email', {
+        body: { registrationId: r.id }
+      })
+      if (error) throw error
+      toast.success(`Ticket email sent to ${r.student_name}!`)
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send ticket email.')
+    } finally {
+      setSendingTixId(null)
+    }
+  }
+
+  const handleExecuteSingleConfirm = async () => {
+    if (!singleConfirmTarget) return
+    setConfirmingSingle(true)
     try {
       const { error: updateError } = await supabase
         .from('registrations')
         .update({ is_waitlisted: false })
-        .eq('id', regId)
+        .eq('id', singleConfirmTarget.id)
 
       if (updateError) throw updateError
 
-      const { data: rawReg } = await supabase
-        .from('registrations')
-        .select('student_id, event_id')
-        .eq('id', regId)
-        .single()
-
-      if (rawReg) {
+      if (singleConfirmTarget.student_id && eventId) {
         await supabase
           .from('waitlist')
           .delete()
-          .eq('student_id', rawReg.student_id)
-          .eq('event_id', rawReg.event_id)
+          .eq('student_id', singleConfirmTarget.student_id)
+          .eq('event_id', eventId)
       }
 
-      supabase.functions.invoke('send-registration-email', {
-        body: { registrationId: regId }
-      }).catch((_e) => {
-        console.error('Failed to trigger confirmation email send:', _e)
-      })
+      if (singleSendMail) {
+        await supabase.functions.invoke('send-registration-email', {
+          body: { registrationId: singleConfirmTarget.id }
+        }).catch((_e) => {
+          console.error('Failed to trigger confirmation email send:', _e)
+        })
+      }
 
-      toast.success('Registration confirmed successfully!')
-      setSelectedReg(null)
+      toast.success(`Confirmed registration for ${singleConfirmTarget.student_name}!`)
+      setSingleConfirmTarget(null)
+      if (selectedReg?.id === singleConfirmTarget.id) {
+        setSelectedReg(null)
+      }
       refetch()
     } catch (err: any) {
       toast.error(err.message || 'Failed to confirm registration')
     } finally {
-      setConfirmingRegId(null)
+      setConfirmingSingle(false)
+    }
+  }
+
+  const handleExecuteBatchConfirm = async () => {
+    const waitlisted = registrations.filter(r => r.is_waitlisted)
+    if (!eventId || waitlisted.length === 0) return
+
+    setConfirmingBatch(true)
+    try {
+      const waitlistedIds = waitlisted.map(r => r.id)
+
+      const { error: updateErr } = await supabase
+        .from('registrations')
+        .update({ is_waitlisted: false })
+        .in('id', waitlistedIds)
+
+      if (updateErr) throw updateErr
+
+      const studentIds = waitlisted.map(r => r.student_id).filter(Boolean) as string[]
+      if (studentIds.length > 0) {
+        await supabase
+          .from('waitlist')
+          .delete()
+          .eq('event_id', eventId)
+          .in('student_id', studentIds)
+      }
+
+      if (batchSendMail) {
+        for (const r of waitlisted) {
+          await supabase.functions.invoke('send-registration-email', {
+            body: { registrationId: r.id }
+          }).catch((_e) => {
+            console.error('Batch email send error:', _e)
+          })
+        }
+      }
+
+      toast.success(`Successfully confirmed ${waitlisted.length} waitlisted student(s)!`)
+      setIsBatchConfirmOpen(false)
+      refetch()
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to confirm waitlisted students.')
+    } finally {
+      setConfirmingBatch(false)
     }
   }
 
@@ -148,6 +222,14 @@ export default function RegistrationsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>Registrations <span style={{ fontSize: '16px', color: '#555', fontWeight: 400 }}>({filtered.length})</span></h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {waitlistedCount > 0 && (
+              <button
+                onClick={() => setIsBatchConfirmOpen(true)}
+                style={{ padding: '10px 16px', background: '#d97706', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Confirm All Waitlist ({waitlistedCount})
+              </button>
+            )}
             <button
               onClick={() => setIsAddStudentModalOpen(true)}
               style={{ padding: '10px 16px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
@@ -177,7 +259,7 @@ export default function RegistrationsPage() {
       />
 
       <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflow: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '950px' }}>
           <thead>
             <tr>
               <th style={thStyle}>Reg No.</th>
@@ -186,12 +268,13 @@ export default function RegistrationsPage() {
               <th style={thStyle}>College</th>
               <th style={thStyle}>Registered</th>
               <th style={thStyle}>Type</th>
-              <th style={thStyle}>Details</th>
+              <th style={thStyle}>Status</th>
+              <th style={thStyle}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={7} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && paginated.length === 0 && <tr><td colSpan={7} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No registrations found</td></tr>}
+            {loading && <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && paginated.length === 0 && <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No registrations found</td></tr>}
             {paginated.map(r => (
               <tr key={r.id}>
                 <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{r.registration_no}</td>
@@ -248,24 +331,76 @@ export default function RegistrationsPage() {
                     {r.registered_by_name ? `Walk-in` : 'Online'}
                   </span>
                 </td>
+                {/* Status Column Indicator */}
                 <td style={tdStyle}>
-                  <button
-                    onClick={() => setSelectedReg(r)}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid #2a2a2a',
-                      borderRadius: '6px',
-                      padding: '6px 12px',
-                      color: '#e5e5e5',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.background = '#111' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.background = 'transparent' }}
-                  >
-                    View
-                  </button>
+                  {r.is_waitlisted ? (
+                    <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', background: '#78350f/40', color: '#fbbf24', border: '1px solid #b45309', fontWeight: 600 }}>
+                      ⏳ Waitlisted
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', background: '#166534/40', color: '#4ade80', border: '1px solid #15803d', fontWeight: 600 }}>
+                      ✓ Registered
+                    </span>
+                  )}
+                </td>
+                {/* Actions Column */}
+                <td style={tdStyle}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    {/* Confirm Button if Waitlisted */}
+                    {r.is_waitlisted && (
+                      <button
+                        onClick={() => setSingleConfirmTarget(r)}
+                        style={{
+                          background: '#d97706',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '5px 10px',
+                          color: '#fff',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Confirm
+                      </button>
+                    )}
+
+                    {/* Send Tix Button */}
+                    <button
+                      onClick={() => handleSendTix(r)}
+                      disabled={sendingTixId === r.id}
+                      style={{
+                        background: '#1a1a1a',
+                        border: '1px solid #333',
+                        borderRadius: '6px',
+                        padding: '5px 10px',
+                        color: sendingTixId === r.id ? '#666' : '#E91E63',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        cursor: sendingTixId === r.id ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {sendingTixId === r.id ? 'Sending...' : 'Send Tix ✉️'}
+                    </button>
+
+                    {/* View Details Button */}
+                    <button
+                      onClick={() => setSelectedReg(r)}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid #2a2a2a',
+                        borderRadius: '6px',
+                        padding: '5px 10px',
+                        color: '#888',
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      View
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -398,27 +533,103 @@ export default function RegistrationsPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid #1a1a1a', paddingTop: '16px' }}>
               {isAuthorizedToEdit && selectedReg.is_waitlisted ? (
                 <button
-                  onClick={() => handleConfirmRegistration(selectedReg.id!)}
-                  disabled={confirmingRegId !== null}
+                  onClick={() => setSingleConfirmTarget(selectedReg)}
                   style={{
                     padding: '10px 20px',
                     background: '#E91E63',
                     border: 'none',
                     borderRadius: '8px',
                     color: '#fff',
-                    cursor: confirmingRegId !== null ? 'not-allowed' : 'pointer',
+                    cursor: 'pointer',
                     fontSize: '13px',
                     fontWeight: 600,
-                    boxShadow: '0 4px 12px rgba(233,30,99,0.3)',
-                    opacity: confirmingRegId !== null ? 0.6 : 1
+                    boxShadow: '0 4px 12px rgba(233,30,99,0.3)'
                   }}
                 >
-                  {confirmingRegId === selectedReg.id ? 'CONFIRMING...' : 'CONFIRM REGISTRATION'}
+                  CONFIRM REGISTRATION
                 </button>
               ) : <div />}
               <button onClick={() => setSelectedReg(null)} style={{ padding: '10px 20px', background: '#111', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#e5e5e5', cursor: 'pointer', fontSize: '13px' }}>Close</button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Single Confirm Confirmation Dialog */}
+      {singleConfirmTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '16px' }}>
+          <div style={{ background: '#0e0e0e', border: '1px solid #333', borderRadius: '16px', maxWidth: '480px', width: '100%', padding: '24px', color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+            <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700 }}>Confirm Waitlisted Registration</h3>
+            <p style={{ color: '#aaa', fontSize: '14px', lineHeight: 1.5, margin: '0 0 16px' }}>
+              Confirm registration for <strong>{singleConfirmTarget.student_name}</strong> ({singleConfirmTarget.student_email})?
+            </p>
+            <div style={{ padding: '12px 14px', background: '#141414', border: '1px solid #222', borderRadius: '8px', marginBottom: '20px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#fff' }}>
+                <input
+                  type="checkbox"
+                  checked={singleSendMail}
+                  onChange={e => setSingleSendMail(e.target.checked)}
+                  style={{ accentColor: '#E91E63', width: '16px', height: '16px' }}
+                />
+                Send registration ticket email to student
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={handleExecuteSingleConfirm}
+                disabled={confirmingSingle}
+                style={{ flex: 1, padding: '12px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                {confirmingSingle ? 'Confirming...' : 'Confirm Registration'}
+              </button>
+              <button
+                onClick={() => setSingleConfirmTarget(null)}
+                disabled={confirmingSingle}
+                style={{ padding: '12px 16px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', fontSize: '13px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Batch Confirm All Waitlisted Dialog */}
+      {isBatchConfirmOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '16px' }}>
+          <div style={{ background: '#0e0e0e', border: '1px solid #333', borderRadius: '16px', maxWidth: '480px', width: '100%', padding: '24px', color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+            <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700, color: '#f59e0b' }}>Confirm All Waitlisted Registrations</h3>
+            <p style={{ color: '#aaa', fontSize: '14px', lineHeight: 1.5, margin: '0 0 16px' }}>
+              Are you sure you want to confirm all <strong>{waitlistedCount}</strong> waitlisted student(s) for this event?
+            </p>
+            <div style={{ padding: '12px 14px', background: '#141414', border: '1px solid #222', borderRadius: '8px', marginBottom: '20px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#fff' }}>
+                <input
+                  type="checkbox"
+                  checked={batchSendMail}
+                  onChange={e => setBatchSendMail(e.target.checked)}
+                  style={{ accentColor: '#E91E63', width: '16px', height: '16px' }}
+                />
+                Send registration ticket email to each student
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={handleExecuteBatchConfirm}
+                disabled={confirmingBatch}
+                style={{ flex: 1, padding: '12px', background: '#d97706', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                {confirmingBatch ? 'Processing...' : `Confirm All (${waitlistedCount})`}
+              </button>
+              <button
+                onClick={() => setIsBatchConfirmOpen(false)}
+                disabled={confirmingBatch}
+                style={{ padding: '12px 16px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', fontSize: '13px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
