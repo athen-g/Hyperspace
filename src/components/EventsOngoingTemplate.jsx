@@ -67,21 +67,7 @@ export default function EventOngoingTemplate() {
               >
                 {event.tagline}
               </div>
-              {event.registration_open !== false ? (
-                <button
-                  onClick={() => navigate(`/register/${event.slug}`)}
-                  className={`bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-opacity-95 active:scale-[0.98] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_20px_rgba(233,30,99,0.4)] ${isMobile768 ? 'w-full mt-2' : ''}`}
-                >
-                  REGISTER FOR EVENT →
-                </button>
-              ) : (
-                <button
-                  disabled
-                  className={`bg-white/10 text-white/50 font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 select-none rounded-[4px] border-none cursor-not-allowed ${isMobile768 ? 'w-full mt-2' : ''}`}
-                >
-                  REGISTRATIONS NOT OPEN
-                </button>
-              )}
+              {/* Top registration button removed */}
             </div>
 
           </div>
