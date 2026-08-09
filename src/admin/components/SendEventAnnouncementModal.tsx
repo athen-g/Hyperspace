@@ -160,9 +160,9 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             <td style="padding:32px 40px 24px;border-bottom:1px solid #2D2125;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <!-- Wordmark (Orbitron) -->
+                  <!-- Wordmark (Mokoto with Space Grotesk / HK Grotesk fallback) -->
                   <td valign="middle">
-                    <p style="margin:0;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
+                    <p style="margin:0;font-family:'Mokoto','Space Grotesk','Orbitron',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#D84B7E;">HYPERSPACE XR SIG</p>
                     <p style="margin:3px 0 0;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(200,175,185,0.6);">Wadia College of Engineering · Dept. of Computer Engineering</p>
                   </td>
                   <!-- Event label -->
@@ -186,10 +186,10 @@ export default function SendEventAnnouncementModal({ isOpen, onClose, onSuccess 
             </td>
           </tr>
 
-          <!-- Event Name Block (Greenth/Orbitron for TEXTURE, Petit Formal Script for Distortion) -->
+          <!-- Event Name Block -->
           <tr>
             <td style="padding:32px 40px 0;border-top:1px solid #2D2125;">
-              <p style="margin:0 0 6px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:700;">Hyperspace XR SIG Presents</p>
+              <p style="margin:0 0 6px;font-family:'Mokoto','Space Grotesk','Orbitron',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(216,75,126,0.85);font-weight:700;">Hyperspace XR SIG Presents</p>
               <h1 style="margin:0;font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:#F8EFF3;letter-spacing:0.1em;line-height:1.05;">
                 TEXTURE<br/>
                 <span style="font-family:'Petit Formal Script',cursive,serif;font-style:italic;color:#D84B7E;font-size:28px;font-weight:400;letter-spacing:0.02em;">Distortion</span>
