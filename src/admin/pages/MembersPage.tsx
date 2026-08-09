@@ -68,7 +68,16 @@ export default function MembersPage() {
     setInviting(true)
     try {
       const { data, error } = await supabase.functions.invoke('invite-member', { body: inviteForm })
-      if (error) throw error
+      if (error) {
+        let errMsg = error.message
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const body = await error.context.clone().json()
+            errMsg = body.error || body.message || errMsg
+          } catch (e) {}
+        }
+        throw new Error(errMsg)
+      }
       if (data.success) {
         toast.success(`Invitation sent to ${inviteForm.email}!`)
         setShowInvite(false)
@@ -97,7 +106,16 @@ export default function MembersPage() {
       const { data, error } = await supabase.functions.invoke('invite-member', {
         body: { action: 'resend', email: member.email }
       })
-      if (error) throw error
+      if (error) {
+        let errMsg = error.message
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const body = await error.context.clone().json()
+            errMsg = body.error || body.message || errMsg
+          } catch (e) {}
+        }
+        throw new Error(errMsg)
+      }
       if (data.success) {
         toast.success(`Invitation resent to ${member.email}!`)
         fetchMembers()
@@ -115,7 +133,16 @@ export default function MembersPage() {
       const { data, error } = await supabase.functions.invoke('invite-member', {
         body: { action: 'delete', userId: member.user_id }
       })
-      if (error) throw error
+      if (error) {
+        let errMsg = error.message
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const body = await error.context.clone().json()
+            errMsg = body.error || body.message || errMsg
+          } catch (e) {}
+        }
+        throw new Error(errMsg)
+      }
       if (data.success) {
         toast.success(`Invitation deleted.`)
         fetchMembers()

@@ -67,21 +67,7 @@ export default function EventOngoingTemplate() {
               >
                 {event.tagline}
               </div>
-              {event.registration_open !== false ? (
-                <button
-                  onClick={() => navigate(`/register/${event.slug}`)}
-                  className={`bg-accent-pink text-white font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-opacity-95 active:scale-[0.98] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_20px_rgba(233,30,99,0.4)] ${isMobile768 ? 'w-full mt-2' : ''}`}
-                >
-                  REGISTER FOR EVENT →
-                </button>
-              ) : (
-                <button
-                  disabled
-                  className={`bg-white/10 text-white/50 font-mono text-[14px] font-bold tracking-[0.15em] uppercase px-8 py-3.5 select-none rounded-[4px] border-none cursor-not-allowed ${isMobile768 ? 'w-full mt-2' : ''}`}
-                >
-                  REGISTRATIONS NOT OPEN
-                </button>
-              )}
+              {/* Top registration button removed */}
             </div>
 
           </div>
@@ -177,7 +163,18 @@ export default function EventOngoingTemplate() {
         </div>
 
         {/* Section: Schedule OR The Plan */}
-        {hasSchedule ? (
+        {hasSchedule ? (() => {
+          // Support both flat schedule [{title,description}] and multi-day [{day, items: [...]}]
+          const isMultiDay = schedule.length > 0 && Array.isArray(schedule[0]?.items);
+          const flatItems = isMultiDay
+            ? schedule.flatMap(dayBlock => [
+                { _dayHeader: dayBlock.day },
+                ...dayBlock.items,
+              ])
+            : schedule;
+
+          let stepCounter = 0;
+          return (
           <div className="relative z-10 my-10 md:my-[80px]">
             {/* Section Heading */}
             <div className={isMobile768 ? "w-[93.056%] mx-auto mb-10 p-4" : "w-[93.056%] mx-auto mb-24 p-20"}>
@@ -189,8 +186,26 @@ export default function EventOngoingTemplate() {
 
             {/* Schedule Items */}
             <div className={`flex flex-col ${isMobile768 ? 'gap-16' : 'gap-32'}`}>
-              {schedule.map((item, index) => {
-                const stepNum = index + 1;
+              {flatItems.map((item, index) => {
+                // Day header — prominent banner element
+                if (item._dayHeader) {
+                  return (
+                    <div key={`day-${index}`} className="w-[93.056%] mx-auto">
+                      <div className={`relative flex items-center gap-6 ${isMobile768 ? 'py-6' : 'py-10'}`}>
+                        <div className="absolute left-0 top-0 w-[4px] h-full bg-[#E91E63] rounded-full" />
+                        <div className={`${isMobile768 ? 'pl-6' : 'pl-10'}`}>
+                          <span className={`font-host font-extrabold uppercase tracking-[0.02em] text-white ${isMobile768 ? 'text-[28px]' : 'text-[clamp(36px,4vw,56px)]'}`}>
+                            {item._dayHeader}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full h-[1px] bg-gradient-to-r from-[#E91E63] via-[#E91E63]/30 to-transparent" />
+                    </div>
+                  );
+                }
+
+                stepCounter++;
+                const stepNum = stepCounter;
                 const isEven = stepNum % 2 === 0;
                 const dotLeftPercentage = isEven ? 74.306 : 25.694;
 
@@ -211,7 +226,7 @@ export default function EventOngoingTemplate() {
                         <div className={`flex items-center ${isMobile768 ? 'justify-start' : 'md:col-span-3 justify-end pr-6 md:pr-10'}`}>
                           <span className={`font-clash font-bold leading-none text-white tracking-tight ${isMobile768 ? 'text-[90px]' : 'text-[clamp(90px,11vw,170px)]'
                             }`}>
-                            {stepNum}
+                            {String(stepNum).padStart(2, '0')}
                           </span>
                         </div>
 
@@ -287,7 +302,7 @@ export default function EventOngoingTemplate() {
                         <div className={`w-full flex items-center ${isMobile768 ? 'justify-start' : 'md:col-span-3 justify-start pl-6 md:pl-10'}`}>
                           <span className={`font-clash font-bold leading-none text-white tracking-tight ${isMobile768 ? 'text-[90px]' : 'text-[clamp(90px,11vw,170px)]'
                             }`}>
-                            {stepNum}
+                            {String(stepNum).padStart(2, '0')}
                           </span>
                         </div>
                       </div>
@@ -297,7 +312,8 @@ export default function EventOngoingTemplate() {
               })}
             </div>
           </div>
-        ) : (
+          );
+        })() : (
           /* Fallback: THE PLAN section matching EventPageTemplate */
           <div className={
             isMobile768
@@ -325,7 +341,7 @@ export default function EventOngoingTemplate() {
         )}
 
         {/* Brochure & Rulebook text */}
-        <div className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
+        <div id="rulebook" className={`relative z-10 w-[93.056%] mx-auto text-center border-t border-light-grey ${isMobile768 ? 'my-8 pt-6 px-2' : 'my-16 pt-12'
           }`}>
           <p className={`font-host font-bold uppercase leading-[1.1] tracking-[0.02em] text-white mx-auto ${isMobile768 ? 'text-[18px] max-w-full' : 'text-[36px] max-w-[900px]'
             }`}>

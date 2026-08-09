@@ -194,25 +194,9 @@ export default function Header() {
                 </span>
               </a>
 
-              {eventsOngoing.find(e => e.registration_open !== false) && (
-                <button
-                  onClick={() => navigate(`/register/${eventsOngoing.find(e => e.registration_open !== false).slug}`)}
-                  className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none ml-4 shadow-[0_0_12px_rgba(233,30,99,0.3)] shrink-0"
-                >
-                  REGISTER
-                </button>
-              )}
             </nav>
           ) : (
             <div className="flex items-center gap-4 mr-[3.472%]">
-              {eventsOngoing.find(e => e.registration_open !== false) && (
-                <button
-                  onClick={() => navigate(`/register/${eventsOngoing.find(e => e.registration_open !== false).slug}`)}
-                  className="bg-accent-pink text-white font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-4 py-2 hover:bg-opacity-95 active:scale-[0.97] transition-all cursor-pointer select-none rounded-[4px] border-none shadow-[0_0_12px_rgba(233,30,99,0.3)]"
-                >
-                  REGISTER
-                </button>
-              )}
               <button
                 onClick={toggleMenu}
                 className="w-16 h-11 flex items-center justify-center bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 transition-all duration-200 cursor-pointer overflow-hidden relative"

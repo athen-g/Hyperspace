@@ -55,8 +55,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 3. Check capacity
-    if (event.capacity !== null) {
+    // 3. Determine if we should waitlist
+    let shouldWaitlist = event.slug === 'texture-distortion'
+
+    if (!shouldWaitlist && event.capacity !== null) {
       const { count } = await supabase
         .from('registrations')
         .select('id', { count: 'exact', head: true })
@@ -64,23 +66,7 @@ Deno.serve(async (req) => {
         .eq('is_waitlisted', false)
 
       if ((count ?? 0) >= event.capacity) {
-        // Upsert student first before adding to waitlist
-        const { data: student } = await supabase
-          .from('students')
-          .upsert({ name, email, phone, college, branch, year, prn, division, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
-          .select('id')
-          .single()
-
-        if (student) {
-          await supabase.from('waitlist').upsert(
-            { student_id: student.id, event_id },
-            { onConflict: 'student_id,event_id' }
-          )
-        }
-        return new Response(
-          JSON.stringify({ waitlisted: true }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+        shouldWaitlist = true
       }
     }
 
@@ -101,14 +87,14 @@ Deno.serve(async (req) => {
     // 5. Check for duplicate registration
     const { data: existing } = await supabase
       .from('registrations')
-      .select('id')
+      .select('id, is_waitlisted')
       .eq('student_id', student.id)
       .eq('event_id', event_id)
       .single()
 
     if (existing) {
       return new Response(
-        JSON.stringify({ alreadyRegistered: true }),
+        JSON.stringify({ alreadyRegistered: true, isWaitlisted: existing.is_waitlisted }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -124,6 +110,7 @@ Deno.serve(async (req) => {
         event_id,
         registration_no: regNo,
         custom_field_data: custom_field_data ?? {},
+        is_waitlisted: shouldWaitlist,
       })
       .select('id')
       .single()
@@ -137,6 +124,14 @@ Deno.serve(async (req) => {
           details: regError?.message || 'Database insert failed' 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 7b. If waitlisted, sync to waitlist table
+    if (shouldWaitlist) {
+      await supabase.from('waitlist').upsert(
+        { student_id: student.id, event_id },
+        { onConflict: 'student_id,event_id' }
       )
     }
 
@@ -159,7 +154,7 @@ Deno.serve(async (req) => {
     })
 
     return new Response(
-      JSON.stringify({ success: true, registrationNo: regNo, studentId: student.id }),
+      JSON.stringify({ success: true, registrationNo: regNo, studentId: student.id, waitlisted: shouldWaitlist }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
