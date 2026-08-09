@@ -133,9 +133,10 @@ Deno.serve(async (req) => {
       .single()
 
     const qrPayload = `${SITE_DOMAIN}/scan?token=${rawReg?.qr_token}`
+    const logoUrl = 'https://raw.githubusercontent.com/athen-g/Hyperspace/feat/texture-distortion-registrations/public/hyperspace-logo.png'
     
-    // Position-specific QR Code: Position dark module color + center emblem logo + high error correction
-    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=${theme.qrDarkHex}&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent('https://hyperspacesig.tech/logo.png')}&centerImageSize=0.22`
+    // Position-specific Winner QR Code: Position dark module color + center emblem logo + high error correction
+    const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrPayload)}&size=280&dark=${theme.qrDarkHex}&light=ffffff&margin=2&ecLevel=H&centerImageUrl=${encodeURIComponent(logoUrl)}&centerImageWidth=55&centerImageHeight=55`
 
     const eventDate = new Date(reg.event_date).toLocaleDateString('en-IN', {
       weekday: 'long',
