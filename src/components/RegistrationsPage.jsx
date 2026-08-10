@@ -101,6 +101,13 @@ export default function RegistrationsPage() {
             return;
         }
 
+        // Validate compulsory event questions (e.g. Blender specs requirement)
+        for (const q of questions) {
+            if (q.required && (!form[q.id] || form[q.id].trim() === '')) {
+                toast.error(q.id === 'blender_specs' ? 'Please select whether your laptop meets the Blender specifications.' : 'Please answer all required questions.');
+                return;
+            }
+        }
 
         // Rulebook validation
         if (!readRulebook) {
@@ -474,6 +481,7 @@ export default function RegistrationsPage() {
                                                 onChange={handleChange}
                                                 onFocus={() => setFocused(q.id)}
                                                 onBlur={() => setFocused(null)}
+                                                required={q.required}
                                                 className={isMobile768 ? '!text-[14px]' : ''}
                                             >
                                                 <option value="">{q.placeholder}</option>
@@ -497,6 +505,7 @@ export default function RegistrationsPage() {
                                             onChange={handleChange}
                                             onFocus={() => setFocused(q.id)}
                                             onBlur={() => setFocused(null)}
+                                            required={q.required}
                                             className={`reg-input reg-textarea ${focused === q.id ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                         />
                                     )}
