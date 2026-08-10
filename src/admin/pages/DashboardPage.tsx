@@ -35,17 +35,33 @@ export default function DashboardPage() {
   const liveAttendance = useRealtimeCount(todayEvent?.id ?? '', 'attendance')
 
   useEffect(() => {
-    // Upcoming events
-    supabase.from('events').select('*').gte('event_date', new Date().toISOString())
-      .order('event_date').limit(5).then(({ data }) => setUpcomingEvents(data ?? []))
+    const nowIso = new Date().toISOString()
+
+    // Upcoming events & upcoming registrations count
+    supabase
+      .from('events')
+      .select('*')
+      .gte('event_date', nowIso)
+      .order('event_date')
+      .then(async ({ data }) => {
+        const events = data ?? []
+        setUpcomingEvents(events.slice(0, 5))
+
+        if (events.length > 0) {
+          const eventIds = events.map(e => e.id)
+          const { count } = await supabase
+            .from('registrations')
+            .select('id', { count: 'exact', head: true })
+            .in('event_id', eventIds)
+          setTotalRegs(count ?? 0)
+        } else {
+          setTotalRegs(0)
+        }
+      })
 
     // Recent registrations
     supabase.from('registration_details').select('*').order('registered_at', { ascending: false })
       .limit(10).then(({ data }) => setRecentRegs(data ?? []))
-
-    // Total registrations count
-    supabase.from('registrations').select('id', { count: 'exact', head: true })
-      .then(({ count }) => setTotalRegs(count ?? 0))
 
     // Today's event
     const today = new Date()
@@ -68,7 +84,7 @@ export default function DashboardPage() {
       {/* Stat cards */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
         <StatCard label="Total Events" value={upcomingEvents.length} sub="upcoming" />
-        <StatCard label="Total Registrations" value={totalRegs} sub="all time" />
+        <StatCard label="Total Registrations" value={totalRegs} sub="upcoming events" />
         {todayEvent && <StatCard label="Live Attendance" value={liveAttendance} sub={todayEvent.title} />}
       </div>
 

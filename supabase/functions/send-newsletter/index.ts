@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { encodeBase64 } from "https://deno.land/std@0.208.0/encoding/base64.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,7 +7,7 @@ const corsHeaders = {
 }
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
-const FROM_EMAIL = 'Hyperspace XR <newsletter@hyperspacesig.tech>'
+const FROM_EMAIL = 'Hyperspace XR <events@hyperspacesig.tech>'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -122,15 +123,18 @@ Deno.serve(async (req) => {
 
       const payload = chunk.map(sub => {
         const subName = sub.name || 'Subscriber'
+        const unsubscribeUrl = `https://hyperspacesig.tech/unsubscribe?email=${encodeURIComponent(sub.email)}`
 
         const personalizedSubject = subject
           .replaceAll('{subscriber_name}', subName)
+          .replaceAll('{subscriber_email}', sub.email)
           .replaceAll('{target_event_name}', targetEventName)
           .replaceAll('{event_name}', targetEventName)
 
         // Substitute placeholders in HTML body
         const personalizedHtml = htmlContent
           .replaceAll('{subscriber_name}', subName)
+          .replaceAll('{subscriber_email}', sub.email)
           .replaceAll('{target_event_name}', targetEventName)
           .replaceAll('{event_name}', targetEventName)
           .replaceAll('{event_date}', formattedEventDate)
@@ -142,6 +146,10 @@ Deno.serve(async (req) => {
           to: sub.email,
           subject: personalizedSubject,
           html: personalizedHtml,
+          headers: {
+            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
         }
       })
 

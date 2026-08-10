@@ -8,6 +8,7 @@ import { registrationQuestions } from '../../constants/registration';
 import RegSelect from './ui/RegSelect';
 import { useMediaQuery } from 'react-responsive';
 import { supabase } from '../lib/supabase';
+import { parseEdgeFunctionError } from '../lib/functions';
 import toast from 'react-hot-toast';
 import { eventsOngoing } from '../../constants/events';
 
@@ -32,6 +33,8 @@ export default function RegistrationsPage() {
     const [submitting, setSubmitting] = useState(false);
     const [successData, setSuccessData] = useState(null);
     const [readRulebook, setReadRulebook] = useState(false);
+
+    const rulebookUrl = constantsEvent?.rulebook_url || event?.rulebook_url || 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing';
 
     /* Pick questions for this event */
     const questions =
@@ -98,6 +101,13 @@ export default function RegistrationsPage() {
             return;
         }
 
+        // Validate compulsory event questions (e.g. Blender specs requirement)
+        for (const q of questions) {
+            if (q.required && (!form[q.id] || form[q.id].trim() === '')) {
+                toast.error(q.id === 'blender_specs' ? 'Please select whether your laptop meets the Blender specifications.' : 'Please answer all required questions.');
+                return;
+            }
+        }
 
         // Rulebook validation
         if (!readRulebook) {
@@ -133,13 +143,7 @@ export default function RegistrationsPage() {
             });
 
             if (error) {
-                let errMsg = error.message;
-                if (error.context && typeof error.context.json === 'function') {
-                    try {
-                        const body = await error.context.clone().json();
-                        errMsg = body.error || body.message || errMsg;
-                    } catch (e) {}
-                }
+                const errMsg = await parseEdgeFunctionError(error);
                 throw new Error(errMsg);
             }
 
@@ -461,7 +465,7 @@ export default function RegistrationsPage() {
                                     <label className={`reg-label ${isMobile768 ? '!text-[14px]' : ''}`} htmlFor={`reg-${q.id}`}>
                                         {q.id === 'blender_specs' ? (
                                             <>
-                                                DOES YOUR LAPTOP MEET THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
+                                                DOES YOUR LAPTOP MEET THE <a href={rulebookUrl} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer">MINIMUM SPECIFICATIONS</a> TO RUN BLENDER? *
                                             </>
                                         ) : (
                                             q.label
@@ -477,6 +481,7 @@ export default function RegistrationsPage() {
                                                 onChange={handleChange}
                                                 onFocus={() => setFocused(q.id)}
                                                 onBlur={() => setFocused(null)}
+                                                required={q.required}
                                                 className={isMobile768 ? '!text-[14px]' : ''}
                                             >
                                                 <option value="">{q.placeholder}</option>
@@ -500,6 +505,7 @@ export default function RegistrationsPage() {
                                             onChange={handleChange}
                                             onFocus={() => setFocused(q.id)}
                                             onBlur={() => setFocused(null)}
+                                            required={q.required}
                                             className={`reg-input reg-textarea ${focused === q.id ? 'reg-input--active' : ''} ${isMobile768 ? '!text-[14px] placeholder:!text-[14px]' : ''}`}
                                         />
                                     )}
@@ -587,7 +593,7 @@ export default function RegistrationsPage() {
                                     className={`font-mono uppercase tracking-[0.05em] text-white cursor-pointer select-none ${isMobile768 ? 'text-[12px]' : 'text-[13px]'}`}
                                     style={{ lineHeight: 1.5, fontWeight: 600 }}
                                 >
-                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={`/events/${slug}#rulebook`} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>RULEBOOK</a> FOR THIS EVENT. *
+                                    I CONFIRM THAT I HAVE READ AND UNDERSTOOD THE <a href={rulebookUrl} className="underline text-[#E91E63] font-bold hover:text-[#FF4081] transition-colors" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>RULEBOOK</a> FOR THIS EVENT. *
                                 </label>
                             </div>
 

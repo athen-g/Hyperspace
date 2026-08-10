@@ -6,6 +6,7 @@ const registrationQuestions = {
             type: 'select',
             options: ['YES', 'NO'],
             placeholder: '—',
+            required: true,
         },
     ],
     'commence-synchronisation': [

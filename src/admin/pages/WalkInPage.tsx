@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import { useEvents } from '../../hooks/useEvent'
 import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
 
@@ -55,13 +56,7 @@ export default function WalkInPage() {
       })
 
       if (error) {
-        let errMsg = error.message
-        if (error.context && typeof error.context.json === 'function') {
-          try {
-            const body = await error.context.clone().json()
-            errMsg = body.error || body.message || errMsg
-          } catch (e) {}
-        }
+        const errMsg = await parseEdgeFunctionError(error)
         throw new Error(errMsg)
       }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import toast from 'react-hot-toast'
 
 interface Student {
@@ -230,7 +231,11 @@ export default function AddStudentRegistrationModal({
         const { error: mailErr } = await supabase.functions.invoke('send-registration-email', {
           body: { registrationId: newReg.id }
         })
-        if (mailErr) console.warn('Email trigger warning:', mailErr)
+        if (mailErr) {
+          const detail = await parseEdgeFunctionError(mailErr)
+          console.warn('Email trigger warning:', detail)
+          toast.error(`Email send failed: ${detail}`)
+        }
       }
 
       toast.success(

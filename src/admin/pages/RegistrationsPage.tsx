@@ -5,9 +5,11 @@ import { useRegistrations } from '../../hooks/useRegistrations'
 import { exportToXLSX, exportToPDF } from '../../lib/export'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
+import { parseEdgeFunctionError } from '../../lib/functions'
 import toast from 'react-hot-toast'
 import type { Database } from '../../lib/database.types'
 import AddStudentRegistrationModal from '../components/AddStudentRegistrationModal'
+import SendWinnersModal from '../components/SendWinnersModal'
 
 type RegDetail = Database['public']['Views']['registration_details']['Row']
 
@@ -22,6 +24,7 @@ export default function RegistrationsPage() {
 
   // Add Student Modal State
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
+  const [isWinnersModalOpen, setIsWinnersModalOpen] = useState(false)
 
   // College inline editing state
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null)
@@ -119,7 +122,10 @@ export default function RegistrationsPage() {
       const { error } = await supabase.functions.invoke('send-registration-email', {
         body: { registrationId: r.id }
       })
-      if (error) throw error
+      if (error) {
+        const detail = await parseEdgeFunctionError(error)
+        throw new Error(detail)
+      }
       toast.success(`Ticket email sent to ${r.student_name}!`)
     } catch (err: any) {
       toast.error(err.message || 'Failed to send ticket email.')
@@ -222,6 +228,12 @@ export default function RegistrationsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>Registrations <span style={{ fontSize: '16px', color: '#555', fontWeight: 400 }}>({filtered.length})</span></h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setIsWinnersModalOpen(true)}
+              style={{ padding: '10px 16px', background: '#111', border: '1px solid #E91E63', borderRadius: '8px', color: '#E91E63', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              🏆 Winners
+            </button>
             {waitlistedCount > 0 && (
               <button
                 onClick={() => setIsBatchConfirmOpen(true)}
@@ -247,6 +259,12 @@ export default function RegistrationsPage() {
         isOpen={isAddStudentModalOpen}
         onClose={() => setIsAddStudentModalOpen(false)}
         eventId={eventId}
+        onSuccess={refetch}
+      />
+
+      <SendWinnersModal
+        isOpen={isWinnersModalOpen}
+        onClose={() => setIsWinnersModalOpen(false)}
         onSuccess={refetch}
       />
 
@@ -313,9 +331,9 @@ export default function RegistrationsPage() {
                       </button>
                     </div>
                   ) : (
-                    <span 
+                    <span
                       onClick={() => handleStartEditCollege(r)}
-                      style={{ 
+                      style={{
                         cursor: isAuthorizedToEdit ? 'pointer' : 'default',
                         borderBottom: isAuthorizedToEdit ? '1px dotted #555' : 'none'
                       }}
@@ -474,7 +492,7 @@ export default function RegistrationsPage() {
             maxHeight: '90vh',
             overflowY: 'auto'
           }} onClick={e => e.stopPropagation()}>
-            
+
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #1a1a1a', paddingBottom: '12px' }}>
               <h2 style={{ fontSize: '16px', color: '#fff', fontWeight: 600, margin: 0, letterSpacing: '1px' }}>REGISTRATION DETAILS</h2>
@@ -491,7 +509,7 @@ export default function RegistrationsPage() {
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Registered At</label>
                 <div style={{ color: '#aaa', fontSize: '14px', marginTop: '4px' }}>{format(new Date(selectedReg.registered_at), 'dd MMM yyyy, HH:mm')}</div>
               </div>
-              
+
               <div>
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Full Name</label>
                 <div style={{ color: '#e5e5e5', fontSize: '14px', fontWeight: 500, marginTop: '4px' }}>{selectedReg.student_name}</div>
