@@ -305,25 +305,15 @@ export default function QuizHost() {
 
   const sendHostControl = async (event: string, payload: any = {}) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-host-control`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': supabase.supabaseKey
-        },
-        body: JSON.stringify({
+      const { error } = await supabase.functions.invoke('quiz-host-control', {
+        body: {
           session_id: sessionId,
           action: event,
           payload
-        })
+        }
       })
-      if (!response.ok) {
-        const errData = await response.json()
-        throw new Error(errData.message || 'Failed to send host control')
+      if (error) {
+        throw error
       }
     } catch (e: any) {
       console.error(`Error sending host control event ${event}:`, e)
@@ -563,18 +553,8 @@ export default function QuizHost() {
 
     const sendHeartbeat = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
-        accessToken = session.access_token
-
-        await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-session-heartbeat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': supabase.supabaseKey
-          },
-          body: JSON.stringify({ session_id: sessionId })
+        await supabase.functions.invoke('quiz-session-heartbeat', {
+          body: { session_id: sessionId }
         })
       } catch (e) {
         console.warn('Failed to send heartbeat:', e)
@@ -598,7 +578,8 @@ export default function QuizHost() {
         access_token: accessToken
       })
       const blob = new Blob([payload], { type: 'application/json' })
-      navigator.sendBeacon(`${supabase.supabaseUrl}/functions/v1/quiz-session-cleanup`, blob)
+      const functionsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/quiz-session-cleanup`
+      navigator.sendBeacon(functionsUrl, blob)
     }
 
     window.addEventListener('unload', handleUnloadCleanup)
