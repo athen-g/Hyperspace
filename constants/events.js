@@ -33,6 +33,7 @@ const eventsOngoing = [
     id: 2,
     name: 'TEXTURE DISTORTION',
     slug: 'texture-distortion',
+    has_certificate: true,
     thumbnail: textureDistortion,
     tags: [
       'SHADERS AND TEXTURES',

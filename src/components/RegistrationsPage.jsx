@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { parseEdgeFunctionError } from '../lib/functions';
 import toast from 'react-hot-toast';
 import { eventsOngoing } from '../../constants/events';
+import { useAuth } from '../hooks/useAuth';
 
 /* ─── Reusable animated field wrapper ─── */
 function Field({ children, className = '' }) {
@@ -227,6 +228,9 @@ export default function RegistrationsPage() {
             {/* ── Registration section ── */}
             <div className={`relative z-10 w-[93.056%] mx-auto ${isMobile768 ? 'mb-12 py-6 px-0' : 'mb-[120px] py-[60px] px-[60px]'
                 }`}>
+
+                {/* ── Super Admin Direct Attendance Override Control Panel ── */}
+                <SuperAdminAttendancePanel eventId={event?.id} eventSlug={slug} />
 
                 {/* Section label */}
                 <p className={`reg-section-label ${isMobile768 ? '!text-[30px] mb-4' : ''}`}>REGISTRATION</p>
@@ -614,4 +618,4 @@ export default function RegistrationsPage() {
             <Footer />
         </section>
     );
-}
+}

@@ -147,6 +147,10 @@ export interface Database {
           scanned_by: string
           scanned_at: string
           notes: string | null
+          day1_attended: boolean | null
+          day1_attended_at: string | null
+          day2_attended: boolean | null
+          day2_attended_at: string | null
         }
         Insert: {
           id?: string
@@ -154,9 +158,17 @@ export interface Database {
           scanned_by: string
           scanned_at?: string
           notes?: string | null
+          day1_attended?: boolean | null
+          day1_attended_at?: string | null
+          day2_attended?: boolean | null
+          day2_attended_at?: string | null
         }
         Update: {
           notes?: string | null
+          day1_attended?: boolean | null
+          day1_attended_at?: string | null
+          day2_attended?: boolean | null
+          day2_attended_at?: string | null
         }
       }
       admin_logs: {
