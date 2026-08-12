@@ -48,28 +48,27 @@ export default function CertificatePage() {
     setOtpInput('')
 
     try {
-      // 1. Direct Supabase Query by exact email
+      // 1. Fetch student data & existing certificate_id by email
       let studentData = null
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle()
+      const fnRes = await supabase.functions.invoke('search-students', {
+        body: { email: cleanEmail }
+      })
 
-      if (!error && data) {
-        studentData = data
+      if (fnRes.error) {
+        const detail = await parseEdgeFunctionError(fnRes.error)
+        console.warn('Search students notice:', detail)
+      }
+
+      if (fnRes.data?.student) {
+        studentData = fnRes.data.student
       } else {
-        // Fallback to Edge Function if RLS restricts direct select
-        const fnRes = await supabase.functions.invoke('search-students', {
-          body: { email: cleanEmail }
-        })
-        if (fnRes.error) {
-          const detail = await parseEdgeFunctionError(fnRes.error)
-          console.warn('Search students notice:', detail)
-        }
-        if (fnRes.data?.student) {
-          studentData = fnRes.data.student
-        }
+        // Fallback direct query if Edge Function is unavailable
+        const { data } = await supabase
+          .from('students')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle()
+        if (data) studentData = data
       }
 
       if (!studentData) {
@@ -78,7 +77,14 @@ export default function CertificatePage() {
         return
       }
 
-      // 2. Query attendance & check existing certificate BEFORE mounting student card!
+      // 2. PRE-CHECK: If certificate_id ALREADY exists, INSTANTLY redirect (Zero screen flash / zero attendance UI)
+      if (studentData.certificate_id) {
+        toast.success(`Welcome back, ${studentData.name}! Opening your certificate...`)
+        window.location.href = `/certificate/${studentData.certificate_id}`
+        return
+      }
+
+      // 3. First-time certificate generation flow: Check 2-day attendance
       setCheckingAttendance(true)
       const { data: attRes, error: attErr } = await supabase.functions.invoke('manage-attendance', {
         body: {
@@ -92,16 +98,13 @@ export default function CertificatePage() {
         console.warn('Attendance lookup notice:', detail)
       }
 
-      // If certificate has ALREADY been generated, bypass OTP & redirect directly!
+      // If manage-attendance finds an existing certificate ID, redirect
       if (attRes?.existingCertificateId) {
         toast.success(`Welcome back, ${studentData.name}! Opening your certificate...`)
-        setTimeout(() => {
-          window.location.href = `/certificate/${attRes.existingCertificateId}`
-        }, 300)
+        window.location.href = `/certificate/${attRes.existingCertificateId}`
         return
       }
 
-      // First-time certificate generation flow
       setStudentRecord(studentData)
       toast.success(`Welcome, ${studentData.name}!`)
       setDay1Attended(!!attRes?.day1_attended)

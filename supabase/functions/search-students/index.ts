@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     const cleanEmail = email.trim().toLowerCase()
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-    const { data, error } = await supabase
+    const { data: student, error } = await supabase
       .from('students')
       .select('id, name, email, phone, college, branch')
       .eq('email', cleanEmail)
@@ -40,7 +40,21 @@ Deno.serve(async (req) => {
       })
     }
 
-    return new Response(JSON.stringify({ student: data || null }), {
+    if (student) {
+      const { data: regList } = await supabase
+        .from('registrations')
+        .select('certificate_id')
+        .eq('student_id', student.id)
+
+      const existingCertId = regList?.find(r => (r as any).certificate_id)?.certificate_id || null
+
+      return new Response(JSON.stringify({ student: { ...student, certificate_id: existingCertId } }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    return new Response(JSON.stringify({ student: null }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
