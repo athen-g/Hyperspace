@@ -304,6 +304,7 @@ export default function QuizHost() {
   const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
 
   const sendHostControl = async (event: string, payload: any = {}) => {
+    if (!sessionId) return
     try {
       const { error } = await supabase.functions.invoke('quiz-host-control', {
         body: {
