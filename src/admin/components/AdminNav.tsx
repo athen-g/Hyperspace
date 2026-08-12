@@ -8,7 +8,6 @@ const navItems = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: '⬛' },
   { label: 'Events', path: '/admin/events', icon: '📅' },
   { label: 'Subscribers', path: '/admin/subscribers', icon: '✉️' },
-  { label: 'Quiz Admin', path: '/admin/quiz', icon: '🎮' },
   { label: 'Scanner', path: '/admin/scanner', icon: '📷' },
 ]
 

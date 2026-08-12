@@ -46,7 +46,7 @@ const eventsOngoing = [
     date: '13-14TH OF AUGUST 2026',
     time: '1:00 PM - 4:00 PM',
     venue: '518',
-    audience: '60',
+    audience: '80',
     type: 'HANDS-ON WORKSHOP',
     sponsors: ['COMING SOON!'],
     schedule: [
