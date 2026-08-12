@@ -20,10 +20,7 @@ import UnsubscribePage from "./components/UnsubscribePage";
 import TeamPage from "./components/TeamPage";
 import PageTransition from "./components/ui/PageTransition";
 import CustomCursor from "./components/ui/CustomCursor";
-import QuizPage from "./components/QuizPage";
-import QuizHost from "./components/QuizHost";
-import QuizPlayer from "./components/QuizPlayer";
-import QuizEditor from "./components/QuizEditor";
+
 
 // Admin imports
 import AdminApp from "./admin/AdminApp";
@@ -113,10 +110,6 @@ function App() {
           {/* QR Deep Link */}
           <Route path="/scan" element={<ScanRedirect />} />
 
-          {/* Quiz Kahoot System (Public Play Portal) */}
-          <Route path="/quiz/play" element={<QuizPlayer />} />
-          <Route path="/quiz" element={<Navigate to="/admin/quiz" replace />} />
-
           <Route path="/admin" element={<AdminApp />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="login" element={<LoginPage />} />
@@ -129,9 +122,6 @@ function App() {
             <Route path="events/:eventId/walkin" element={<ProtectedRoute roles={['core','super_admin']}><WalkInPage /></ProtectedRoute>} />
             <Route path="scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
             <Route path="subscribers" element={<ProtectedRoute><SubscribersPage /></ProtectedRoute>} />
-            <Route path="quiz" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
-            <Route path="quiz/host/:codeSlug" element={<ProtectedRoute roles={['super_admin', 'core']}><QuizHost /></ProtectedRoute>} />
-            <Route path="quiz/edit/:codeSlug" element={<ProtectedRoute><QuizEditor /></ProtectedRoute>} />
             <Route path="members" element={<ProtectedRoute roles={['super_admin']}><MembersPage /></ProtectedRoute>} />
             <Route path="logs" element={<ProtectedRoute roles={['super_admin']}><AuditLogPage /></ProtectedRoute>} />
           </Route>
