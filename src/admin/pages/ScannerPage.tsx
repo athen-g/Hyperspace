@@ -5,7 +5,10 @@ import { supabase } from '../../lib/supabase'
 import { useEvents } from '../../hooks/useEvent'
 import { Link, useSearchParams } from 'react-router-dom'
 
-type ScanResult = { success: true; studentName: string; eventTitle: string; registrationNo: string } | { error: 'already_scanned'; scannedAt: string } | { error: string }
+type ScanResult = 
+  | { success: true; studentName: string; eventTitle: string; registrationNo: string; dayNumber?: number } 
+  | { error: 'already_scanned'; scannedAt: string; dayNumber?: number } 
+  | { error: string }
 
 function playBeep(success: boolean) {
   try {
@@ -26,6 +29,7 @@ function playBeep(success: boolean) {
 export default function ScannerPage() {
   const { events } = useEvents()
   const [selectedEventId, setSelectedEventId] = useState('')
+  const [selectedDay, setSelectedDay] = useState<number>(() => new Date().getDate() === 14 ? 2 : 1)
   const [scanning, setScanning] = useState(false)
   const [result, setResult] = useState<ScanResult | null>(null)
   const scannerRef = useRef<Html5Qrcode | null>(null)
@@ -45,7 +49,9 @@ export default function ScannerPage() {
 
       const processToken = async () => {
         try {
-          const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
+          const { data, error } = await supabase.functions.invoke('scan-qr', { 
+            body: { qr_token: token, day_number: selectedDay } 
+          })
           if (error) {
             let errMsg = error.message;
             if (error.context && typeof error.context.json === 'function') {
@@ -70,7 +76,7 @@ export default function ScannerPage() {
       }
       processToken()
     }
-  }, [searchParams, setSearchParams])
+  }, [searchParams, setSearchParams, selectedDay])
 
   // Auto-select today's event
   useEffect(() => {
@@ -101,7 +107,9 @@ export default function ScannerPage() {
               token = url.searchParams.get('token') ?? decodedText
             } catch (_) { /* not a URL, use raw */ }
 
-            const { data, error } = await supabase.functions.invoke('scan-qr', { body: { qr_token: token } })
+            const { data, error } = await supabase.functions.invoke('scan-qr', { 
+              body: { qr_token: token, day_number: selectedDay } 
+            })
 
             if (error) {
               let errMsg = error.message;
@@ -141,7 +149,7 @@ export default function ScannerPage() {
         })
       }
     }
-  }, [scanning])
+  }, [scanning, selectedDay])
 
   const startScanner = () => {
     setScanning(true)
@@ -199,6 +207,53 @@ export default function ScannerPage() {
           </select>
         </div>
 
+        {/* Day Attendance Selector Toggle Buttons (Multi-day events only) */}
+        {(() => {
+          const selectedEvent = events.find(e => e.id === selectedEventId)
+          const isMultiDay = selectedEvent?.slug === 'texture-distortion' || selectedEvent?.title?.toLowerCase().includes('texture distortion')
+          if (!isMultiDay) return null
+
+          return (
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase', marginBottom: '6px' }}>
+                SCANNING FOR DAY:
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <button
+                  onClick={() => setSelectedDay(1)}
+                  style={{
+                    padding: '10px',
+                    background: selectedDay === 1 ? '#166534' : '#111',
+                    border: `1px solid ${selectedDay === 1 ? '#22c55e' : '#222'}`,
+                    borderRadius: '8px',
+                    color: selectedDay === 1 ? '#fff' : '#888',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Day 1 (13 Aug) {selectedDay === 1 && '✓'}
+                </button>
+                <button
+                  onClick={() => setSelectedDay(2)}
+                  style={{
+                    padding: '10px',
+                    background: selectedDay === 2 ? '#15803d' : '#111',
+                    border: `1px solid ${selectedDay === 2 ? '#22c55e' : '#222'}`,
+                    borderRadius: '8px',
+                    color: selectedDay === 2 ? '#fff' : '#888',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Day 2 (14 Aug) {selectedDay === 2 && '✓'}
+                </button>
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Controls */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
           {!scanning ? (
@@ -208,7 +263,7 @@ export default function ScannerPage() {
               disabled={!selectedEventId}
               style={{ flex: 1, padding: '12px', background: selectedEventId ? '#fff' : '#1a1a1a', color: selectedEventId ? '#000' : '#555', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: selectedEventId ? 'pointer' : 'not-allowed' }}
             >
-              Start Scanning
+              Start Scanning (Day {selectedDay})
             </button>
           ) : (
             <button onClick={stopScanner} style={{ flex: 1, padding: '12px', background: '#1a0a0a', border: '1px solid #7f1d1d', borderRadius: '8px', color: '#f87171', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
@@ -218,108 +273,67 @@ export default function ScannerPage() {
         </div>
 
         {/* Flex layout container for camera and status */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          flexWrap: 'wrap', 
-          gap: '16px', 
-          justifyContent: 'center', 
-          alignItems: 'stretch' 
-        }}>
-          {/* Camera feed */}
-          {scanning && (
-            <div style={{ 
-              flex: '1 1 280px',
-              maxWidth: '340px',
-              aspectRatio: '1/1', 
-              background: '#111', 
-              border: '1px solid #1e1e1e', 
-              borderRadius: '12px', 
-              overflow: 'hidden', 
-              position: 'relative'
-            }}>
-              <div id="qr-reader" style={{ width: '100%', height: '100%' }} />
-              {/* Cosmetic target guide box corners */}
-              <div style={{
-                position: 'absolute',
-                top: '15%',
-                left: '15%',
-                width: '70%',
-                height: '70%',
-                pointerEvents: 'none',
-                boxSizing: 'border-box'
-              }}>
-                {/* Top-left corner */}
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #fff', borderTop: '4px solid #fff', borderTopLeftRadius: '8px' }} />
-                {/* Top-right corner */}
-                <div style={{ position: 'absolute', top: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #fff', borderTop: '4px solid #fff', borderTopRightRadius: '8px' }} />
-                {/* Bottom-left corner */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, width: '20px', height: '20px', borderLeft: '4px solid #fff', borderBottom: '4px solid #fff', borderBottomLeftRadius: '8px' }} />
-                {/* Bottom-right corner */}
-                <div style={{ position: 'absolute', bottom: 0, right: 0, width: '20px', height: '20px', borderRight: '4px solid #fff', borderBottom: '4px solid #fff', borderBottomRightRadius: '8px' }} />
-              </div>
-            </div>
-          )}
-
-          {/* Scan Result Status card - Always visible */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Camera Container */}
           <div style={{
-            flex: '1 1 280px',
-            padding: '16px',
+            background: '#111',
+            border: '1px solid #2a2a2a',
             borderRadius: '12px',
-            background: result 
-              ? (isSuccess ? '#0a2a0a' : isAlreadyScanned ? '#1a1a0a' : '#1a0a0a')
-              : (scanning ? '#0f172a' : '#111'),
-            border: `1px solid ${
-              result 
-                ? (isSuccess ? '#166534' : isAlreadyScanned ? '#713f12' : '#7f1d1d')
-                : (scanning ? '#1e3a8a' : '#222')
-            }`,
-            textAlign: 'center',
+            overflow: 'hidden',
+            aspectRatio: '4/3',
+            width: '100%',
+            position: 'relative',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <div style={{ fontSize: '28px', marginBottom: '6px' }}>
-              {result 
-                ? (isSuccess ? '✅' : isAlreadyScanned ? '⚠️' : '❌')
-                : (scanning ? '🔍' : '💤')}
-            </div>
-            
-            {/* 1. Active Scan Results */}
-            {result && isSuccess && 'success' in result && result.success && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 700, color: '#4ade80' }}>Check-in Successful!</p>
-                <p style={{ margin: '0 0 4px', fontSize: '15px', color: '#e5e5e5' }}>{result.studentName}</p>
-                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '13px', color: '#86efac' }}>{result.registrationNo}</p>
-              </>
-            )}
-            {result && isAlreadyScanned && 'error' in result && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#facc15' }}>Already Scanned</p>
-                <p style={{ margin: 0, fontSize: '12px', color: '#a3a3a3' }}>Originally scanned at {new Date('scannedAt' in result ? result.scannedAt : '').toLocaleTimeString()}</p>
-              </>
-            )}
-            {result && isError && 'error' in result && (
-              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#f87171' }}>{result.error === 'invalid_token' ? 'Invalid QR Code' : result.error}</p>
-            )}
-
-            {/* 2. Scanning State (No Result) */}
-            {!result && scanning && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#60a5fa' }}>Scanning for Ticket...</p>
-                <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Point the camera at the attendee's QR code.</p>
-              </>
-            )}
-
-            {/* 3. Idle State (No Result, Not Scanning) */}
-            {!result && !scanning && (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: '#64748b' }}>Scanner Offline</p>
-                <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Choose an event above and click Start Scanning.</p>
-              </>
+            <div id="qr-reader" style={{ width: '100%', height: '100%' }} />
+            {!scanning && (
+              <div style={{ position: 'absolute', color: '#444', fontSize: '13px', textAlign: 'center', padding: '16px' }}>
+                Camera is off. Select Day {selectedDay} and click "Start Scanning" to begin.
+              </div>
             )}
           </div>
+
+          {/* Status Display Area */}
+          {result && (
+            <div style={{
+              padding: '20px',
+              borderRadius: '12px',
+              background: isSuccess ? 'rgba(34, 197, 94, 0.1)' : isAlreadyScanned ? 'rgba(234, 179, 8, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              border: `1px solid ${isSuccess ? '#22c55e' : isAlreadyScanned ? '#eab308' : '#ef4444'}`,
+              textAlign: 'center'
+            }}>
+              {isSuccess && (
+                <>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>✓</div>
+                  <h3 style={{ margin: '0 0 4px', color: '#22c55e', fontSize: '18px', fontWeight: 700 }}>
+                    Day {result.dayNumber || selectedDay} Attendance Recorded!
+                  </h3>
+                  <p style={{ margin: '0 0 4px', color: '#fff', fontSize: '15px', fontWeight: 600 }}>{result.studentName}</p>
+                  <p style={{ margin: 0, color: '#888', fontSize: '12px', fontFamily: 'monospace' }}>{result.registrationNo} • {result.eventTitle}</p>
+                </>
+              )}
+
+              {isAlreadyScanned && (
+                <>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>⚠️</div>
+                  <h3 style={{ margin: '0 0 4px', color: '#eab308', fontSize: '18px', fontWeight: 700 }}>
+                    Day {result.dayNumber || selectedDay} Already Scanned
+                  </h3>
+                  <p style={{ margin: 0, color: '#888', fontSize: '12px' }}>This student's Day {result.dayNumber || selectedDay} attendance was already recorded.</p>
+                </>
+              )}
+
+              {isError && (
+                <>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>❌</div>
+                  <h3 style={{ margin: '0 0 4px', color: '#ef4444', fontSize: '18px', fontWeight: 700 }}>Scan Failed</h3>
+                  <p style={{ margin: 0, color: '#888', fontSize: '12px' }}>{result.error}</p>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

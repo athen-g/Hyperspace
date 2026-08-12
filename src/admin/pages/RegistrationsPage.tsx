@@ -48,7 +48,81 @@ export default function RegistrationsPage() {
   const [batchSendMail, setBatchSendMail] = useState(true)
   const [confirmingBatch, setConfirmingBatch] = useState(false)
 
+  // Attendance modal state
+  const [attendanceTarget, setAttendanceTarget] = useState<RegDetail | null>(null)
+  const [markingAttendance, setMarkingAttendance] = useState(false)
+  const [isMarkAttendanceModalOpen, setIsMarkAttendanceModalOpen] = useState(false)
+  const [attendanceSearch, setAttendanceSearch] = useState('')
+
   const isAuthorizedToEdit = member?.role === 'super_admin' || member?.role === 'core'
+
+  const handleMarkAttendance = async (reg: RegDetail, dayNumber: number) => {
+    setMarkingAttendance(true)
+    try {
+      const fnRes = await supabase.functions.invoke('manage-attendance', {
+        body: {
+          action: 'mark_attendance',
+          registrationId: reg.id,
+          dayNumber,
+          adminId: member?.id
+        }
+      })
+
+      if (fnRes.error) {
+        const msg = await parseEdgeFunctionError(fnRes.error)
+        throw new Error(msg)
+      }
+
+      toast.success(`Marked Day ${dayNumber} Attendance for ${reg.student_name}!`)
+      refetch()
+    } catch (err: any) {
+      console.error('Mark attendance error:', err)
+      toast.error(err.message || 'Failed to mark attendance')
+    } finally {
+      setMarkingAttendance(false)
+    }
+  }
+
+  const handleMarkBothDays = async (reg: RegDetail) => {
+    setMarkingAttendance(true)
+    try {
+      // Call 1: Mark Day 1
+      const res1 = await supabase.functions.invoke('manage-attendance', {
+        body: {
+          action: 'mark_attendance',
+          registrationId: reg.id,
+          dayNumber: 1,
+          adminId: member?.id
+        }
+      })
+      if (res1.error) {
+        const msg = await parseEdgeFunctionError(res1.error)
+        throw new Error(msg)
+      }
+
+      // Call 2: Mark Day 2
+      const res2 = await supabase.functions.invoke('manage-attendance', {
+        body: {
+          action: 'mark_attendance',
+          registrationId: reg.id,
+          dayNumber: 2,
+          adminId: member?.id
+        }
+      })
+      if (res2.error) {
+        const msg = await parseEdgeFunctionError(res2.error)
+        throw new Error(msg)
+      }
+
+      toast.success(`Marked BOTH Days (2/2) Attendance for ${reg.student_name}!`)
+      refetch()
+    } catch (err: any) {
+      console.error('Mark attendance error:', err)
+      toast.error(err.message || 'Failed to mark attendance')
+    } finally {
+      setMarkingAttendance(false)
+    }
+  }
 
   const waitlistedCount = useMemo(() => registrations.filter(r => r.is_waitlisted).length, [registrations])
 
@@ -229,6 +303,12 @@ export default function RegistrationsPage() {
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>Registrations <span style={{ fontSize: '16px', color: '#555', fontWeight: 400 }}>({filtered.length})</span></h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
+              onClick={() => setIsMarkAttendanceModalOpen(true)}
+              style={{ padding: '10px 16px', background: '#166534', border: '1px solid #22c55e', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              ⚡ Mark Attendance
+            </button>
+            <button
               onClick={() => setIsWinnersModalOpen(true)}
               style={{ padding: '10px 16px', background: '#111', border: '1px solid #E91E63', borderRadius: '8px', color: '#E91E63', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
             >
@@ -393,6 +473,7 @@ export default function RegistrationsPage() {
                 {/* Actions Column */}
                 <td style={tdStyle}>
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+
                     {/* Confirm Button if Waitlisted */}
                     {r.is_waitlisted && (
                       <button
@@ -677,6 +758,134 @@ export default function RegistrationsPage() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Direct Mark Attendance Modal Dialog */}
+      {attendanceTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '16px' }}>
+          <div style={{ background: '#0e0e0e', border: '1px solid #166534', borderRadius: '16px', maxWidth: '440px', width: '100%', padding: '24px', color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '16px' }}>⚡</span>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#4ade80' }}>Mark Attendance</h3>
+            </div>
+            <p style={{ color: '#aaa', fontSize: '13px', lineHeight: 1.5, margin: '0 0 16px' }}>
+              Mark workshop attendance directly for <strong style={{ color: '#fff' }}>{attendanceTarget.student_name}</strong> ({attendanceTarget.student_email}).
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <button
+                onClick={() => handleMarkAttendance(attendanceTarget, 1)}
+                disabled={markingAttendance}
+                style={{ padding: '12px', background: '#166534', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <span>Day 1 (13 Aug)</span>
+                <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '4px' }}>Mark Day 1 →</span>
+              </button>
+
+              <button
+                onClick={() => handleMarkAttendance(attendanceTarget, 2)}
+                disabled={markingAttendance}
+                style={{ padding: '12px', background: '#15803d', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <span>Day 2 (14 Aug)</span>
+                <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '4px' }}>Mark Day 2 →</span>
+              </button>
+
+              <button
+                onClick={() => handleMarkBothDays(attendanceTarget)}
+                disabled={markingAttendance}
+                style={{ padding: '12px', background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <span>Both Days (2/2)</span>
+                <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '4px' }}>⚡ Mark Both Days →</span>
+              </button>
+            </div>
+
+            <button
+              onClick={() => setAttendanceTarget(null)}
+              disabled={markingAttendance}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', fontSize: '13px', cursor: 'pointer' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Super Admin Top Header Mark Attendance Modal Dialog */}
+      {isMarkAttendanceModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '16px' }}>
+          <div style={{ background: '#0e0e0e', border: '1px solid #166534', borderRadius: '16px', maxWidth: '480px', width: '100%', padding: '24px', color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span style={{ fontSize: '18px' }}>⚡</span>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#4ade80' }}>
+                Super Admin Mark Attendance
+              </h3>
+            </div>
+            <p style={{ margin: '0 0 14px', fontSize: '12px', color: '#888' }}>
+              Search for any student to mark attendance directly (bypassing security checks).
+            </p>
+
+            <input
+              placeholder="Type student name, email, or reg no..."
+              value={attendanceSearch}
+              onChange={e => setAttendanceSearch(e.target.value)}
+              autoFocus
+              style={{ width: '100%', padding: '10px 14px', background: '#141414', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', marginBottom: '14px', boxSizing: 'border-box' }}
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto', marginBottom: '16px' }}>
+              {registrations
+                .filter(r => attendanceSearch.trim() && (r.student_name.toLowerCase().includes(attendanceSearch.toLowerCase()) || r.student_email.toLowerCase().includes(attendanceSearch.toLowerCase()) || r.registration_no.toLowerCase().includes(attendanceSearch.toLowerCase())))
+                .map(st => (
+                  <div key={st.id} style={{ padding: '10px 14px', background: '#161616', border: '1px solid #262626', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>{st.student_name}</div>
+                      <div style={{ fontSize: '11px', color: '#aaa' }}>{st.student_email}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {registrations[0]?.event_title?.toLowerCase().includes('texture distortion') ? (
+                        <>
+                          <button
+                            onClick={() => { handleMarkAttendance(st, 1); setIsMarkAttendanceModalOpen(false); }}
+                            style={{ padding: '4px 8px', background: '#166534', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Day 1
+                          </button>
+                          <button
+                            onClick={() => { handleMarkAttendance(st, 2); setIsMarkAttendanceModalOpen(false); }}
+                            style={{ padding: '4px 8px', background: '#15803d', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Day 2
+                          </button>
+                          <button
+                            onClick={() => { handleMarkBothDays(st); setIsMarkAttendanceModalOpen(false); }}
+                            style={{ padding: '4px 8px', background: '#E91E63', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            2/2 Both
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => { handleMarkAttendance(st, 1); setIsMarkAttendanceModalOpen(false); }}
+                          style={{ padding: '4px 10px', background: '#166534', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          Mark Attendance
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              onClick={() => setIsMarkAttendanceModalOpen(false)}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#888', fontSize: '13px', cursor: 'pointer' }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
