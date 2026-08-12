@@ -21,268 +21,43 @@ interface Player {
   answered: boolean
 }
 
+const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
+const optionShapes = ['▲', '◆', '●', '■']
+
 const emojis = ['🚀', '👾', '🛸', '🛰️', '🪐', '💫', '☄️', '🌌', '🤖', '👽', '⭐', '✨', '⚡', '🔮']
 const gradients = [
-  'linear-gradient(135deg, #e91e63 0%, #9C27B0 100%)', // Neon Pink to Purple
-  'linear-gradient(135deg, #00BCD4 0%, #3F51B5 100%)', // Neon Cyan to Indigo
-  'linear-gradient(135deg, #9C27B0 0%, #00BCD4 100%)', // Purple to Cyan
-  'linear-gradient(135deg, #e91e63 0%, #FF5722 100%)', // Pink to Orange
-  'linear-gradient(135deg, #8A2BE2 0%, #FF00FF 100%)', // Violet to Magenta
+  'linear-gradient(135deg, #e91e63 0%, #9C27B0 100%)',
+  'linear-gradient(135deg, #00BCD4 0%, #3F51B5 100%)',
+  'linear-gradient(135deg, #9C27B0 0%, #00BCD4 100%)',
+  'linear-gradient(135deg, #e91e63 0%, #FF5722 100%)',
+  'linear-gradient(135deg, #8A2BE2 0%, #FF00FF 100%)',
 ]
 
 const getPlayerEmoji = (id: string) => {
   let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
+  for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash)
   return emojis[Math.abs(hash) % emojis.length]
 }
 
 const getPlayerGradient = (id: string) => {
   let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
+  for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash)
   return gradients[Math.abs(hash) % gradients.length]
 }
 
-// Animation phase constants
-const PHASES = {
-  IDLE:    'idle',
-  RUNUP:   'runup',
-  REORDER: 'reorder',
-  FLASH:   'flash',
-  DONE:    'done',
-} as const
-type Phase = typeof PHASES[keyof typeof PHASES]
-
-// Data shape passed into each leaderboard row
-interface LeaderboardPlayerData {
-  id: string
-  nickname: string
-  previousScore: number
-  currentScore: number
-  pointsEarned: number
-  previousRank: number
-  currentRank: number
-  transition: 'stay' | 'enter' | 'leave'
-}
-
-// Animated score counter hook — cubic ease-out
-function useAnimatedCounter(
-  from: number,
-  to: number,
-  duration: number,
-  isActive: boolean,
-  isFinished: boolean
-): number {
-  const [displayValue, setDisplayValue] = useState(from)
-
-  useEffect(() => {
-    if (isFinished) {
-      setDisplayValue(to)
-      return
-    }
-    if (!isActive) {
-      setDisplayValue(from)
-      return
-    }
-
-    const startTime = performance.now()
-    let rafId: number
-
-    function tick(now: number) {
-      const elapsed = now - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3) // cubic ease-out
-      setDisplayValue(Math.round(from + (to - from) * eased))
-      if (progress < 1) {
-        rafId = requestAnimationFrame(tick)
-      } else {
-        setDisplayValue(to)
-      }
-    }
-
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [isActive, isFinished, from, to, duration])
-
-  return displayValue
-}
-
-// Leaderboard row as its own component so useAnimatedCounter is called
-// at the top level of a component (satisfies Rules of Hooks)
-function LeaderboardRow({
-  player,
-  phase,
-  rowRefs,
-  index,
-}: {
-  player: LeaderboardPlayerData
-  phase: Phase
-  rowRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
-  index: number
-}) {
-  const ROW_STRIDE = 76 // row height + gap
-
-  const displayScore = useAnimatedCounter(
-    player.previousScore,
-    player.currentScore,
-    1600,
-    phase === PHASES.RUNUP,
-    phase !== PHASES.IDLE && phase !== PHASES.RUNUP
-  )
-
-  // Animate rank number from previousRank → currentRank during the REORDER phase
-  const displayRank = useAnimatedCounter(
-    player.previousRank,
-    player.currentRank,
-    900,
-    phase === PHASES.REORDER,
-    phase !== PHASES.IDLE && phase !== PHASES.RUNUP && phase !== PHASES.REORDER
-  )
-
-  const isFlashing = phase === PHASES.FLASH || phase === PHASES.DONE
-  const flashDelay = player.currentRank * 80
-  const rankDelta = player.previousRank - player.currentRank // positive = climbed
-
-  // Build CSS class list based on transition type + phase
-  const isEntering = player.transition === 'enter' && (phase === PHASES.REORDER)
-  const isLeaving  = player.transition === 'leave' && (phase === PHASES.REORDER || phase === PHASES.FLASH || phase === PHASES.DONE)
-
-  let rowClass = 'leaderboard-row'
-  if (isFlashing && !isLeaving) rowClass += ' flashing'
-  if (isEntering) rowClass += ' lb-entering'
-  if (isLeaving)  rowClass += ' lb-leaving'
-
-  return (
-    <div
-      ref={el => { rowRefs.current[player.id] = el }}
-      className={rowClass}
-      style={{
-        '--flash-delay': `${flashDelay}ms`,
-        position: 'absolute',
-        width: '100%',
-        top: `${index * ROW_STRIDE}px`,
-        boxSizing: 'border-box',
-      } as React.CSSProperties & { '--flash-delay': string }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-        {/* Rank badge — animates from old rank to new rank */}
-        <span style={{
-          fontSize: '26px',
-          fontWeight: 900,
-          minWidth: '52px',
-          color: displayRank === 1 ? '#ffd700'
-               : displayRank === 2 ? '#c0c0c0'
-               : displayRank === 3 ? '#cd7f32'
-               : isFlashing ? '#333' : '#aaa',
-        }}>
-          #{displayRank}
-        </span>
-
-        {/* Name */}
-        <span style={{ fontSize: '22px', fontWeight: 700 }}>{player.nickname}</span>
-
-        {/* 🔥 NEW tag for players entering the top 5 */}
-        {player.transition === 'enter' && (phase === PHASES.REORDER || phase === PHASES.FLASH) && (
-          <span className="lb-new-tag">🔥 NEW</span>
-        )}
-
-        {/* +points badge — visible during run-up only */}
-        {phase === PHASES.RUNUP && player.pointsEarned > 0 && (
-          <span className="points-earned">+{player.pointsEarned}</span>
-        )}
-
-        {/* Rank change arrow — visible after reorder */}
-        {isFlashing && !isLeaving && rankDelta !== 0 && (
-          <span style={{
-            color: rankDelta > 0 ? '#4ade80' : '#f87171',
-            fontWeight: 800,
-            fontSize: '18px',
-          }}>
-            {rankDelta > 0 ? '▲' : '▼'}
-          </span>
-        )}
-      </div>
-
-      {/* Score — tabular-nums prevents width jitter during count-up */}
-      <span className="lb-score">{displayScore.toLocaleString()} pts</span>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────
-// Podium block — one column of the final results podium.
-// Height animates in (grow-from-floor), avatar/name/score fade+pop in
-// slightly after the block starts rising so the eye follows the block up.
-// ─────────────────────────────────────────────
-interface PodiumConfig {
-  rank: 1 | 2 | 3
-  player: Player | undefined
-  heightVh: number
-  width: string
-  accent: string       // gradient for block + avatar ring
-  numberColor: string
-  revealAt: number      // podiumRevealStep threshold at which this column appears
-  isFirst?: boolean
-}
-
-function PodiumColumn({ cfg }: { cfg: PodiumConfig }) {
-  const { player, heightVh, width, accent, numberColor, isFirst } = cfg
-  if (!player) return <div style={{ width }} />
-
-  return (
-    <div className={`podium-col${isFirst ? ' podium-col--first' : ''}`}>
-      <div className="podium-player">
-        {isFirst && <span className="podium-crown">🏆</span>}
-        <div className="podium-avatar" style={{ background: accent }}>
-          {player.nickname.trim().charAt(0).toUpperCase()}
-        </div>
-        <span className="podium-name">{player.nickname}</span>
-        <span className="podium-score">{player.score.toLocaleString()} pts</span>
-      </div>
-
-      <div
-        className="podium-block"
-        style={{
-          height: `${heightVh}vh`,
-          width,
-          background: accent,
-        }}
-      >
-        <span className="podium-rank-number" style={{ color: numberColor }}>{cfg.rank}</span>
-      </div>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────
-// Main component
-// ─────────────────────────────────────────────
 export default function QuizHost() {
   const { codeSlug } = useParams()
   const navigate = useNavigate()
-  const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
-
   const { member } = useAuth()
-  const [otherHostActive, setOtherHostActive] = useState(false)
+
+  const [pin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString())
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [hostStatus, setHostStatus] = useState<'loading' | 'active' | 'locked'>('loading')
   const [activeHostName, setActiveHostName] = useState('')
   const [activeHostClaimedAt, setActiveHostClaimedAt] = useState<number | null>(null)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const [hostStatus, setHostStatus] = useState<'loading' | 'active' | 'locked'>('loading')
-  const [sessionId, setSessionId] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!activeHostClaimedAt || !otherHostActive) return
-    setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
-    const interval = setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [activeHostClaimedAt, otherHostActive])
-
-  // States: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
+  // Host state machine: lobby -> intro-build -> get-ready -> question -> answers -> leaderboard -> ended
   const [gameState, setGameState] = useState<'lobby' | 'intro-build' | 'get-ready' | 'question' | 'answers' | 'leaderboard' | 'ended'>('lobby')
   const [gameMode, setGameMode] = useState<'classic' | 'shared'>('classic')
   const [questions, setQuestions] = useState<Question[]>([])
@@ -292,198 +67,61 @@ export default function QuizHost() {
   const [players, setPlayers] = useState<Player[]>([])
   const [timer, setTimer] = useState(0)
   const [readyCountdown, setReadyCountdown] = useState(3)
+  const [introCountdown, setIntroCountdown] = useState(3)
+  const [introTitleShow, setIntroTitleShow] = useState(false)
   const [answerStats, setAnswerStats] = useState<number[]>([0, 0, 0, 0])
+  const [qrZoomed, setQrZoomed] = useState(false)
+
+  // Leaderboard & Podium States
+  const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
+  const [animationPhase, setAnimationPhase] = useState<'idle' | 'runup' | 'reorder' | 'flash' | 'done'>('idle')
+  const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<any[]>([])
+  const [podiumRevealStep, setPodiumRevealStep] = useState(0)
+  const [endedTab, setEndedTab] = useState<'podium' | 'full'>('podium')
+
   const channelRef = useRef<any>(null)
   const timerRef = useRef<any>(null)
   const readyTimerRef = useRef<any>(null)
+  const sessionIdRef = useRef<string | null>(null)
+  const playersRef = useRef<Player[]>([])
+  const gameStateRef = useRef(gameState)
 
-  const [isDemo, setIsDemo] = useState(false)
-  const [qrZoomed, setQrZoomed] = useState(false)
+  useEffect(() => { sessionIdRef.current = sessionId }, [sessionId])
+  useEffect(() => { playersRef.current = players }, [players])
+  useEffect(() => { gameStateRef.current = gameState }, [gameState])
 
-  // Previous-round scores used as the "from" baseline for animations
-  const [prevLeaderboard, setPrevLeaderboard] = useState<Record<string, number>>({})
+  // Timer for lock screen elapsed time
+  useEffect(() => {
+    if (!activeHostClaimedAt || hostStatus !== 'locked') return
+    setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - activeHostClaimedAt) / 1000))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [activeHostClaimedAt, hostStatus])
 
+  // Host Control edge function invocation helper
   const sendHostControl = async (event: string, payload: any = {}) => {
-    if (!sessionId) return
+    const activeSessionId = sessionIdRef.current
+    if (!activeSessionId) return
+
     try {
       const { error } = await supabase.functions.invoke('quiz-host-control', {
         body: {
-          session_id: sessionId,
+          session_id: activeSessionId,
           action: event,
           payload
         }
       })
       if (error) {
-        throw error
+        console.error(`Host control error on ${event}:`, error)
       }
     } catch (e: any) {
-      console.error(`Error sending host control event ${event}:`, e)
-      toast.error(`Control error: ${e.message}`)
+      console.error(`Failed sending host control event ${event}:`, e)
     }
   }
 
-  const handleShareLink = () => {
-    const playUrl = `${window.location.origin}/quiz/play?pin=${pin}`
-    navigator.clipboard.writeText(playUrl).then(() => {
-      toast.success('Lobby join link copied to clipboard!')
-    }).catch(() => {
-      toast.error('Failed to copy link')
-    })
-  }
-
-  const handleKickPlayer = (player: Player) => {
-    if (confirm(`Are you sure you want to kick "${player.nickname}" from the lobby?`)) {
-      setPlayers(prev => {
-        const next = prev.filter(p => p.id !== player.id)
-        
-        // Notify lobby update
-        sendHostControl('lobby-update', { players: next.map(p => p.nickname) })
-        
-        // Unicast kick message
-        sendHostControl('player-kicked', { targetPlayerId: player.id })
-
-        return next
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (!qrZoomed) return
-
-    const handleGlobalClick = () => {
-      setQrZoomed(false)
-    }
-    const timer = setTimeout(() => {
-      window.addEventListener('click', handleGlobalClick)
-    }, 0)
-
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('click', handleGlobalClick)
-    }
-  }, [qrZoomed])
-
-  // Players enriched with rank/score delta data, sliced to top 5
-  const [activeLeaderboardPlayers, setActiveLeaderboardPlayers] = useState<LeaderboardPlayerData[]>([])
-
-  // Current animation phase
-  const [animationPhase, setAnimationPhase] = useState<Phase>(PHASES.IDLE)
-
-  // FLIP refs — rowRefs holds DOM nodes, prevPositions holds pre-reorder Y coords
-  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const prevPositions = useRef<Record<string, number>>({})
-
-  // Intro animation state
-  const [introCountdown, setIntroCountdown] = useState(3)
-  const [introTitleShow, setIntroTitleShow] = useState(false)
-
-  // Ended screen
-  const [endedTab, setEndedTab] = useState<'podium' | 'summary'>('podium')
-  // 0 = nothing risen yet, 1 = 3rd place risen, 2 = 2nd place risen, 3 = 1st place risen (finale)
-  const [podiumRevealStep, setPodiumRevealStep] = useState<number>(0)
-  const podiumTimersRef = useRef<any[]>([])
-
-  // Track players who answered current question to prevent duplicates
-  const [answeredPlayerIds, setAnsweredPlayerIds] = useState<string[]>([])
-
-  // State refs to prevent stale closures in realtime handlers
-  const gameStateRef = useRef(gameState)
-  const playersRef = useRef(players)
-  const currentIndexRef = useRef(currentIndex)
-  const questionsRef = useRef(questions)
-  const answeredPlayerIdsRef = useRef(answeredPlayerIds)
-  const answerStatsRef = useRef(answerStats)
-
-  useEffect(() => { gameStateRef.current = gameState }, [gameState])
-  useEffect(() => { playersRef.current = players }, [players])
-  useEffect(() => { currentIndexRef.current = currentIndex }, [currentIndex])
-  useEffect(() => { questionsRef.current = questions }, [questions])
-  useEffect(() => { answeredPlayerIdsRef.current = answeredPlayerIds }, [answeredPlayerIds])
-  useEffect(() => { answerStatsRef.current = answerStats }, [answerStats])
-
-  // ── beforeunload Prevention ────────────────────────────────────────────────
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (gameStateRef.current !== 'lobby' && gameStateRef.current !== 'ended') {
-        e.preventDefault()
-        e.returnValue = 'A quiz is currently in progress. Leaving will disconnect all players.'
-        return e.returnValue
-      }
-    }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [])
-
-  // ── State Persistence (Save) ───────────────────────────────────────────────
-  const saveHostState = (stateName: string, index: number, playerList: Player[]) => {
-    try {
-      const stateToSave = {
-        pin,
-        gameState: stateName,
-        currentIndex: index,
-        players: playerList,
-        timestamp: Date.now()
-      }
-      localStorage.setItem(`quiz-host-session-${codeSlug}`, JSON.stringify(stateToSave))
-    } catch (e) {
-      console.warn('Failed to save quiz host state to localStorage:', e)
-    }
-  }
-
-  useEffect(() => {
-    if (gameState !== 'lobby' && gameState !== 'ended') {
-      saveHostState(gameState, currentIndex, players)
-    }
-  }, [gameState, currentIndex, players])
-
-  useEffect(() => {
-    if (gameState === 'ended') {
-      try {
-        localStorage.removeItem(`quiz-host-session-${codeSlug}`)
-      } catch (e) {
-        console.warn(e)
-      }
-    }
-  }, [gameState])
-
-  // ── State Persistence (Recovery on Mount) ─────────────────────────────────
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(`quiz-host-session-${codeSlug}`)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
-          setPin(parsed.pin)
-          setGameState(parsed.gameState)
-          setCurrentIndex(parsed.currentIndex)
-          setPlayers(parsed.players)
-          
-          const prevScores: Record<string, number> = {}
-          parsed.players.forEach((p: Player) => {
-            prevScores[p.id] = p.score
-          })
-          setPrevLeaderboard(prevScores)
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to parse stored host session:', e)
-    }
-  }, [codeSlug])
-
-  // ── Time synchronization broadcast ─────────────────────────────────────────
-  useEffect(() => {
-    if (gameState !== 'question' || !channelRef.current) return
-    const interval = setInterval(() => {
-      channelRef.current.send({
-        type: 'broadcast',
-        event: 'time-sync',
-        payload: { remainingSeconds: timer }
-      })
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [gameState, timer])
-
-  // ── Data fetching ──────────────────────────────────────────────────────────
+  // 1. Data Fetching & Session Claiming
   useEffect(() => {
     if (codeSlug && member) {
       setHostStatus('loading')
@@ -492,64 +130,61 @@ export default function QuizHost() {
         .select('id, title')
         .eq('code_slug', codeSlug)
         .single()
-        .then(async ({ data }) => {
-          if (data) {
-            setQuizTitle(data.title)
-            setQuizId(data.id)
-            
-            // Call atomic database claim RPC
-            try {
-              const { data: claimData, error: claimError } = await supabase.rpc('claim_quiz_session', {
-                p_quiz_id: data.id,
-                p_pin: pin,
-                p_user_id: member.user_id,
-                p_display: member.name
-              })
+        .then(async ({ data, error }) => {
+          if (error || !data) {
+            toast.error('Quiz not found.')
+            navigate('/admin/quiz')
+            return
+          }
 
-              if (claimError || !claimData) {
-                console.error('Claim RPC error:', claimError)
-                toast.error('Failed to claim hosting session.')
-                setHostStatus('locked')
-                return
-              }
+          setQuizTitle(data.title)
+          setQuizId(data.id)
 
-              if (claimData.status === 'locked') {
-                setActiveHostName(claimData.host_display || 'Another Admin')
-                setActiveHostClaimedAt(claimData.claimed_at)
-                setOtherHostActive(true)
-                setHostStatus('locked')
-              } else {
-                setSessionId(claimData.session_id)
-                setOtherHostActive(false)
-                setHostStatus('active')
-              }
-            } catch (err) {
-              console.error('Error claiming session:', err)
+          // Fetch questions
+          const { data: qData } = await supabase
+            .from('quiz_questions')
+            .select('*')
+            .eq('quiz_id', data.id)
+            .order('sort_order', { ascending: true })
+
+          if (qData) {
+            setQuestions(qData)
+          }
+
+          // Atomic session claim via RPC
+          try {
+            const { data: claimData, error: claimErr } = await supabase.rpc('claim_quiz_session', {
+              p_quiz_id: data.id,
+              p_pin: pin,
+              p_user_id: member.user_id,
+              p_display: member.name || 'Admin Host'
+            })
+
+            if (claimErr) throw claimErr
+
+            if (claimData && (claimData.status === 'claimed' || claimData.status === 'recovered')) {
+              setSessionId(claimData.session_id)
+              setHostStatus('active')
+            } else if (claimData && claimData.status === 'locked') {
+              setActiveHostName(claimData.host_display || 'Another Admin')
+              setActiveHostClaimedAt(claimData.claimed_at)
               setHostStatus('locked')
             }
-
-            supabase
-              .from('quiz_questions')
-              .select('*')
-              .eq('quiz_id', data.id)
-              .order('sort_order', { ascending: true })
-              .then(({ data: qData }) => {
-                if (qData) setQuestions(qData)
-              })
+          } catch (e: any) {
+            console.error('Session claim error:', e)
+            toast.error('Failed to initialize host session.')
           }
         })
     }
   }, [codeSlug, member])
 
-  // ── Heartbeat & Session Cleanups ──────────────────────────────────────────
+  // 2. Heartbeat & Cleanup Setup
   useEffect(() => {
     if (hostStatus !== 'active' || !sessionId || !member) return
 
     let accessToken = ''
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        accessToken = session.access_token
-      }
+      if (session) accessToken = session.access_token
     })
 
     const sendHeartbeat = async () => {
@@ -558,413 +193,211 @@ export default function QuizHost() {
           body: { session_id: sessionId }
         })
       } catch (e) {
-        console.warn('Failed to send heartbeat:', e)
+        console.warn('Heartbeat failed:', e)
       }
     }
 
     const interval = setInterval(sendHeartbeat, 15000)
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        sendHeartbeat()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    // Unload cleanup beacon
     const handleUnloadCleanup = () => {
       if (!accessToken) return
-      const payload = JSON.stringify({
-        session_id: sessionId,
-        access_token: accessToken
-      })
+      const payload = JSON.stringify({ session_id: sessionId, access_token: accessToken })
       const blob = new Blob([payload], { type: 'application/json' })
-      const functionsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/quiz-session-cleanup`
-      navigator.sendBeacon(functionsUrl, blob)
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/quiz-session-cleanup`
+      navigator.sendBeacon(url, blob)
     }
 
     window.addEventListener('unload', handleUnloadCleanup)
 
-    // Warn before navigating away
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-      e.returnValue = 'Are you sure you want to exit? This will release your hosting session.'
-      return e.returnValue
-    }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
     return () => {
       clearInterval(interval)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('unload', handleUnloadCleanup)
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-      
-      // Trigger graceful cleanup on unmount
-      handleUnloadCleanup()
     }
   }, [hostStatus, sessionId, member])
 
-  // Stable refs so interval callbacks can call the latest endQuestion
-  const endQuestionRef = useRef<() => void>(() => {})
-  const showLeaderboardRef = useRef<() => void>(() => {})
+  // 3. Presence & Realtime Broadcast listener
   useEffect(() => {
-    endQuestionRef.current = endQuestion
-    showLeaderboardRef.current = showLeaderboard
-  })
+    if (!member || hostStatus !== 'active') return
 
-  // Throttled batch lobby-update broadcast helper
-  const lobbyUpdateTimeoutRef = useRef<any>(null)
-  const triggerLobbyUpdate = () => {
-    if (lobbyUpdateTimeoutRef.current) return
-    lobbyUpdateTimeoutRef.current = setTimeout(() => {
-      lobbyUpdateTimeoutRef.current = null
-      if (gameStateRef.current === 'lobby') {
-        sendHostControl('lobby-update', { players: playersRef.current.map(p => p.nickname) })
-      }
-    }, 500)
-  }
-
-  // ── Realtime channel ───────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!member) return
-
-    // Host presence channel — isolated from player traffic
+    // Presence channel to detect secondary host joins
     const hostPresenceChannel = supabase.channel(`quiz-host-${pin}`, {
       config: { presence: { key: 'host' } }
     })
 
-    // Player broadcast channel
+    // Player channel
     const playerChannel = supabase.channel(`quiz-${pin}`, {
       config: { broadcast: { self: true, ack: true } }
     })
 
-    hostPresenceChannel.on('presence', { event: 'sync' }, async () => {
+    hostPresenceChannel.on('presence', { event: 'sync' }, () => {
       const state = hostPresenceChannel.presenceState()
       const hostList = state.host || []
-
-      const anotherHostTracked = hostList.some((h: any) => h.user_id !== member.user_id)
-      
-      if (!anotherHostTracked && otherHostActive && quizId) {
-        try {
-          const { data: claimData } = await supabase.rpc('claim_quiz_session', {
-            p_quiz_id: quizId,
-            p_pin: pin,
-            p_user_id: member.user_id,
-            p_display: member.name
-          })
-          
-          if (claimData && (claimData.status === 'claimed' || claimData.status === 'recovered')) {
-            setSessionId(claimData.session_id)
-            setOtherHostActive(false)
-            setHostStatus('active')
-            toast.success('Takeover successful! You are now the active host.')
-          } else if (claimData && claimData.status === 'locked') {
-            setActiveHostName(claimData.host_display || 'Another Admin')
-            setActiveHostClaimedAt(claimData.claimed_at)
-            setOtherHostActive(true)
-            setHostStatus('locked')
-          }
-        } catch (e) {
-          console.error('Takeover claim failed:', e)
-        }
-        return
-      }
-
-      if (hostList.length === 0) return
-
-      const sorted = [...hostList].sort((a, b) => a.claimed_at - b.claimed_at)
-      const winner = sorted[0]
-
-      if (winner.user_id !== member.user_id) {
-        setOtherHostActive(true)
-        setActiveHostName(winner.display_name || 'Another Admin')
-        setActiveHostClaimedAt(winner.claimed_at)
+      const secondaryHost = hostList.some((h: any) => h.user_id !== member.user_id)
+      if (secondaryHost) {
         setHostStatus('locked')
       }
     })
 
+    hostPresenceChannel.subscribe(async (statusVal) => {
+      if (statusVal === 'SUBSCRIBED') {
+        await hostPresenceChannel.track({ user_id: member.user_id, display: member.name })
+      }
+    })
+
+    // Listen for player broadcast actions
     playerChannel
       .on('broadcast', { event: 'player-join' }, ({ payload }) => {
-        const nameCollision = playersRef.current.some(p => p.nickname.toLowerCase() === payload.nickname.toLowerCase())
-        const MAX_PLAYERS = 100
+        const { id, nickname } = payload
+        const currentPlayers = playersRef.current
 
         if (gameStateRef.current !== 'lobby') {
           playerChannel.send({
             type: 'broadcast',
             event: 'join-ack',
-            payload: { targetPlayerId: payload.id, rejected: true, reason: 'game_in_progress', currentPhase: gameStateRef.current }
+            payload: { targetPlayerId: id, success: false, rejected: true, reason: 'game_in_progress' }
           })
           return
         }
 
-        if (nameCollision) {
+        if (currentPlayers.some(p => p.nickname.toLowerCase() === nickname.toLowerCase())) {
           playerChannel.send({
             type: 'broadcast',
             event: 'join-ack',
-            payload: { targetPlayerId: payload.id, rejected: true, reason: 'name_taken' }
+            payload: { targetPlayerId: id, success: false, rejected: true, reason: 'name_taken' }
           })
           return
         }
 
-        if (playersRef.current.length >= MAX_PLAYERS) {
-          playerChannel.send({
-            type: 'broadcast',
-            event: 'join-ack',
-            payload: { targetPlayerId: payload.id, rejected: true, reason: 'session_full' }
-          })
-          return
-        }
+        const updated = [...currentPlayers, { id, nickname, score: 0, answered: false }]
+        setPlayers(updated)
 
-        setPlayers((prev) => {
-          if (prev.some((p) => p.id === payload.id)) return prev
-          const next = [...prev, { id: payload.id, nickname: payload.nickname, score: 0, answered: false }]
-          return next
-        })
-
-        // Unicast acknowledgement specifically to the newly joined player
         playerChannel.send({
           type: 'broadcast',
           event: 'join-ack',
-          payload: { targetPlayerId: payload.id, pin, success: true }
+          payload: { targetPlayerId: id, success: true }
         })
 
-        // Fire throttled lobby update
-        triggerLobbyUpdate()
+        sendHostControl('lobby-update', { players: updated.map(p => p.nickname) })
       })
       .on('broadcast', { event: 'player-rejoin' }, ({ payload }) => {
-        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
-        if (existingPlayer) {
+        const { id, nickname } = payload
+        const currentPlayers = playersRef.current
+        const existing = currentPlayers.find(p => p.id === id || p.nickname.toLowerCase() === nickname.toLowerCase())
+
+        if (existing) {
           playerChannel.send({
             type: 'broadcast',
             event: 'rejoin-ack',
             payload: {
-              targetPlayerId: payload.id,
+              targetPlayerId: id,
               success: true,
               gameState: gameStateRef.current,
-              currentIndex: currentIndexRef.current,
-              currentQuestion: questionsRef.current[currentIndexRef.current],
-              score: existingPlayer.score
+              score: existing.score
             }
           })
         } else {
           playerChannel.send({
             type: 'broadcast',
             event: 'rejoin-ack',
-            payload: { targetPlayerId: payload.id, success: false, reason: 'player_not_found' }
+            payload: { targetPlayerId: id, success: false }
           })
         }
       })
-      .on('broadcast', { event: 'state-request' }, ({ payload }) => {
-        const existingPlayer = playersRef.current.find(p => p.id === payload.id)
-        playerChannel.send({
-          type: 'broadcast',
-          event: 'rejoin-ack',
-          payload: {
-            targetPlayerId: payload.id,
-            success: true,
-            gameState: gameStateRef.current,
-            currentIndex: currentIndexRef.current,
-            currentQuestion: questionsRef.current[currentIndexRef.current],
-            score: existingPlayer ? existingPlayer.score : 0
-          }
-        })
-      })
       .on('broadcast', { event: 'player-answer' }, ({ payload }) => {
-        // Discard duplicates
-        if (answeredPlayerIdsRef.current.includes(payload.id)) {
-          return
-        }
-        setAnsweredPlayerIds(prev => [...prev, payload.id])
+        const { id, optionIndex, timeSpent } = payload
 
-        // Acknowledge receipt of answer
+        setPlayers(prev => {
+          const currentQ = questions[currentIndex]
+          if (!currentQ) return prev
+
+          return prev.map(p => {
+            if (p.id !== id || p.answered) return p
+
+            const isCorrect = optionIndex === currentQ.correct_option
+            let points = 0
+            if (isCorrect) {
+              const clampedTimeSpent = Math.max(0, Math.min(timeSpent, currentQ.time_limit))
+              points = Math.round(1000 * (1 - clampedTimeSpent / (2 * currentQ.time_limit)))
+              points = Math.max(500, Math.min(1000, points))
+            }
+
+            return {
+              ...p,
+              score: p.score + points,
+              answered: true
+            }
+          })
+        })
+
+        setAnswerStats(prev => {
+          const next = [...prev]
+          if (optionIndex >= 0 && optionIndex <= 3) {
+            next[optionIndex] += 1
+          }
+          return next
+        })
+
         playerChannel.send({
           type: 'broadcast',
           event: 'answer-ack',
-          payload: { targetPlayerId: payload.id, success: true }
-        })
-
-        setPlayers((prev) => {
-          const updated = prev.map((p) => {
-            if (p.id === payload.id) {
-              const currentQuestion = questionsRef.current[currentIndexRef.current]
-              const isCorrect = payload.optionIndex === currentQuestion.correct_option
-              let points = 0
-              if (isCorrect) {
-                const ratio = payload.timeSpent / currentQuestion.time_limit
-                points = Math.round(1000 * (1 - ratio * 0.5))
-              }
-              return { ...p, score: p.score + points, answered: true }
-            }
-            return p
-          })
-          const allAnswered = updated.length > 0 && updated.every(p => p.answered)
-          if (allAnswered) setTimeout(() => endQuestionRef.current(), 100)
-          return updated
-        })
-        setAnswerStats((prev) => {
-          const next = [...prev]
-          if (payload.optionIndex >= 0 && payload.optionIndex < 4) next[payload.optionIndex]++
-          return next
+          payload: { targetPlayerId: id }
         })
       })
-
-    // Subscribe to both
-    playerChannel.subscribe()
-    hostPresenceChannel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        await hostPresenceChannel.track({
-          user_id: member.user_id,
-          display_name: member.name,
-          claimed_at: Date.now()
+      .on('broadcast', { event: 'state-request' }, ({ payload }) => {
+        const { id } = payload
+        const currentQ = questions[currentIndex]
+        playerChannel.send({
+          type: 'broadcast',
+          event: 'sync-state',
+          payload: {
+            targetPlayerId: id,
+            gameState: gameStateRef.current,
+            currentQuestion: currentQ ? { question_text: currentQ.question_text, options: currentQ.options } : undefined
+          }
         })
-      }
-    })
+      })
+      .subscribe()
 
     channelRef.current = playerChannel
+
     return () => {
-      playerChannel.unsubscribe()
       hostPresenceChannel.unsubscribe()
+      playerChannel.unsubscribe()
     }
-  }, [pin, member])
+  }, [member, hostStatus, pin, questions, currentIndex])
 
-  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  // 4. Auto-advance question when all players have answered
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code !== 'Space') return
-      e.preventDefault()
-      if (gameState === 'question') {
-        endQuestion()
-      } else if (gameState === 'answers') {
-        if (currentIndex + 1 < questions.length) {
-          showLeaderboard()
-        } else {
-          triggerEndQuiz()
-        }
-      } else if (gameState === 'leaderboard' && animationPhase === PHASES.DONE) {
-        nextStep()
-      }
+    if (gameState !== 'question' || players.length === 0) return
+    const allAnswered = players.every(p => p.answered)
+    if (allAnswered) {
+      if (timerRef.current) clearInterval(timerRef.current)
+      endQuestion()
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [gameState, currentIndex, questions, players, animationPhase])
+  }, [players, gameState])
 
-  // ── Demo bot simulation ────────────────────────────────────────────────────
+  // 5. Time sync broadcast interval during question phase
   useEffect(() => {
-    if (gameState !== 'question' || !isDemo || players.length === 0) return
-    players.forEach(p => {
-      const delay = Math.random() * 4000 + 1000
-      setTimeout(() => {
-        if (gameState !== 'question') return
-        const randOption = Math.floor(Math.random() * 4)
-        setPlayers((prev) => {
-          const updated = prev.map(pl => {
-            if (pl.id !== p.id || pl.answered) return pl
-            const q = questions[currentIndex]
-            const isCorrect = randOption === q.correct_option
-            const points = isCorrect ? Math.round(1000 * (1 - (delay / 1000) / q.time_limit * 0.5)) : 0
-            return { ...pl, score: pl.score + points, answered: true }
-          })
-          if (updated.length > 0 && updated.every(pl => pl.answered))
-            setTimeout(() => endQuestionRef.current(), 100)
-          return updated
-        })
-        setAnswerStats((prev) => {
-          const next = [...prev]; next[randOption]++; return next
-        })
-      }, delay)
-    })
-  }, [gameState, isDemo])
+    if (gameState !== 'question') return
+    const interval = setInterval(() => {
+      sendHostControl('time-sync', { remainingSeconds: timer })
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [gameState, timer])
 
-  // ── FLIP Step 1: snapshot Y positions BEFORE the DOM reorders ─────────────
-  // Runs when phase transitions to RUNUP (rows are still in previousRank order)
-  useEffect(() => {
-    if (gameState !== 'leaderboard' || animationPhase !== PHASES.RUNUP) return
-    Object.entries(rowRefs.current).forEach(([id, el]) => {
-      if (el) prevPositions.current[id] = el.getBoundingClientRect().top
-    })
-  }, [animationPhase, gameState])
+  // Game state handlers
+  const handleKickPlayer = (player: Player) => {
+    if (confirm(`Kick ${player.nickname}?`)) {
+      const updated = players.filter(p => p.id !== player.id)
+      setPlayers(updated)
+      sendHostControl('player-kicked', { targetPlayerId: player.id })
+      sendHostControl('lobby-update', { players: updated.map(p => p.nickname) })
+    }
+  }
 
-  // ── FLIP Step 2: apply invert→play when REORDER phase starts ──────────────
-  // Only applies to 'stay' players (enter/leave use CSS keyframes instead).
-  // Clears the inline transition after 900ms so the flash CSS class works.
-  useEffect(() => {
-    if (gameState !== 'leaderboard' || animationPhase !== PHASES.REORDER) return
-
-    const stayIds = new Set(
-      activeLeaderboardPlayers.filter(p => p.transition === 'stay').map(p => p.id)
-    )
-
-    Object.entries(rowRefs.current).forEach(([id, el]) => {
-      if (!el || !stayIds.has(id) || prevPositions.current[id] == null) return
-
-      const oldTop = prevPositions.current[id]
-      const newTop = el.getBoundingClientRect().top
-      const deltaY = oldTop - newTop
-
-      // INVERT: snap back to old visual position without transition
-      el.style.transition = 'none'
-      el.style.transform = `translateY(${deltaY}px)`
-
-      // PLAY: double-rAF ensures browser paints the snapped state first
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          el.style.transition = 'transform 900ms cubic-bezier(0.4, 0, 0.2, 1)'
-          el.style.transform = 'translateY(0)'
-        })
-      })
-    })
-
-    // Clear inline transition after reorder finishes so CSS flash classes work
-    const clearTimer = setTimeout(() => {
-      Object.entries(rowRefs.current).forEach(([, el]) => {
-        if (el) {
-          el.style.transition = ''
-          el.style.transform = ''
-        }
-      })
-    }, 950) // slightly after the 900ms FLIP animation
-
-    return () => clearTimeout(clearTimer)
-  }, [animationPhase, gameState, activeLeaderboardPlayers])
-
-  // Clean up any pending podium timers if the component unmounts mid-reveal
-  useEffect(() => {
-    return () => { podiumTimersRef.current.forEach(clearTimeout) }
-  }, [])
-
-  // ── Game flow ──────────────────────────────────────────────────────────────
   const startQuiz = () => {
     if (questions.length === 0) return
     triggerIntroBuild()
-  }
-
-  const startDemo = () => {
-    setIsDemo(true)
-    const botNames = [
-      'SIGBot_Alpha 🤖', 'SIGBot_Beta 🤖', 'SIGBot_Gamma 🤖', 'SIGBot_Delta 🤖',
-      'SIGBot_Epsilon 🤖', 'SIGBot_Zeta 🤖', 'SIGBot_Eta 🤖', 'SIGBot_Theta 🤖',
-      'SIGBot_Iota 🤖', 'SIGBot_Kappa 🤖'
-    ]
-    
-    botNames.forEach((name, i) => {
-      setTimeout(() => {
-        setPlayers((prev) => {
-          if (prev.some(p => p.nickname === name)) return prev
-          const newBot = {
-            id: `bot${i}`,
-            nickname: name,
-            score: 0,
-            answered: false
-          }
-          const next = [...prev, newBot]
-          
-          // Send lobby update message
-          sendHostControl('lobby-update', { players: next.map(b => b.nickname) })
-          
-          return next
-        })
-      }, (i + 1) * (Math.random() * 200 + 150))
-    })
   }
 
   const triggerIntroBuild = () => {
@@ -972,12 +405,13 @@ export default function QuizHost() {
     setIntroCountdown(3)
     setIntroTitleShow(false)
     sendHostControl('get-ready', { questionText: 'Get Ready...', questionIndex: 1, totalQuestions: questions.length, gameMode })
+
     let elapsed = 3
-    const introInterval = setInterval(() => {
+    const interval = setInterval(() => {
       elapsed -= 1
       setIntroCountdown(elapsed)
       if (elapsed <= 0) {
-        clearInterval(introInterval)
+        clearInterval(interval)
         setIntroTitleShow(true)
         setTimeout(() => triggerGetReady(0), 2500)
       }
@@ -987,15 +421,25 @@ export default function QuizHost() {
   const triggerGetReady = (index: number) => {
     setCurrentIndex(index)
     setAnswerStats([0, 0, 0, 0])
-    setAnsweredPlayerIds([])
     setPlayers(prev => prev.map(p => ({ ...p, answered: false })))
     setGameState('get-ready')
     setReadyCountdown(3)
-    sendHostControl('get-ready', { questionText: questions[index].question_text, questionIndex: index + 1, totalQuestions: questions.length, gameMode })
+
+    sendHostControl('get-ready', {
+      questionText: questions[index].question_text,
+      questionIndex: index + 1,
+      totalQuestions: questions.length,
+      gameMode
+    })
+
     if (readyTimerRef.current) clearInterval(readyTimerRef.current)
     readyTimerRef.current = setInterval(() => {
       setReadyCountdown(prev => {
-        if (prev <= 1) { clearInterval(readyTimerRef.current); startQuestionTimer(index); return 0 }
+        if (prev <= 1) {
+          clearInterval(readyTimerRef.current)
+          startQuestionTimer(index)
+          return 0
+        }
         return prev - 1
       })
     }, 1000)
@@ -1005,11 +449,22 @@ export default function QuizHost() {
     setGameState('question')
     const q = questions[index]
     setTimer(q.time_limit)
-    sendHostControl('next-question', { questionText: q.question_text, options: q.options, timeLimit: q.time_limit, gameMode })
+
+    sendHostControl('next-question', {
+      questionText: q.question_text,
+      options: q.options,
+      timeLimit: q.time_limit,
+      gameMode
+    })
+
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = setInterval(() => {
       setTimer(prev => {
-        if (prev <= 1) { clearInterval(timerRef.current); endQuestion(); return 0 }
+        if (prev <= 1) {
+          clearInterval(timerRef.current)
+          endQuestion()
+          return 0
+        }
         return prev - 1
       })
     }, 1000)
@@ -1018,355 +473,157 @@ export default function QuizHost() {
   const endQuestion = () => {
     if (timerRef.current) clearInterval(timerRef.current)
     setGameState('answers')
-    sendHostControl('time-up', { correctOption: questions[currentIndex].correct_option, answerStats })
+    sendHostControl('time-up', {
+      correctOption: questions[currentIndex].correct_option,
+      answerStats
+    })
   }
 
-  // ── showLeaderboard — Kahoot-style 4-phase animation with enter/leave ───────
-  //
-  // IDLE:    Show the PREVIOUS top 5 with their old ranks (snapshot of last round)
-  // RUNUP:   Score count-up on those same 5 rows
-  // REORDER: Swap to the UNION of old-top-5 ∪ new-top-5.
-  //          • 'stay'  players: FLIP-animate to their new slot
-  //          • 'leave' players: fade+slide out (fell out of top 5)
-  //          • 'enter' players: fade+slide in from below (rose into top 5)
-  // FLASH:   Filter out leavers, white-flash the final 5
-  // DONE:    Commit scores as next-round baseline
   const showLeaderboard = () => {
     const oldSorted = [...players].sort((a, b) => (prevLeaderboard[b.id] ?? 0) - (prevLeaderboard[a.id] ?? 0))
     const newSorted = [...players].sort((a, b) => b.score - a.score)
 
     const oldTop5 = oldSorted.slice(0, 5)
     const newTop5 = newSorted.slice(0, 5)
-    const oldTop5Ids = new Set(oldTop5.map(p => p.id))
     const newTop5Ids = new Set(newTop5.map(p => p.id))
 
-    // Helper to enrich a player with rank/score data
-    const enrich = (p: Player, transition: 'stay' | 'enter' | 'leave'): LeaderboardPlayerData => ({
-      id:            p.id,
-      nickname:      p.nickname,
+    const enrich = (p: Player, transition: 'stay' | 'enter' | 'leave') => ({
+      id: p.id,
+      nickname: p.nickname,
       previousScore: prevLeaderboard[p.id] ?? 0,
-      currentScore:  p.score,
-      pointsEarned:  p.score - (prevLeaderboard[p.id] ?? 0),
-      previousRank:  oldSorted.findIndex(x => x.id === p.id) + 1,
-      currentRank:   newSorted.findIndex(x => x.id === p.id) + 1,
-      transition,
+      currentScore: p.score,
+      pointsEarned: p.score - (prevLeaderboard[p.id] ?? 0),
+      previousRank: oldSorted.findIndex(x => x.id === p.id) + 1,
+      currentRank: newSorted.findIndex(x => x.id === p.id) + 1,
+      transition
     })
 
-    // ── IDLE data: real previous top 5, with their old ranks ──
     const idleData = oldTop5.map(p => enrich(p, 'stay'))
-
     setActiveLeaderboardPlayers(idleData)
-    setAnimationPhase(PHASES.IDLE)
+    setAnimationPhase('idle')
     setGameState('leaderboard')
 
-    // ── Pre-compute union for REORDER ──
-    const stayData  = oldTop5.filter(p =>  newTop5Ids.has(p.id)).map(p => enrich(p, 'stay'))
+    const stayData = oldTop5.filter(p => newTop5Ids.has(p.id)).map(p => enrich(p, 'stay'))
     const leaveData = oldTop5.filter(p => !newTop5Ids.has(p.id)).map(p => enrich(p, 'leave'))
-    const enterData = newTop5.filter(p => !oldTop5Ids.has(p.id)).map(p => enrich(p, 'enter'))
+    const enterData = newTop5.filter(p => !newTop5Ids.has(p.id)).map(p => enrich(p, 'enter'))
     const unionData = [...stayData, ...enterData, ...leaveData]
-
-    // ── Pre-compute flash data: only current top 5 ──
     const flashData = newTop5.map(p => enrich(p, 'stay'))
 
-    // Phase timing (ms from leaderboard mount):
-    // 500  — initial pause, let host read old state
-    // 2100 — run-up complete (1600ms) → reorder with enter/leave
-    // 3300 — reorder complete (1200ms space) → flash (leavers removed)
-    // 4300 — flash complete → done
-
-    const t1 = setTimeout(() => setAnimationPhase(PHASES.RUNUP), 500)
-
-    const t2 = setTimeout(() => {
-      // Swap to union — React re-renders, FLIP step 2 fires for 'stay' players
+    setTimeout(() => setAnimationPhase('runup'), 500)
+    setTimeout(() => {
       setActiveLeaderboardPlayers(unionData)
-      setAnimationPhase(PHASES.REORDER)
+      setAnimationPhase('reorder')
     }, 2100)
-
-    const t3 = setTimeout(() => {
-      // Remove leavers, keep only current top 5
+    setTimeout(() => {
       setActiveLeaderboardPlayers(flashData)
-      setAnimationPhase(PHASES.FLASH)
+      setAnimationPhase('flash')
     }, 3300)
+    setTimeout(() => {
+      setAnimationPhase('done')
+      const updatedPrevScores: Record<string, number> = {}
+      players.forEach(p => { updatedPrevScores[p.id] = p.score })
+      setPrevLeaderboard(updatedPrevScores)
 
-    const t4 = setTimeout(() => {
-      setAnimationPhase(PHASES.DONE)
-
-      // Commit scores so next round uses these as the baseline
-      const nextPrev: Record<string, number> = {}
-      players.forEach(p => { nextPrev[p.id] = p.score })
-      setPrevLeaderboard(nextPrev)
-
-      // Notify player devices of their new rankings
       const standingsMapping: Record<string, { rank: number; score: number }> = {}
       newSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
       sendHostControl('leaderboard-update', { standings: standingsMapping })
     }, 4300)
-
-    // Cleanup if component unmounts mid-animation
-    return () => { [t1, t2, t3, t4].forEach(clearTimeout) }
   }
-
-  // ── Sort order flips at the REORDER phase boundary ─────────────────────────
-  // IDLE + RUNUP → previousRank order (old top 5, slots 1-5)
-  // REORDER      → stay+enter by currentRank, leavers pushed to end (slots 5+)
-  // FLASH + DONE → currentRank order (new top 5 only)
-  const displayedLeaderboardPlayers = useMemo(() => {
-    if (animationPhase === PHASES.IDLE || animationPhase === PHASES.RUNUP) {
-      return [...activeLeaderboardPlayers].sort((a, b) => a.previousRank - b.previousRank)
-    }
-    if (animationPhase === PHASES.REORDER) {
-      // Stay + enter sorted by currentRank (their new slot), leavers after
-      const visible = activeLeaderboardPlayers.filter(p => p.transition !== 'leave')
-        .sort((a, b) => a.currentRank - b.currentRank)
-      const leaving = activeLeaderboardPlayers.filter(p => p.transition === 'leave')
-        .sort((a, b) => a.currentRank - b.currentRank)
-      return [...visible, ...leaving]
-    }
-    // FLASH/DONE — only current top 5
-    return [...activeLeaderboardPlayers].sort((a, b) => a.currentRank - b.currentRank)
-  }, [activeLeaderboardPlayers, animationPhase])
 
   const nextStep = () => {
-    if (currentIndex + 1 < questions.length) triggerGetReady(currentIndex + 1)
-    else triggerEndQuiz()
+    if (currentIndex + 1 < questions.length) {
+      triggerGetReady(currentIndex + 1)
+    } else {
+      triggerEndQuiz()
+    }
   }
 
-  // ── triggerEndQuiz — Kahoot-style podium reveal ────────────────────────────
-  // 3rd place rises first, then 2nd, then 1st (the finale), each with its own
-  // confetti burst. Slowed down significantly for suspense and build-up.
   const triggerEndQuiz = () => {
     setGameState('ended')
     setEndedTab('podium')
     setPodiumRevealStep(0)
-    sendHostControl('podium-building', {})
+    sendHostControl('podium-building')
 
-    podiumTimersRef.current.forEach(clearTimeout)
-
-    // Podium reveal timers (×1.5 for dramatic build-up):
-    // 3rd place: 2250ms
-    // 2nd place: 4500ms (+2250ms)
-    // 1st place: 7800ms (+3300ms)
-
-    const t1 = setTimeout(() => {
-      setPodiumRevealStep(1) // 3rd place rises
-      confetti({ particleCount: 30, spread: 55, startVelocity: 32, origin: { x: 0.5, y: 0.85 } })
-    }, 2250)
-
-    const t2 = setTimeout(() => {
-      setPodiumRevealStep(2) // 2nd place rises
-      confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.28, y: 0.8 } })
-      confetti({ particleCount: 40, spread: 60, startVelocity: 38, origin: { x: 0.72, y: 0.8 } })
-    }, 4500)
-
-    const t3 = setTimeout(() => {
-      setPodiumRevealStep(3) // 1st place rises — finale (revealed slower)
-      confetti({ particleCount: 160, spread: 100, startVelocity: 55, origin: { x: 0.5, y: 0.6 } })
-      confetti({ particleCount: 70, angle: 60, spread: 55, startVelocity: 45, origin: { x: 0, y: 0.7 } })
-      confetti({ particleCount: 70, angle: 120, spread: 55, startVelocity: 45, origin: { x: 1, y: 0.7 } })
-
-      const finalSorted = [...players].sort((a, b) => b.score - a.score)
-      const standingsMapping: Record<string, { rank: number; score: number }> = {}
-      finalSorted.forEach((p, idx) => { standingsMapping[p.id] = { rank: idx + 1, score: p.score } })
-      sendHostControl('time-up', { correctOption: -1, standings: standingsMapping })
-    }, 7800)
-
-    podiumTimersRef.current = [t1, t2, t3]
+    setTimeout(() => setPodiumRevealStep(1), 1200) // 3rd place
+    setTimeout(() => setPodiumRevealStep(2), 2400) // 2nd place
+    setTimeout(() => {
+      setPodiumRevealStep(3) // 1st place
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
+    }, 3600)
   }
 
-  const handlePlayAgain = () => {
-    setGameState('lobby')
-    setPlayers([])
-    setCurrentIndex(0)
-    setPrevLeaderboard({})
-    setAnswerStats([0, 0, 0, 0])
-    setIsDemo(false)
-  }
+  const sortedPlayers = useMemo(() => {
+    return [...players].sort((a, b) => b.score - a.score)
+  }, [players])
 
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
-  const optionColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
-  const optionShapes = ['▲', '◆', '●', '■']
-  const totalAnsweredCount = players.filter(p => p.answered).length
-
-  // Podium column configuration — visual order is 2nd / 1st / 3rd (Kahoot's layout)
-  const podiumColumns: PodiumConfig[] = [
-    {
-      rank: 2,
-      player: sortedPlayers[1],
-      heightVh: 32,
-      width: 'clamp(120px, 15vw, 200px)',
-      accent: 'linear-gradient(160deg,#e9ecf2 0%,#a9b0bd 100%)',
-      numberColor: '#3a3f4a',
-      revealAt: 2,
-    },
-    {
-      rank: 1,
-      player: sortedPlayers[0],
-      heightVh: 46,
-      width: 'clamp(150px, 18vw, 240px)',
-      accent: 'linear-gradient(160deg,#ffe9a8 0%,#ffb020 100%)',
-      numberColor: '#5c3a00',
-      revealAt: 3,
-      isFirst: true,
-    },
-    {
-      rank: 3,
-      player: sortedPlayers[2],
-      heightVh: 22,
-      width: 'clamp(110px, 13vw, 170px)',
-      accent: 'linear-gradient(160deg,#f0bd8f 0%,#b3702f 100%)',
-      numberColor: '#402100',
-      revealAt: 1,
-    },
-  ]
-
-  // ── Render ─────────────────────────────────────────────────────────────────
   if (hostStatus === 'loading') {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#09090e', color: '#555', fontSize: '14px', letterSpacing: '2px', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#09090e', color: '#888', fontSize: '14px', letterSpacing: '2px', fontFamily: 'system-ui' }}>
         LOADING HOST SESSION...
       </div>
     )
   }
 
-  if (otherHostActive) {
+  if (hostStatus === 'locked') {
     return (
-      <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ textAlign: 'center', maxWidth: '480px', background: '#111', border: '1px solid #222', padding: '32px', borderRadius: '16px' }}>
+      <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontFamily: 'system-ui' }}>
+        <div style={{ textAlign: 'center', maxWidth: '480px', background: '#111116', border: '1px solid #222', padding: '32px', borderRadius: '16px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔒</div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#e91e63', marginBottom: '12px' }}>Session Locked</h2>
           <p style={{ color: '#888', lineHeight: 1.6, marginBottom: '24px' }}>
-            <strong>{activeHostName}</strong> is currently hosting this quiz (started {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s ago). Presenter control is restricted to one active host. You will automatically take over if they disconnect.
+            <strong>{activeHostName}</strong> is currently hosting this quiz (started {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s ago). Presenter control is restricted to one active host.
           </p>
-          <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(233,30,99,0.3)' }}>Return to Dashboard</button>
+          <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, cursor: 'pointer' }}>
+            Return to Dashboard
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '12px', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
-
-      {/* ── Zoomed QR Modal ── */}
-      {qrZoomed && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(9, 9, 14, 0.95)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000,
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={500} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK ANYWHERE TO CLOSE</div>
-          </div>
-          <h1 style={{ fontSize: '64px', margin: '24px 0 8px', letterSpacing: '-1px', fontWeight: 900 }}>PIN: <span style={{ color: '#e91e63' }}>{pin}</span></h1>
-          <p style={{ fontSize: '20px', color: '#888', fontWeight: 700 }}>Joined Players: <strong style={{ color: '#fff' }}>{players.length}</strong></p>
-        </div>
-      )}
-
-      {/* Return to Dashboard corner button */}
-      <button
-        onClick={() => { if (confirm('Exit hosting session?')) navigate('/admin/quiz') }}
-        style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s', fontWeight: 600, zIndex: 100 }}
-      >
+    <div style={{ background: '#09090e', height: '100vh', width: '100vw', color: '#fff', padding: '16px', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', overflow: 'hidden' }}>
+      
+      {/* Leave button */}
+      <button onClick={() => { if (confirm('Exit hosting session?')) navigate('/admin/quiz') }} style={{ position: 'absolute', top: '16px', left: '16px', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', zIndex: 100 }}>
         ← Leave
       </button>
 
       {/* 1. LOBBY */}
       {gameState === 'lobby' && (
-        <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.5s ease-out' }}>
-          <p style={{ fontSize: '18px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: '0 0 10px' }}>JOIN THE GAME AT <strong>/quiz/play</strong></p>
-          <h1 style={{ fontSize: '90px', margin: '0 0 16px', letterSpacing: '-2px', textShadow: '0 4px 15px rgba(0,0,0,0.4)', fontWeight: 900, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+        <div style={{ textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <p style={{ fontSize: '18px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: '0 0 10px' }}>JOIN AT <strong>/quiz/play</strong></p>
+          <h1 style={{ fontSize: '80px', margin: '0 0 16px', fontWeight: 900, lineHeight: 1 }}>
             PIN: <span style={{ color: '#e91e63' }}>{pin}</span>
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleShareLink() }} 
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', borderRadius: '50%', width: '48px', height: '48px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s' }}
-              title="Copy Join Link"
-            >
-              🔗
-            </button>
           </h1>
 
-          <div
-            onClick={(e) => { e.stopPropagation(); setQrZoomed(true) }}
-            style={{ background: '#fff', padding: '16px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', cursor: 'pointer', zIndex: 99, position: 'relative' }}
-          >
-            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={130} level="M" includeMargin={true} />
-            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px', letterSpacing: '1px' }}>CLICK TO ENLARGE</div>
+          <div onClick={() => setQrZoomed(true)} style={{ background: '#fff', padding: '16px', borderRadius: '20px', marginBottom: '24px', cursor: 'pointer' }}>
+            <QRCodeSVG value={`${window.location.origin}/quiz/play?pin=${pin}`} size={140} includeMargin={true} />
+            <div style={{ color: '#000', fontSize: '10px', fontWeight: 800, marginTop: '4px' }}>CLICK TO ENLARGE</div>
           </div>
 
-          <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px 40px', width: '100%', maxWidth: '95%', flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '30vh', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '20px', margin: '0 0 16px', color: '#e91e63', fontWeight: 800 }}>
-              {players.length === 0 ? 'Waiting for players to join...' : `Joined Players (${players.length})`}
+          <div style={{ background: '#111116', border: '1px solid #222', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '800px', flex: 1, maxHeight: '35vh', overflowY: 'auto', marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '18px', margin: '0 0 16px', color: '#e91e63', fontWeight: 800 }}>
+              Joined Players ({players.length})
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
-              {players.map((p, idx) => (
-                <div 
-                  key={p.id} 
-                  className="lobby-bubble"
-                  onClick={() => handleKickPlayer(p)}
-                  style={{ 
-                    background: getPlayerGradient(p.id),
-                    animationDelay: `${(idx % 5) * 0.4}s`
-                  }}
-                  title="Click to kick player"
-                >
-                  <span style={{ fontSize: '18px' }}>{getPlayerEmoji(p.id)}</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {players.map((p) => (
+                <div key={p.id} onClick={() => handleKickPlayer(p)} style={{ background: getPlayerGradient(p.id), color: '#fff', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>{getPlayerEmoji(p.id)}</span>
                   <span>{p.nickname}</span>
                 </div>
               ))}
             </div>
-            <style>{`
-              @keyframes lobbyFloat {
-                0%, 100% { transform: translateY(0px) rotate(0deg); }
-                25% { transform: translateY(-4px) rotate(-1deg); }
-                75% { transform: translateY(2px) rotate(1deg); }
-              }
-              .lobby-bubble {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                color: #fff;
-                font-weight: 700;
-                padding: 8px 20px;
-                border-radius: 30px;
-                font-size: 14px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                cursor: pointer;
-                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                border: 1px solid rgba(255,255,255,0.15);
-                animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, lobbyFloat 3s ease-in-out infinite alternate;
-              }
-              .lobby-bubble:hover {
-                transform: scale(1.1) rotate(1deg) !important;
-                box-shadow: 0 8px 20px rgba(233,30,99,0.3);
-                border-color: rgba(255,255,255,0.5);
-              }
-            `}</style>
           </div>
 
-          <div style={{ margin: '20px 0', width: '100%', maxWidth: '400px', background: '#111', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #222' }}>
-            <span style={{ fontSize: '12px', color: '#888', fontWeight: 700, letterSpacing: '1px' }}>LOBBY GAME MODE</span>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setGameMode('classic')} style={{ flex: 1, background: gameMode === 'classic' ? '#e91e63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '8px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}>Classic Mode</button>
-              <button onClick={() => setGameMode('shared')} style={{ flex: 1, background: gameMode === 'shared' ? '#e91e63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '8px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}>Shared Screen</button>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', background: '#111116', border: '1px solid #222', borderRadius: '8px', padding: '4px' }}>
+              <button onClick={() => setGameMode('classic')} style={{ background: gameMode === 'classic' ? '#e91e63' : 'transparent', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer' }}>Classic Mode</button>
+              <button onClick={() => setGameMode('shared')} style={{ background: gameMode === 'shared' ? '#e91e63' : 'transparent', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer' }}>Shared Screen</button>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <button onClick={startQuiz} disabled={players.length === 0} style={{ background: players.length === 0 ? '#222' : '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: players.length === 0 ? 'not-allowed' : 'pointer', boxShadow: players.length === 0 ? 'none' : '0 8px 25px rgba(233,30,99,0.4)', transition: 'all 0.2s' }}>
+            <button onClick={startQuiz} disabled={players.length === 0} style={{ background: players.length === 0 ? '#333' : '#e91e63', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 36px', fontSize: '18px', fontWeight: 800, cursor: players.length === 0 ? 'not-allowed' : 'pointer' }}>
               Start Quiz
-            </button>
-            <button onClick={startDemo} style={{ background: 'transparent', border: '2px solid #e91e63', color: '#e91e63', borderRadius: '6px', padding: '12px 30px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' }}>
-              Host Demo (10 Bots) 🤖
             </button>
           </div>
         </div>
@@ -1374,558 +631,173 @@ export default function QuizHost() {
 
       {/* 2. INTRO BUILD */}
       {gameState === 'intro-build' && (
-        <div style={{ background: '#09090e', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, left: 0, zIndex: 999 }}>
+        <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           {!introTitleShow ? (
-            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', width: '100%', boxSizing: 'border-box', justifyContent: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '1440px', margin: '0 auto', padding: '0 3.507%', position: 'relative' }}>
-                <span className="hero-title" style={{ position: 'static', fontSize: 'clamp(3rem, 10vw, 10vw)', color: '#E91E63', fontWeight: 900, fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', lineHeight: '0.536' }}>HYPERSPACE</span>
-                <span className="hero-subtitle" style={{ position: 'static', alignSelf: 'flex-end', fontSize: 'clamp(1.5rem, 4.64vw, 4.64vw)', color: '#fff', marginTop: '16px', fontFamily: 'mokoto, sans-serif', animation: 'scaleUpFadeGrow 3s forwards', letterSpacing: '0.05em', whiteSpace: 'nowrap', display: 'block', marginRight: 'max(3.507%, calc(96.493vw - (clamp(3rem, 10vw, 10vw) * 6.64)))' }}>XR SIG</span>
-              </div>
-              {introCountdown > 0 && <div style={{ fontSize: '24px', color: '#444', textAlign: 'center', marginTop: '40px', fontWeight: 600 }}>Starting in {introCountdown}...</div>}
-            </div>
+            <div style={{ fontSize: '120px', fontWeight: 900, color: '#e91e63' }}>{introCountdown}</div>
           ) : (
-            <div style={{ animation: 'fadeInOut 2.5s forwards', textAlign: 'center' }}>
-              <h1 style={{ fontSize: '64px', fontWeight: 900, letterSpacing: '-1px', color: '#fff' }}>{quizTitle}</h1>
+            <div>
+              <h2 style={{ fontSize: '24px', color: '#888', margin: '0 0 12px' }}>GET READY FOR</h2>
+              <h1 style={{ fontSize: '56px', fontWeight: 900, color: '#fff' }}>{quizTitle}</h1>
             </div>
           )}
         </div>
       )}
 
       {/* 3. GET READY */}
-      {gameState === 'get-ready' && questions[currentIndex] && (
-        <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.4s' }}>
-          <p style={{ fontSize: '20px', letterSpacing: '6px', color: '#e91e63', fontWeight: 700, margin: '0 0 10px' }}>GET READY FOR QUESTION {currentIndex + 1}</p>
-          <h1 style={{ fontSize: '44px', margin: '20px 0', fontWeight: 900, lineHeight: 1.2, maxWidth: '90%' }}>{questions[currentIndex].question_text}</h1>
-          <div style={{ fontSize: '130px', fontWeight: 950, color: '#e91e63', animation: 'pulse 1s infinite', lineHeight: 1 }}>{readyCountdown}</div>
+      {gameState === 'get-ready' && (
+        <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <h2 style={{ fontSize: '28px', color: '#e91e63', fontWeight: 800, margin: '0 0 16px' }}>QUESTION {currentIndex + 1} OF {questions.length}</h2>
+          <h1 style={{ fontSize: '40px', fontWeight: 800, maxWidth: '800px', margin: '0 0 32px' }}>{questions[currentIndex]?.question_text}</h1>
+          <div style={{ fontSize: '80px', fontWeight: 900, color: '#fff' }}>{readyCountdown}</div>
         </div>
       )}
 
-      {/* 4. QUESTION */}
-      {gameState === 'question' && questions[currentIndex] && (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s', padding: '0 16px' }}>
+      {/* 4. QUESTION ACTIVE */}
+      {gameState === 'question' && (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '32px 0 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '18px', color: '#888', fontWeight: 700, letterSpacing: '2px' }}>QUESTION {currentIndex + 1} OF {questions.length}</span>
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#888' }}>Answers: <span style={{ color: '#e91e63', fontSize: '28px' }}>{totalAnsweredCount}</span></div>
-              <div style={{ background: '#111', border: '1px solid #333', borderRadius: '50%', width: '80px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '36px', fontWeight: 900, color: '#fff', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>{timer}</div>
+            <span style={{ fontSize: '20px', fontWeight: 800, color: '#888' }}>{currentIndex + 1} / {questions.length}</span>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#e91e63', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '32px', fontWeight: 900 }}>
+              {timer}
             </div>
+            <span style={{ fontSize: '16px', color: '#888', fontWeight: 700 }}>Answers: {players.filter(p => p.answered).length} / {players.length}</span>
           </div>
 
-          <h2 style={{ fontSize: '40px', textAlign: 'center', margin: '20px 0', fontWeight: 900, lineHeight: 1.2, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{questions[currentIndex].question_text}</h2>
+          <h1 style={{ fontSize: '36px', textAlign: 'center', fontWeight: 800, margin: '20px 0' }}>
+            {questions[currentIndex]?.question_text}
+          </h1>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            {questions[currentIndex].options.map((opt, i) => (
-              <div key={i} style={{ background: optionColors[i], borderRadius: '12px', padding: '24px 32px', display: 'flex', alignItems: 'center', gap: '20px', fontSize: '24px', fontWeight: 700, boxShadow: '0 6px 15px rgba(0,0,0,0.2)' }}>
-                <span style={{ fontSize: '36px' }}>{optionShapes[i]}</span>
-                {opt}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+            {questions[currentIndex]?.options.map((opt, idx) => (
+              <div key={idx} style={{ background: optionColors[idx], padding: '24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px', fontSize: '22px', fontWeight: 700 }}>
+                <span>{optionShapes[idx]}</span>
+                <span>{gameMode === 'classic' ? opt : `Option ${idx + 1}`}</span>
               </div>
             ))}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '10px' }}>
-            <button onClick={endQuestion} style={{ background: '#e91e63', border: 'none', borderRadius: '6px', color: '#fff', padding: '8px 24px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>Skip Question [Space]</button>
-            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '8px 24px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
           </div>
         </div>
       )}
 
       {/* 5. ANSWERS */}
-      {gameState === 'answers' && questions[currentIndex] && (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', animation: 'fadeIn 0.5s', padding: '0 16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 900, margin: 0 }}>Correct Answer</h2>
-            <span style={{ fontSize: '18px', color: '#888', fontWeight: 700 }}>Total submissions: {totalAnsweredCount}</span>
-          </div>
+      {gameState === 'answers' && (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '32px 0 16px' }}>
+          <h2 style={{ fontSize: '32px', textAlign: 'center', fontWeight: 800 }}>{questions[currentIndex]?.question_text}</h2>
 
-          <h2 style={{ fontSize: '36px', textAlign: 'center', margin: '15px 0', color: '#fff', lineHeight: 1.2, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{questions[currentIndex].question_text}</h2>
-
-          <div style={{ display: 'flex', height: '300px', alignItems: 'flex-end', justifyContent: 'space-around', gap: '20px', background: 'rgba(0,0,0,0.2)', padding: '30px 20px', borderRadius: '20px', marginBottom: '20px', boxSizing: 'border-box' }}>
-            {answerStats.map((count, i) => {
+          {/* Bar Chart */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '32px', height: '300px', margin: '20px 0' }}>
+            {answerStats.map((count, idx) => {
               const maxCount = Math.max(...answerStats, 1)
-              const heightPercent = (count / maxCount) * 100
-              const isCorrect = i === questions[currentIndex].correct_option
+              const heightPct = (count / maxCount) * 100
+              const isCorrect = idx === questions[currentIndex]?.correct_option
+
               return (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 900, color: '#fff', marginBottom: '4px' }}>{count}</div>
-                  <div style={{ width: '80%', height: `${heightPercent}%`, background: optionColors[i], borderRadius: '6px 6px 0 0', position: 'relative', border: isCorrect ? '3px solid #fff' : 'none', transition: 'height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                    {isCorrect && <span style={{ position: 'absolute', top: '-32px', left: '50%', transform: 'translateX(-50%)', fontSize: '24px' }}>✓</span>}
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', width: '120px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: 800 }}>{count}</div>
+                  <div style={{ width: '100%', height: `${Math.max(heightPct, 8)}%`, background: optionColors[idx], borderRadius: '8px 8px 0 0', position: 'relative', border: isCorrect ? '4px solid #fff' : 'none' }}>
+                    {isCorrect && <span style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', fontSize: '24px' }}>✓</span>}
                   </div>
-                  <div style={{ fontSize: '24px', marginTop: '8px' }}>{optionShapes[i]}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 800 }}>{optionShapes[idx]}</div>
                 </div>
               )
             })}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '10px' }}>
-            {currentIndex + 1 < questions.length ? (
-              <button onClick={showLeaderboard} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.3)' }}>
-                Show Standings [Space]
-              </button>
-            ) : (
-              <button onClick={triggerEndQuiz} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '6px', padding: '12px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(233,30,99,0.3)' }}>
-                Show Final Results [Space]
-              </button>
-            )}
-            <button onClick={() => { if (confirm('End early?')) triggerEndQuiz() }} style={{ background: 'transparent', border: '1px solid #e21b3c', color: '#e21b3c', borderRadius: '6px', padding: '12px 32px', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>End Quiz Early</button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button onClick={showLeaderboard} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '8px', padding: '14px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer' }}>
+              Show Leaderboard →
+            </button>
           </div>
         </div>
       )}
 
       {/* 6. LEADERBOARD */}
       {gameState === 'leaderboard' && (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn 0.5s', padding: '0 12px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '14px', letterSpacing: '4px', color: '#e91e63', fontWeight: 700, margin: 0 }}>CURRENT STANDINGS</p>
-            <h1 style={{ fontSize: '48px', margin: '5px 0 10px', fontWeight: 900 }}>Leaderboard</h1>
-          </div>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '32px 0 16px' }}>
+          <h2 style={{ fontSize: '36px', textAlign: 'center', fontWeight: 900, color: '#e91e63' }}>LEADERBOARD</h2>
 
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: '96vw',
-              flex: 1,
-              height: `${displayedLeaderboardPlayers.length * 76}px`,
-              maxHeight: '70vh',
-            }}
-          >
-            {displayedLeaderboardPlayers.map((player, index) => (
-              <LeaderboardRow
-                key={player.id}
-                player={player}
-                phase={animationPhase}
-                rowRefs={rowRefs}
-                index={index}
-              />
+          <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {activeLeaderboardPlayers.map((p, idx) => (
+              <div key={p.id} style={{ background: '#111116', border: '1px solid #222', padding: '16px 24px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 900, color: '#e91e63' }}>#{idx + 1}</span>
+                  <span style={{ fontSize: '20px', fontWeight: 700 }}>{p.nickname}</span>
+                </div>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>{p.currentScore} pts</span>
+              </div>
             ))}
           </div>
 
-          <div style={{ marginBottom: '10px', zIndex: 10 }}>
-            <button
-              onClick={nextStep}
-              disabled={animationPhase !== PHASES.DONE}
-              style={{
-                background: animationPhase === PHASES.DONE ? '#e91e63' : '#333',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '14px 48px',
-                fontSize: '18px',
-                fontWeight: 800,
-                cursor: animationPhase === PHASES.DONE ? 'pointer' : 'not-allowed',
-                boxShadow: animationPhase === PHASES.DONE ? '0 6px 20px rgba(233,30,99,0.4)' : 'none',
-                transition: 'all 0.3s',
-              }}
-            >
-              {currentIndex + 1 < questions.length ? 'Next Question [Space]' : 'See Final Results [Space]'}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button onClick={nextStep} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '8px', padding: '14px 40px', fontSize: '18px', fontWeight: 800, cursor: 'pointer' }}>
+              {currentIndex + 1 < questions.length ? 'Next Question →' : 'Final Results →'}
             </button>
           </div>
         </div>
       )}
 
-      {/* 7. ENDED — full-screen podium */}
+      {/* 7. ENDED / PODIUM */}
       {gameState === 'ended' && (
-        <div className="ended-fullscreen">
-          {/* Floating tab bar */}
-          <div className="podium-tabs">
-            <button onClick={() => setEndedTab('podium')} className={`podium-tab-btn${endedTab === 'podium' ? ' active' : ''}`}>Podium</button>
-            <button onClick={() => setEndedTab('summary')} className={`podium-tab-btn${endedTab === 'summary' ? ' active' : ''}`}>Session Summary</button>
-            <button onClick={handlePlayAgain} className="podium-tab-btn podium-tab-btn--danger">Play Again</button>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '32px 0 16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '16px' }}>
+            <button onClick={() => setEndedTab('podium')} style={{ background: endedTab === 'podium' ? '#e91e63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '8px 20px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer' }}>
+              🏆 Podium View
+            </button>
+            <button onClick={() => setEndedTab('full')} style={{ background: endedTab === 'full' ? '#e91e63' : 'transparent', border: '1px solid #333', color: '#fff', padding: '8px 20px', borderRadius: '6px', fontWeight: 700, cursor: 'pointer' }}>
+              📜 Full Standings
+            </button>
           </div>
 
-          {endedTab === 'podium' && (
-            <div className="podium-stage">
-              <div className="podium-header">
-                <p className="podium-eyebrow">QUIZ COMPLETE</p>
-                <h1 className="podium-title">{quizTitle || 'Final Results'}</h1>
-              </div>
-
-              <div className="podium-row">
-                {podiumColumns.map(cfg => (
-                  <div
-                    key={cfg.rank}
-                    className={`podium-col-wrap${podiumRevealStep >= cfg.revealAt ? ' is-revealed' : ''}`}
-                  >
-                    <PodiumColumn cfg={cfg} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {endedTab === 'summary' && (
-            <div className="summary-stage">
-              <p className="podium-eyebrow">FULL RESULTS</p>
-              <h1 className="podium-title" style={{ marginBottom: '24px' }}>Participant Standings</h1>
-              <div style={{ background: '#111', border: '1px solid #222', borderRadius: '12px', padding: '24px', textAlign: 'left', width: '100%', maxWidth: '700px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '50vh', overflowY: 'auto', paddingRight: '8px' }}>
-                  {sortedPlayers.map((p, index) => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', borderBottom: '1px solid #1a1a1a', padding: '8px 0' }}>
-                      <span>#{index + 1} {p.nickname}</span>
-                      <span style={{ fontWeight: 700, color: '#e91e63' }}>{p.score} pts</span>
-                    </div>
-                  ))}
+          {endedTab === 'podium' ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '20px', height: '400px' }}>
+              {/* 2nd Place */}
+              {podiumRevealStep >= 2 && sortedPlayers[1] && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '160px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}>{sortedPlayers[1].nickname}</div>
+                  <div style={{ fontSize: '14px', color: '#888', marginBottom: '8px' }}>{sortedPlayers[1].score} pts</div>
+                  <div style={{ width: '100%', height: '180px', background: 'linear-gradient(180deg, #c0c0c0 0%, #606060 100%)', borderRadius: '12px 12px 0 0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '48px', fontWeight: 900 }}>2</div>
                 </div>
-              </div>
+              )}
+
+              {/* 1st Place */}
+              {podiumRevealStep >= 3 && sortedPlayers[0] && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '180px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '4px' }}>👑</div>
+                  <div style={{ fontSize: '22px', fontWeight: 900, color: '#ffd700', marginBottom: '8px' }}>{sortedPlayers[0].nickname}</div>
+                  <div style={{ fontSize: '16px', color: '#888', marginBottom: '8px' }}>{sortedPlayers[0].score} pts</div>
+                  <div style={{ width: '100%', height: '260px', background: 'linear-gradient(180deg, #ffd700 0%, #b8860b 100%)', borderRadius: '12px 12px 0 0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '64px', fontWeight: 900, color: '#000' }}>1</div>
+                </div>
+              )}
+
+              {/* 3rd Place */}
+              {podiumRevealStep >= 1 && sortedPlayers[2] && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '140px' }}>
+                  <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: '8px' }}>{sortedPlayers[2].nickname}</div>
+                  <div style={{ fontSize: '14px', color: '#888', marginBottom: '8px' }}>{sortedPlayers[2].score} pts</div>
+                  <div style={{ width: '100%', height: '120px', background: 'linear-gradient(180deg, #cd7f32 0%, #8b4513 100%)', borderRadius: '12px 12px 0 0', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '36px', fontWeight: 900 }}>3</div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%', overflowY: 'auto', maxHeight: '50vh', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {sortedPlayers.map((p, idx) => (
+                <div key={p.id} style={{ background: '#111116', border: '1px solid #222', padding: '14px 20px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontWeight: 800, color: '#e91e63' }}>#{idx + 1}</span>
+                    <span style={{ fontWeight: 700 }}>{p.nickname}</span>
+                  </div>
+                  <span style={{ fontWeight: 800 }}>{p.score} pts</span>
+                </div>
+              ))}
             </div>
           )}
 
-          <button
-            onClick={() => navigate('/admin/quiz')}
-            className="exit-fab"
-          >
-            Exit to Dashboard
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <button onClick={() => navigate('/admin/quiz')} style={{ background: '#e91e63', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 32px', fontSize: '16px', fontWeight: 800, cursor: 'pointer' }}>
+              Back to Quiz Admin
+            </button>
+          </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-          0%   { transform: scale(0.6); opacity: 0; }
-          100% { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes pulse {
-          0%   { transform: scale(1);   }
-          50%  { transform: scale(1.1); }
-          100% { transform: scale(1);   }
-        }
-        @keyframes scaleUpFadeGrow {
-          0%   { opacity: 0; transform: scale(0.7); }
-          100% { opacity: 1; transform: scale(1.0); }
-        }
-        @keyframes fadeInOut {
-          0%   { opacity: 0; transform: translateY(20px);  }
-          20%  { opacity: 1; transform: translateY(0);     }
-          80%  { opacity: 1; transform: translateY(0);     }
-          100% { opacity: 0; transform: translateY(-20px); }
-        }
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0);   }
-        }
-        @keyframes crownFloat {
-          0%, 100% { transform: translateY(0) rotate(-4deg); }
-          50%      { transform: translateY(-8px) rotate(4deg); }
-        }
-        @keyframes glowPulse {
-          0%, 100% { opacity: 0.55; }
-          50%      { opacity: 1; }
-        }
-
-        /* ── Leaderboard row ───────────────────────────────────────────── */
-        .leaderboard-row {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 24px;
-          border-radius: 10px;
-          border: 1px solid #222;
-          background-color: #0d0d1a;
-          color: #ffffff;
-          font-weight: 700;
-          font-size: 1.05rem;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .leaderboard-row.flashing {
-          background-color: #ffffff;
-          color: #0d0d1a;
-          border-color: #ddd;
-          transition:
-            background-color 800ms ease-out,
-            color            800ms ease-out,
-            border-color     800ms ease-out;
-          transition-delay: var(--flash-delay, 0ms);
-        }
-
-        .lb-score {
-          margin-left: auto;
-          font-variant-numeric: tabular-nums;
-          min-width: 90px;
-          text-align: right;
-          color: #e91e63;
-          font-size: 22px;
-          font-weight: 900;
-        }
-
-        .points-earned {
-          font-size: 13px;
-          color: #ffd700;
-          font-weight: 600;
-          background: rgba(255, 215, 0, 0.12);
-          padding: 3px 10px;
-          border-radius: 20px;
-          animation: fadeSlideIn 300ms ease-out forwards;
-          white-space: nowrap;
-        }
-
-        /* Enter/leave transitions for leaderboard rows */
-        .leaderboard-row.lb-entering {
-          animation: lbSlideIn 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .leaderboard-row.lb-leaving {
-          animation: lbSlideOut 700ms cubic-bezier(0.4, 0, 1, 1) forwards;
-          pointer-events: none;
-        }
-
-        @keyframes lbSlideIn {
-          0%   { opacity: 0; transform: translateY(60px) scale(0.92); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes lbSlideOut {
-          0%   { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(40px) scale(0.9); }
-        }
-
-        .lb-new-tag {
-          font-size: 11px;
-          font-weight: 800;
-          color: #ff6f00;
-          background: rgba(255, 111, 0, 0.15);
-          padding: 2px 10px;
-          border-radius: 20px;
-          animation: fadeSlideIn 400ms ease-out forwards;
-          white-space: nowrap;
-          letter-spacing: 1px;
-        }
-
-        /* ── Podium — full-screen ended state ───────────────────────────── */
-        .ended-fullscreen {
-          position: fixed;
-          inset: 0;
-          width: 100vw;
-          height: 100vh;
-          overflow: hidden;
-          z-index: 200;
-        }
-
-        .podium-tabs {
-          position: absolute;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 10px;
-          z-index: 20;
-          background: rgba(0,0,0,0.3);
-          border: 1px solid rgba(255,255,255,0.08);
-          padding: 8px;
-          border-radius: 10px;
-          backdrop-filter: blur(10px);
-        }
-
-        .podium-tab-btn {
-          background: transparent;
-          border: 1px solid #333;
-          color: #fff;
-          padding: 8px 20px;
-          border-radius: 6px;
-          font-weight: 700;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .podium-tab-btn.active {
-          background: #e91e63;
-          border-color: #e91e63;
-        }
-        .podium-tab-btn--danger {
-          border-color: #e21b3c;
-          color: #ff6b81;
-        }
-
-        .podium-stage {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-          box-sizing: border-box;
-          padding-bottom: 6vh;
-          background:
-            radial-gradient(ellipse 90% 60% at 50% 12%, rgba(233,30,99,0.15) 0%, rgba(0,0,0,0) 65%),
-            radial-gradient(ellipse 120% 90% at 50% 100%, #150a21 0%, #09090e 65%, #050508 100%);
-        }
-
-        .podium-header {
-          position: absolute;
-          top: 10vh;
-          left: 50%;
-          transform: translateX(-50%);
-          text-align: center;
-          z-index: 2;
-        }
-        .podium-eyebrow {
-          letter-spacing: 6px;
-          font-size: 13px;
-          font-weight: 800;
-          color: #e91e63;
-          margin: 0 0 8px;
-        }
-        .podium-title {
-          font-size: clamp(28px, 5vw, 52px);
-          font-weight: 900;
-          margin: 0;
-          color: #fff;
-          text-shadow: 0 6px 24px rgba(0,0,0,0.45);
-          max-width: 90vw;
-        }
-
-        .podium-row {
-          display: flex;
-          align-items: flex-end;
-          justify-content: center;
-          gap: clamp(10px, 3vw, 36px);
-          width: 100%;
-          max-width: 1100px;
-          z-index: 2;
-        }
-
-        .podium-col-wrap {
-          display: flex;
-          align-items: flex-end;
-        }
-
-        .podium-col {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .podium-player {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-bottom: 14px;
-          opacity: 0;
-          transform: translateY(24px) scale(0.85);
-          transition: opacity 900ms ease-out 300ms, transform 900ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms;
-        }
-        .is-revealed .podium-player {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-
-        .podium-avatar {
-          width: clamp(54px, 7vw, 90px);
-          height: clamp(54px, 7vw, 90px);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: clamp(20px, 3vw, 36px);
-          font-weight: 900;
-          color: #fff;
-          box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-          border: 3px solid rgba(255,255,255,0.2);
-          position: relative;
-        }
-        .podium-col--first .podium-avatar {
-          border-color: #ffd700;
-          animation: avatarGlow 2.5s infinite;
-        }
-
-        .podium-crown {
-          position: absolute;
-          top: -24px;
-          font-size: clamp(24px, 3vw, 38px);
-          animation: crownFloat 2s ease-in-out infinite;
-          z-index: 5;
-        }
-
-        .podium-name {
-          font-size: clamp(15px, 2.2vw, 22px);
-          font-weight: 800;
-          color: #fff;
-          margin-top: 10px;
-          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-          max-width: clamp(120px, 16vw, 220px);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .podium-score {
-          font-size: clamp(12px, 1.6vw, 16px);
-          font-weight: 600;
-          color: rgba(255,255,255,0.7);
-          margin-top: 3px;
-        }
-
-        .podium-block {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 12px 12px 0 0;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-bottom: none;
-          
-          /* Growth transition when revealed - 2.25 seconds (×1.5) */
-          transform: scaleY(0);
-          transform-origin: bottom;
-          transition: transform 2250ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .podium-col--first .podium-block {
-          /* 1st place reveals even slower - 3.75 seconds (×1.5) */
-          transition: transform 3750ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .is-revealed .podium-block {
-          transform: scaleY(1);
-        }
-
-        .podium-rank-number {
-          font-size: clamp(40px, 7vw, 90px);
-          font-weight: 900;
-          user-select: none;
-        }
-
-        /* ── Session Summary Stage ─────────────────────────────────────── */
-        .summary-stage {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          height: 100%;
-          box-sizing: border-box;
-          padding: 80px 20px 40px;
-          background: #09090e;
-          animation: fadeIn 0.4s ease-out;
-        }
-
-        /* Exit FAB button at bottom-right corner */
-        .exit-fab {
-          position: absolute;
-          bottom: 24px;
-          right: 24px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid #333;
-          border-radius: 6px;
-          color: #fff;
-          padding: 12px 32px;
-          font-size: 15px;
-          font-weight: 750;
-          cursor: pointer;
-          transition: all 0.25s;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-          z-index: 25;
-        }
-        .exit-fab:hover {
-          border-color: #e91e63;
-          box-shadow: 0 4px 20px rgba(233,30,99,0.25);
-        }
-
-        @keyframes avatarGlow {
-          0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.25); }
-          50%      { box-shadow: 0 0 35px rgba(255, 215, 0, 0.55); }
-        }
-      `}</style>
     </div>
   )
 }

@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 2. Verify admin role
+    // 2. Verify active super_admin or core role
     const { data: member, error: memberError } = await supabase
       .from('core_members')
       .select('role')
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 4. Validate active session details and freshness against database
+    // 4. Validate active host session and heartbeat within last 60 seconds
     const { data: session, error: sessionError } = await supabase
       .from('quiz_host_sessions')
       .select('host_user_id, pin, is_active, last_heartbeat')
@@ -85,7 +85,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Check heartbeat stale threshold (e.g. 60 seconds)
     const lastHeartbeatTime = new Date(session.last_heartbeat).getTime()
     if (Date.now() - lastHeartbeatTime > 60000) {
       return new Response(
@@ -94,7 +93,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 5. Broadcast signed control event to player channel
+    // 5. Broadcast signed event to player channel
     const playerChannel = supabase.channel(`quiz-${session.pin}`, {
       config: { broadcast: { self: true, ack: true } }
     })
@@ -119,7 +118,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (err) {
+  } catch (err: any) {
     console.error('Unexpected error:', err)
     return new Response(
       JSON.stringify({ error: 'internal_error', message: err.message }),

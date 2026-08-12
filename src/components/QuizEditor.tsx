@@ -9,12 +9,14 @@ interface Question {
   options: string[]
   correct_option: number
   time_limit: number
+  sort_order?: number
 }
 
 interface Quiz {
   id: string
   title: string
   description: string
+  code_slug: string
 }
 
 export default function QuizEditor() {
@@ -24,11 +26,12 @@ export default function QuizEditor() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Title edit state
+  // Title / description editing
   const [editingTitle, setEditingTitle] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [newDescription, setNewDescription] = useState('')
 
-  // Form states
+  // Question Form states
   const [questionText, setQuestionText] = useState('')
   const [opt0, setOpt0] = useState('')
   const [opt1, setOpt1] = useState('')
@@ -45,42 +48,46 @@ export default function QuizEditor() {
         .select('*')
         .eq('code_slug', codeSlug)
         .single()
-        .then(({ data }) => {
-          if (data) {
+        .then(({ data, error }) => {
+          if (error || !data) {
+            toast.error('Quiz not found.')
+            navigate('/admin/quiz')
+          } else {
             setQuiz(data)
             setNewTitle(data.title)
+            setNewDescription(data.description || '')
             fetchQuestions(data.id)
           }
         })
     }
   }, [codeSlug])
 
-  const fetchQuestions = (quizIdVal: string) => {
-    const qId = quizIdVal || quiz?.id
-    if (!qId) return
-
+  const fetchQuestions = async (quizIdVal: string) => {
     setLoading(true)
-    supabase
+    const { data, error } = await supabase
       .from('quiz_questions')
       .select('*')
-      .eq('quiz_id', qId)
+      .eq('quiz_id', quizIdVal)
       .order('sort_order', { ascending: true })
-      .then(({ data }) => {
-        if (data) setQuestions(data)
-        setLoading(false)
-      })
+
+    if (error) {
+      toast.error(error.message)
+    } else if (data) {
+      setQuestions(data)
+    }
+    setLoading(false)
   }
 
-  const handleUpdateTitle = async () => {
+  const handleUpdateQuizDetails = async () => {
     if (!quiz?.id || !newTitle.trim()) return
     const { error } = await supabase
       .from('quizzes')
-      .update({ title: newTitle.trim() })
+      .update({ title: newTitle.trim(), description: newDescription.trim() })
       .eq('id', quiz.id)
 
     if (!error) {
-      toast.success('Quiz title updated!')
-      setQuiz(prev => prev ? { ...prev, title: newTitle.trim() } : null)
+      toast.success('Quiz details updated!')
+      setQuiz(prev => prev ? { ...prev, title: newTitle.trim(), description: newDescription.trim() } : null)
       setEditingTitle(false)
     } else {
       toast.error(error.message)
@@ -100,22 +107,18 @@ export default function QuizEditor() {
 
   const handleSaveQuestion = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!quiz?.id) {
-      toast.error('Quiz details not loaded yet.')
-      return
-    }
-    if (!questionText || !opt0 || !opt1 || !opt2 || !opt3) {
-      toast.error('All options are required.')
+    if (!quiz?.id) return
+    if (!questionText.trim() || !opt0.trim() || !opt1.trim() || !opt2.trim() || !opt3.trim()) {
+      toast.error('Please fill in question text and all 4 options.')
       return
     }
 
     const payload = {
       quiz_id: quiz.id,
-      question_text: questionText,
-      options: [opt0, opt1, opt2, opt3],
+      question_text: questionText.trim(),
+      options: [opt0.trim(), opt1.trim(), opt2.trim(), opt3.trim()],
       correct_option: correctOption,
-      time_limit: timeLimit,
-      sort_order: questions.length + 1
+      time_limit: Number(timeLimit) || 20,
     }
 
     if (editingId) {
@@ -124,223 +127,295 @@ export default function QuizEditor() {
         .update(payload)
         .eq('id', editingId)
 
-      if (!error) {
-        toast.success('Question updated!')
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Question updated successfully!')
         resetForm()
         fetchQuestions(quiz.id)
-      } else {
-        toast.error(error.message)
       }
     } else {
+      const nextSortOrder = questions.length
       const { error } = await supabase
         .from('quiz_questions')
-        .insert(payload)
+        .insert({ ...payload, sort_order: nextSortOrder })
 
-      if (!error) {
-        toast.success('Question added!')
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Question added successfully!')
         resetForm()
         fetchQuestions(quiz.id)
-      } else {
-        toast.error(error.message)
       }
     }
   }
 
-  const startEdit = (q: Question) => {
-    setEditingId(q.id || null)
+  const handleEditClick = (q: Question) => {
+    if (!q.id) return
+    setEditingId(q.id)
     setQuestionText(q.question_text)
-    setOpt0(q.options[0])
-    setOpt1(q.options[1])
-    setOpt2(q.options[2])
-    setOpt3(q.options[3])
+    setOpt0(q.options[0] || '')
+    setOpt1(q.options[1] || '')
+    setOpt2(q.options[2] || '')
+    setOpt3(q.options[3] || '')
     setCorrectOption(q.correct_option)
-    setTimeLimit(q.time_limit)
+    setTimeLimit(q.time_limit || 20)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this question?')) return
+  const handleDeleteQuestion = async (qId: string) => {
+    if (!quiz?.id || !confirm('Delete this question?')) return
     const { error } = await supabase
       .from('quiz_questions')
       .delete()
-      .eq('id', id)
+      .eq('id', qId)
 
-    if (!error && quiz) {
+    if (error) {
+      toast.error(error.message)
+    } else {
       toast.success('Question deleted.')
       fetchQuestions(quiz.id)
     }
   }
 
-  const optionColors = ['#e21b3c', '#e91e63', '#d89e00', '#26890c']
-  const optionShapes = ['▲ Option 1 (Red)', '◆ Option 2 (Pink)', '● Option 3 (Yellow)', '■ Option 4 (Green)']
+  const handleMoveQuestion = async (index: number, direction: 'up' | 'down') => {
+    if (!quiz?.id) return
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= questions.length) return
+
+    const newQuestions = [...questions]
+    const temp = newQuestions[index]
+    newQuestions[index] = newQuestions[targetIndex]
+    newQuestions[targetIndex] = temp
+
+    setQuestions(newQuestions)
+
+    // Persist new sort_order
+    for (let i = 0; i < newQuestions.length; i++) {
+      if (newQuestions[i].id) {
+        await supabase
+          .from('quiz_questions')
+          .update({ sort_order: i })
+          .eq('id', newQuestions[i].id)
+      }
+    }
+  }
 
   return (
-    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '32px 24px', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', borderBottom: '1px solid #1f1f2e', paddingBottom: '24px' }}>
-          <div>
-            <Link to="/admin/quiz" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back to Quiz Hub</Link>
-            
-            {editingTitle ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  style={{ background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '6px 12px', fontSize: '20px', fontWeight: 700 }}
-                />
-                <button onClick={handleUpdateTitle} style={{ background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '6px 14px', fontWeight: 700, cursor: 'pointer' }}>Save</button>
-                <button onClick={() => { setEditingTitle(false); setNewTitle(quiz?.title || '') }} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>Cancel</button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
-                <h1 style={{ fontSize: '28px', margin: 0, fontWeight: 800 }}>{quiz?.title || 'Loading...'}</h1>
-                <button onClick={() => setEditingTitle(true)} style={{ background: 'transparent', border: '1px solid #333', color: '#aaa', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}>Rename</button>
-              </div>
-            )}
-            
-            <p style={{ color: '#555', margin: '6px 0 0' }}>{quiz?.description || 'No description'}</p>
-          </div>
+        {/* Navigation back bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <Link to="/admin/quiz" style={{ color: '#aaa', textDecoration: 'none', fontSize: '14px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            ← Back to Dashboard
+          </Link>
           {quiz && (
-            <Link to={`/admin/quiz/host/${quiz.code_slug}`} style={{ textDecoration: 'none', background: '#00BCD4', borderRadius: '8px', color: '#000', padding: '10px 24px', fontWeight: 700, boxShadow: '0 4px 10px rgba(0,188,212,0.2)' }}>Host Game →</Link>
+            <Link to={`/admin/quiz/${quiz.code_slug}/host`} style={{ background: '#E91E63', color: '#fff', textDecoration: 'none', padding: '8px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px' }}>
+              🚀 Launch Host View
+            </Link>
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '32px' }}>
-          
-          {/* LEFT: Add / Edit form */}
-          <div>
-            <div style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ margin: '0 0 20px', fontSize: '18px', color: '#eee', fontWeight: 700 }}>
-                {editingId ? 'Edit Question' : 'Add New Question'}
-              </h3>
-              <form onSubmit={handleSaveQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Question Text</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. What does XR stand for?"
-                    value={questionText}
-                    onChange={e => setQuestionText(e.target.value)}
-                    style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
-                  />
-                </div>
-
-                {/* Option fields */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Answers Options</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Red Option"
-                      value={opt0}
-                      onChange={e => setOpt0(e.target.value)}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[0]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Pink Option"
-                      value={opt1}
-                      onChange={e => setOpt1(e.target.value)}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[1]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Yellow Option"
-                      value={opt2}
-                      onChange={e => setOpt2(e.target.value)}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[2]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Green Option"
-                      value={opt3}
-                      onChange={e => setOpt3(e.target.value)}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderLeft: `4px solid ${optionColors[3]}`, borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Configurations */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Correct Option</label>
-                    <select
-                      value={correctOption}
-                      onChange={e => setCorrectOption(Number(e.target.value))}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
-                    >
-                      {optionShapes.map((name, i) => (
-                        <option key={i} value={i}>{name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>Time Limit (s)</label>
-                    <select
-                      value={timeLimit}
-                      onChange={e => setTimeLimit(Number(e.target.value))}
-                      style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '6px', color: '#fff', padding: '10px', fontSize: '14px' }}
-                    >
-                      <option value={10}>10s</option>
-                      <option value={20}>20s</option>
-                      <option value={30}>30s</option>
-                      <option value={60}>60s</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                  {editingId && (
-                    <button type="button" onClick={resetForm} style={{ flex: 1, background: 'transparent', border: '1px solid #333', borderRadius: '6px', color: '#888', padding: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
-                  )}
-                  <button type="submit" style={{ flex: 2, background: '#00BCD4', border: 'none', borderRadius: '6px', color: '#000', padding: '10px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
-                    {editingId ? 'Update Question' : 'Add Question'}
+        {/* Quiz Header & Title Edit */}
+        {quiz && (
+          <div style={{ background: '#111116', border: '1px solid #222', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+            {editingTitle ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  style={{ background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '18px', fontWeight: 800, outline: 'none' }}
+                />
+                <textarea
+                  rows={2}
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Description..."
+                  style={{ background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '14px', outline: 'none' }}
+                />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={handleUpdateQuizDetails} style={{ background: '#E91E63', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: 700, cursor: 'pointer' }}>
+                    Save Changes
+                  </button>
+                  <button onClick={() => setEditingTitle(false)} style={{ background: 'transparent', border: '1px solid #333', color: '#aaa', borderRadius: '6px', padding: '8px 16px', cursor: 'pointer' }}>
+                    Cancel
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <span style={{ color: '#E91E63', fontSize: '12px', fontWeight: 800, letterSpacing: '1px' }}>
+                      QUIZ CODE: {quiz.code_slug.toUpperCase()}
+                    </span>
+                    <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '4px 0 6px' }}>{quiz.title}</h1>
+                    <p style={{ color: '#888', fontSize: '14px', margin: 0 }}>{quiz.description || 'No description provided.'}</p>
+                  </div>
+                  <button onClick={() => setEditingTitle(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                    ✏️ Edit Details
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* RIGHT: Questions list */}
-          <div>
-            <h3 style={{ margin: '0 0 16px', fontSize: '18px', color: '#eee', fontWeight: 700 }}>Questions List ({questions.length})</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {loading ? (
-                <p style={{ color: '#444' }}>Loading questions...</p>
-              ) : questions.length === 0 ? (
-                <p style={{ color: '#444' }}>No questions configured. Add one on the left!</p>
-              ) : (
-                questions.map((q, index) => (
-                  <div key={q.id} style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#00BCD4', letterSpacing: '1px' }}>Q{index + 1} ({q.time_limit}s)</span>
-                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => startEdit(q)} style={{ background: 'none', border: 'none', color: '#00BCD4', fontSize: '12px', cursor: 'pointer', padding: 0 }}>Edit</button>
-                        <button onClick={() => handleDelete(q.id!)} style={{ background: 'none', border: 'none', color: '#e21b3c', fontSize: '12px', cursor: 'pointer', padding: 0 }}>Delete</button>
+        {/* Question Add / Edit Form */}
+        <div style={{ background: '#111116', border: '1px solid #222', borderRadius: '16px', padding: '24px', marginBottom: '32px' }}>
+          <h3 style={{ margin: '0 0 20px', fontSize: '18px', fontWeight: 800, color: editingId ? '#E91E63' : '#fff' }}>
+            {editingId ? '✏️ Edit Question' : '➕ Add New Question'}
+          </h3>
+
+          <form onSubmit={handleSaveQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', fontWeight: 700, letterSpacing: '1px' }}>QUESTION TEXT</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. What does XR stand for?"
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                style={{ width: '100%', background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#e21b3c', marginBottom: '6px', fontWeight: 700 }}>OPTION 1 (RED ▲)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Option 1"
+                  value={opt0}
+                  onChange={(e) => setOpt0(e.target.value)}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #e21b3c', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#1368ce', marginBottom: '6px', fontWeight: 700 }}>OPTION 2 (BLUE ◆)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Option 2"
+                  value={opt1}
+                  onChange={(e) => setOpt1(e.target.value)}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #1368ce', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#d89e00', marginBottom: '6px', fontWeight: 700 }}>OPTION 3 (YELLOW ●)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Option 3"
+                  value={opt2}
+                  onChange={(e) => setOpt2(e.target.value)}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #d89e00', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#26890c', marginBottom: '6px', fontWeight: 700 }}>OPTION 4 (GREEN ■)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Option 4"
+                  value={opt3}
+                  onChange={(e) => setOpt3(e.target.value)}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #26890c', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', fontWeight: 700, letterSpacing: '1px' }}>CORRECT ANSWER</label>
+                <select
+                  value={correctOption}
+                  onChange={(e) => setCorrectOption(Number(e.target.value))}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                >
+                  <option value={0}>Option 1 (RED ▲)</option>
+                  <option value={1}>Option 2 (BLUE ◆)</option>
+                  <option value={2}>Option 3 (YELLOW ●)</option>
+                  <option value={3}>Option 4 (GREEN ■)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', fontWeight: 700, letterSpacing: '1px' }}>TIME LIMIT (SECONDS)</label>
+                <select
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(Number(e.target.value))}
+                  style={{ width: '100%', background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                >
+                  <option value={5}>5 seconds</option>
+                  <option value={10}>10 seconds</option>
+                  <option value={20}>20 seconds</option>
+                  <option value={30}>30 seconds</option>
+                  <option value={60}>60 seconds</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
+              {editingId && (
+                <button type="button" onClick={resetForm} style={{ background: 'transparent', border: '1px solid #333', color: '#aaa', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+                  Cancel Edit
+                </button>
+              )}
+              <button type="submit" style={{ background: '#E91E63', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '14px' }}>
+                {editingId ? 'Update Question' : 'Save Question'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Questions List */}
+        <div>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 16px' }}>Questions ({questions.length})</h3>
+
+          {loading ? (
+            <div style={{ color: '#666', textAlign: 'center', padding: '30px' }}>Loading questions...</div>
+          ) : questions.length === 0 ? (
+            <div style={{ background: '#111116', border: '1px solid #222', borderRadius: '12px', padding: '40px', textAlign: 'center', color: '#888' }}>
+              No questions created yet. Use the form above to add your first question.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {questions.map((q, idx) => (
+                <div key={q.id || idx} style={{ background: '#111116', border: '1px solid #222', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                    <span style={{ fontSize: '14px', fontWeight: 800, color: '#E91E63', width: '28px' }}>#{idx + 1}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '4px' }}>{q.question_text}</div>
+                      <div style={{ display: 'flex', gap: '16px', color: '#888', fontSize: '12px' }}>
+                        <span>⏱️ {q.time_limit}s</span>
+                        <span style={{ color: '#4CAF50', fontWeight: 600 }}>Correct: Option {q.correct_option + 1}</span>
                       </div>
                     </div>
-                    <p style={{ margin: '0 0 14px', fontSize: '15px', fontWeight: 600 }}>{q.question_text}</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '12px', color: '#aaa' }}>
-                      {q.options.map((opt, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ color: optionColors[i] }}>●</span>
-                          <span style={{ fontWeight: i === q.correct_option ? 700 : 400, color: i === q.correct_option ? '#fff' : '#888' }}>{opt}</span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
 
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button onClick={() => handleMoveQuestion(idx, 'up')} disabled={idx === 0} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', width: '32px', height: '32px', borderRadius: '6px', cursor: idx === 0 ? 'not-allowed' : 'pointer', opacity: idx === 0 ? 0.3 : 1 }}>
+                      ▲
+                    </button>
+                    <button onClick={() => handleMoveQuestion(idx, 'down')} disabled={idx === questions.length - 1} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', width: '32px', height: '32px', borderRadius: '6px', cursor: idx === questions.length - 1 ? 'not-allowed' : 'pointer', opacity: idx === questions.length - 1 ? 0.3 : 1 }}>
+                      ▼
+                    </button>
+                    <button onClick={() => handleEditClick(q)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                      Edit
+                    </button>
+                    <button onClick={() => q.id && handleDeleteQuestion(q.id)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#ff4444', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

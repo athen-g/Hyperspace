@@ -14,57 +14,40 @@ interface Quiz {
 export default function QuizPage() {
   const navigate = useNavigate()
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
+  const [questionCounts, setQuestionCounts] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [activeSession, setActiveSession] = useState<{
-    codeSlug: string
-    title: string
-    pin: string
-    gameState: string
-    currentIndex: number
-    playerCount: number
-    timeAgo: string
-  } | null>(null)
 
-  const fetchQuizzes = () => {
-    supabase
+  const fetchQuizzes = async () => {
+    setLoading(true)
+    const { data, error } = await supabase
       .from('quizzes')
       .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) {
-          setQuizzes(data)
-          // Look for active host session in localStorage
-          try {
-            data.forEach((q) => {
-              const stored = localStorage.getItem(`quiz-host-session-${q.code_slug}`)
-              if (stored) {
-                const parsed = JSON.parse(stored)
-                const ageMs = Date.now() - parsed.timestamp
-                if (ageMs < 2 * 60 * 60 * 1000) {
-                  // Under 2 hours - active session found!
-                  const minutesAgo = Math.floor(ageMs / 60000)
-                  setActiveSession({
-                    codeSlug: q.code_slug,
-                    title: q.title,
-                    pin: parsed.pin,
-                    gameState: parsed.gameState,
-                    currentIndex: parsed.currentIndex,
-                    playerCount: parsed.players ? parsed.players.length : 0,
-                    timeAgo: minutesAgo === 0 ? 'just now' : `${minutesAgo}m ago`
-                  })
-                } else {
-                  // Older than 2 hours - clear stale entry
-                  localStorage.removeItem(`quiz-host-session-${q.code_slug}`)
-                }
-              }
-            })
-          } catch (e) {
-            console.warn('Failed to parse active host session:', e)
-          }
-        }
-      })
+
+    if (error) {
+      toast.error(error.message)
+      setLoading(false)
+      return
+    }
+
+    if (data) {
+      setQuizzes(data)
+      
+      // Fetch question counts for each quiz
+      const counts: Record<string, number> = {}
+      for (const q of data) {
+        const { count } = await supabase
+          .from('quiz_questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('quiz_id', q.id)
+        counts[q.id] = count || 0
+      }
+      setQuestionCounts(counts)
+    }
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -72,7 +55,7 @@ export default function QuizPage() {
   }, [])
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (!confirm('Are you sure you want to delete this game? This will permanently delete all associated questions.')) return
+    if (!confirm('Are you sure you want to delete this quiz? This will permanently remove all associated questions.')) return
 
     const { error } = await supabase
       .from('quizzes')
@@ -89,134 +72,134 @@ export default function QuizPage() {
 
   const handleCreateQuiz = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title) return
+    if (!title.trim()) return
 
-    const { data: { user } } = await supabase.auth.getUser()
     const slug = Math.random().toString(36).substring(2, 8)
     const { data, error } = await supabase
       .from('quizzes')
-      .insert({ title, description, created_by: user?.id, code_slug: slug })
+      .insert({ title: title.trim(), description: description.trim(), code_slug: slug })
       .select()
       .single()
 
-    if (!error && data) {
-      await supabase.from('quiz_questions').insert({
-        quiz_id: data.id,
-        question_text: 'What is Hyperspace XR focused on?',
-        options: ['Web3', 'Immersive Reality & XR', 'AI Text Generation', 'Cybersecurity'],
-        correct_option: 1,
-        time_limit: 20,
-        sort_order: 1
-      })
-
+    if (error) {
+      toast.error(error.message)
+    } else if (data) {
       toast.success('Quiz created successfully!')
-      navigate(`/admin/quiz/edit/${data.code_slug}`)
+      navigate(`/admin/quiz/${data.code_slug}/edit`)
     }
   }
 
   return (
-    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ background: '#09090e', minHeight: '100vh', color: '#fff', padding: '32px 24px', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
-        {/* Header Block with Pink branding accent */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid #1f1f2e', paddingBottom: '24px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <h1 style={{ fontSize: '36px', fontWeight: 800, margin: 0, letterSpacing: '-1px', color: '#fff' }}>Quiz Admin Hub</h1>
-            <p style={{ color: '#888', margin: '6px 0 0', fontSize: '15px' }}>Design, edit, and host interactive real-time presenter sessions.</p>
+            <h1 style={{ fontSize: '32px', fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>Quiz Management Hub</h1>
+            <p style={{ color: '#888', margin: '4px 0 0', fontSize: '14px' }}>Create, manage, and host live interactive quizzes.</p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Link to="/quiz/play" style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#E91E63'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#333'}>Join Player view</Link>
-            <button onClick={() => setShowCreate(true)} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>Create New Quiz</button>
-          </div>
-        </div>
-
-        {/* Resume Active Session Card */}
-        {activeSession && (
-          <div style={{ background: 'linear-gradient(135deg, rgba(233,30,99,0.15) 0%, rgba(233,30,99,0.02) 100%)', border: '1px solid rgba(233,30,99,0.3)', borderRadius: '16px', padding: '24px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.3)' }}>
-            <div>
-              <span style={{ background: '#E91E63', color: '#fff', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Session Detected</span>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: '8px 0 4px' }}>{activeSession.title}</h2>
-              <div style={{ display: 'flex', gap: '20px', color: '#aaa', fontSize: '14px', marginTop: '8px' }}>
-                <span>PIN: <strong style={{ color: '#fff' }}>{activeSession.pin}</strong></span>
-                <span>•</span>
-                <span>Question: <strong style={{ color: '#fff' }}>#{activeSession.currentIndex + 1}</strong></span>
-                <span>•</span>
-                <span>Players: <strong style={{ color: '#fff' }}>{activeSession.playerCount}</strong></span>
-                <span>•</span>
-                <span>Disconnected: <strong style={{ color: '#fff' }}>{activeSession.timeAgo}</strong></span>
-              </div>
-            </div>
-            <Link to={`/admin/quiz/host/${activeSession.codeSlug}`} style={{ textDecoration: 'none', background: '#E91E63', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 700, boxShadow: '0 4px 15px rgba(233,30,99,0.4)', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-              Resume Active Session →
+            <Link to="/quiz/play" style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', borderRadius: '8px', color: '#fff', padding: '10px 18px', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center' }}>
+              Join Player View
             </Link>
+            <button onClick={() => setShowCreate(true)} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'transform 0.1s' }}>
+              + Create New Quiz
+            </button>
           </div>
-        )}
-
-        {/* Modal Create form Overlay */}
-        {showCreate && (
-          <div style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '16px', padding: '32px', marginBottom: '40px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', animation: 'fadeIn 0.3s ease-out' }}>
-            <h3 style={{ margin: '0 0 20px', fontSize: '22px', fontWeight: 800 }}>Create a New Quiz</h3>
-            <form onSubmit={handleCreateQuiz} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', color: '#888', marginBottom: '6px', fontWeight: 600 }}>QUIZ TITLE</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Workshop Session 1 Quiz"
-                  required
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '8px', color: '#fff', padding: '12px 16px', fontSize: '15px', boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', color: '#888', marginBottom: '6px', fontWeight: 600 }}>DESCRIPTION (OPTIONAL)</label>
-                <textarea
-                  placeholder="Provide a brief context or instructions for this game..."
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  style={{ width: '100%', background: '#09090e', border: '1px solid #222', borderRadius: '8px', color: '#fff', padding: '12px 16px', fontSize: '15px', boxSizing: 'border-box', height: '100px', resize: 'none' }}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-                <button type="submit" style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>Create & Edit</button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Available Quizzes Grid List */}
-        <h2 style={{ fontSize: '20px', margin: '0 0 20px', color: '#888', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>Available Games ({quizzes.length})</h2>
-        <div style={{ display: 'grid', gap: '16px' }}>
-          {quizzes.length === 0 ? (
-            <div style={{ background: '#111116', border: '1px dashed #222', borderRadius: '12px', padding: '40px', textAlign: 'center', color: '#555' }}>
-              <p style={{ margin: 0, fontSize: '16px' }}>No quizzes available. Create one to begin!</p>
-            </div>
-          ) : (
-            quizzes.map(q => (
-              <div key={q.id} style={{ background: '#111116', border: '1px solid #1f1f2e', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ maxWidth: '60%' }}>
-                  <h3 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 700 }}>{q.title}</h3>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#888', lineHeight: 1.4 }}>{q.description || 'No description provided.'}</p>
-                  <div style={{ fontSize: '11px', color: '#444', marginTop: '12px', fontFamily: 'monospace' }}>SLUG: {q.code_slug}</div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <button onClick={() => handleDeleteQuiz(q.id)} style={{ background: 'transparent', border: '1px solid rgba(226, 27, 60, 0.2)', borderRadius: '8px', color: '#e21b3c', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(226,27,60,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>Delete</button>
-                  <Link to={`/admin/quiz/edit/${q.code_slug}`} style={{ textDecoration: 'none', background: 'transparent', border: '1px solid #222', borderRadius: '8px', color: '#aaa', padding: '10px 20px', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#E91E63'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#222'}>Edit Questions</Link>
-                  <Link to={`/admin/quiz/host/${q.code_slug}`} style={{ textDecoration: 'none', background: '#E91E63', borderRadius: '8px', color: '#fff', padding: '10px 24px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(233,30,99,0.2)' }}>Host Game →</Link>
-                </div>
-              </div>
-            ))
-          )}
         </div>
 
+        {/* Create Modal */}
+        {showCreate && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '16px' }}>
+            <div style={{ background: '#111116', border: '1px solid #222', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }}>
+              <h3 style={{ margin: '0 0 20px', fontSize: '22px', fontWeight: 800 }}>Create New Quiz</h3>
+              <form onSubmit={handleCreateQuiz} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', fontWeight: 700, letterSpacing: '1px' }}>QUIZ TITLE</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. XR SIG Tech Trivia 2026"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    style={{ width: '100%', background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px', fontWeight: 700, letterSpacing: '1px' }}>DESCRIPTION (OPTIONAL)</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Brief summary of what this quiz covers..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    style={{ width: '100%', background: '#1a1a22', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
+                  <button type="button" onClick={() => setShowCreate(false)} style={{ background: 'transparent', border: '1px solid #333', color: '#aaa', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" style={{ background: '#E91E63', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '14px' }}>
+                    Create & Add Questions
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Quizzes List */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#666', fontSize: '14px', letterSpacing: '1px' }}>
+            LOADING QUIZZES...
+          </div>
+        ) : quizzes.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 20px', background: '#111116', borderRadius: '16px', border: '1px border #222' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
+            <h3 style={{ fontSize: '20px', margin: '0 0 8px', fontWeight: 700 }}>No Quizzes Created Yet</h3>
+            <p style={{ color: '#888', margin: '0 0 24px', fontSize: '14px' }}>Get started by creating your first interactive quiz.</p>
+            <button onClick={() => setShowCreate(true)} style={{ background: '#E91E63', border: 'none', borderRadius: '8px', color: '#fff', padding: '12px 24px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+              Create Quiz
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+            {quizzes.map((quiz) => (
+              <div key={quiz.id} style={{ background: '#111116', border: '1px solid #222', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'border-color 0.2s' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <span style={{ background: 'rgba(233,30,99,0.15)', color: '#E91E63', border: '1px solid rgba(233,30,99,0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 800, letterSpacing: '1px' }}>
+                      CODE: {quiz.code_slug.toUpperCase()}
+                    </span>
+                    <span style={{ color: '#666', fontSize: '12px', fontWeight: 600 }}>
+                      {questionCounts[quiz.id] ?? 0} {questionCounts[quiz.id] === 1 ? 'Question' : 'Questions'}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 8px', color: '#fff', lineHeight: 1.3 }}>{quiz.title}</h3>
+                  {quiz.description && (
+                    <p style={{ color: '#888', fontSize: '13px', margin: '0 0 16px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'orient', overflow: 'hidden' }}>
+                      {quiz.description}
+                    </p>
+                  )}
+                </div>
+                
+                <div style={{ display: 'flex', gap: '8px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #1c1c24' }}>
+                  <Link to={`/admin/quiz/${quiz.code_slug}/host`} style={{ flex: 1, textDecoration: 'none', background: '#E91E63', color: '#fff', textAlign: 'center', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    🚀 Host Live
+                  </Link>
+                  <Link to={`/admin/quiz/${quiz.code_slug}/edit`} style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>
+                    ✏️ Edit
+                  </Link>
+                  <button onClick={() => handleDeleteQuiz(quiz.id)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#ff4444', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }

@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 1. Verify user JWT (Header or Body token fallback)
+    // 1. Verify user JWT (Header or Body token fallback for sendBeacon)
     const authHeader = req.headers.get('Authorization')
     const jwt = authHeader?.replace('Bearer ', '') || bodyToken
 
@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (err) {
+  } catch (err: any) {
     console.error('Unexpected error:', err)
     return new Response(
       JSON.stringify({ error: 'internal_error', message: err.message }),
