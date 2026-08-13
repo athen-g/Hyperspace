@@ -175,6 +175,19 @@ Deno.serve(async (req) => {
       )
     }
 
+    // 8. Fire-and-forget: Trigger registration confirmation email
+    const emailUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-registration-email`
+    fetch(emailUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ registrationId: reg.id }),
+    }).catch((emailErr) => {
+      console.error('Failed to trigger registration email:', emailErr)
+    })
+
     return new Response(
       JSON.stringify({
         success: true,
