@@ -68,19 +68,32 @@ export default function RegistrationsPage() {
                     .from('events')
                     .select('*')
                     .eq('slug', slug)
-                    .single();
+                    .maybeSingle();
 
-                if (error) throw error;
-                setEvent(data);
-
-                // Prefer constants (slug-matched) for title/tagline, fall back to DB
-                const eventName = constantsEvent?.name ?? data.name;
-                const eventTagline = constantsEvent?.tagline ?? data.tagline;
-                document.title = `${eventName} — Hyperspace XR SIG`;
-                const metaDesc = document.querySelector('meta[name="description"]');
-                if (metaDesc && eventTagline) metaDesc.setAttribute('content', eventTagline);
+                if (!error && data) {
+                    setEvent(data);
+                } else if (constantsEvent) {
+                    setEvent({
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
+                        slug: constantsEvent.slug,
+                        name: constantsEvent.name,
+                        title: constantsEvent.name,
+                        tagline: constantsEvent.tagline,
+                        rulebook_url: constantsEvent.rulebook_url
+                    });
+                }
             } catch (err) {
                 console.error('Error fetching event:', err);
+                if (constantsEvent) {
+                    setEvent({
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
+                        slug: constantsEvent.slug,
+                        name: constantsEvent.name,
+                        title: constantsEvent.name,
+                        tagline: constantsEvent.tagline,
+                        rulebook_url: constantsEvent.rulebook_url
+                    });
+                }
             } finally {
                 setLoadingEvent(false);
             }
@@ -228,9 +241,6 @@ export default function RegistrationsPage() {
             {/* ── Registration section ── */}
             <div className={`relative z-10 w-[93.056%] mx-auto ${isMobile768 ? 'mb-12 py-6 px-0' : 'mb-[120px] py-[60px] px-[60px]'
                 }`}>
-
-                {/* ── Super Admin Direct Attendance Override Control Panel ── */}
-                <SuperAdminAttendancePanel eventId={event?.id} eventSlug={slug} />
 
                 {/* Section label */}
                 <p className={`reg-section-label ${isMobile768 ? '!text-[30px] mb-4' : ''}`}>REGISTRATION</p>

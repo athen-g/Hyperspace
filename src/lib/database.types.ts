@@ -118,6 +118,7 @@ export interface Database {
           event_id: string
           registration_no: string
           qr_token: string
+          certificate_id: string | null
           custom_field_data: Json
           registered_by: string | null
           is_waitlisted: boolean
