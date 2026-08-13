@@ -74,7 +74,7 @@ export default function RegistrationsPage() {
                     setEvent(data);
                 } else if (constantsEvent) {
                     setEvent({
-                        id: constantsEvent.id ?? 2,
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
                         slug: constantsEvent.slug,
                         name: constantsEvent.name,
                         title: constantsEvent.name,
@@ -86,7 +86,7 @@ export default function RegistrationsPage() {
                 console.error('Error fetching event:', err);
                 if (constantsEvent) {
                     setEvent({
-                        id: constantsEvent.id ?? 2,
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
                         slug: constantsEvent.slug,
                         name: constantsEvent.name,
                         title: constantsEvent.name,

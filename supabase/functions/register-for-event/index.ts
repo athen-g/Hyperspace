@@ -54,28 +54,11 @@ Deno.serve(async (req) => {
         const { data: firstEvent } = await supabase
           .from('events')
           .select('id, slug, title, capacity, registration_deadline, is_published')
-          .eq('is_published', true)
           .limit(1)
           .maybeSingle()
 
         if (firstEvent) {
           event = firstEvent
-        } else {
-          // If events table is completely empty, insert Texture Distortion event
-          const { data: newEvent } = await supabase
-            .from('events')
-            .insert({
-              slug: 'texture-distortion',
-              title: 'TEXTURE DISTORTION',
-              name: 'TEXTURE DISTORTION',
-              tagline: '3D Blender Workshop',
-              is_published: true,
-              capacity: 100
-            } as any)
-            .select('id, slug, title, capacity, registration_deadline, is_published')
-            .single()
-
-          event = newEvent
         }
       }
     }
@@ -104,18 +87,46 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. Upsert student
-    const { data: student, error: studentError } = await supabase
-      .from('students')
-      .upsert({ name, email, phone, college, branch, year, prn, division, newsletter_opt_in: newsletter_opt_in ?? false }, { onConflict: 'email' })
-      .select('id')
-      .single()
+    // 4. Resilient Upsert Student (handles missing columns gracefully)
+    let student: any = null
+    const studentPayload: any = {
+      name,
+      email: email.trim().toLowerCase(),
+      phone: phone || null,
+      college: college || null,
+      branch: branch || null,
+      year: typeof year === 'number' ? year : (parseInt(year) || null),
+      newsletter_opt_in: newsletter_opt_in ?? false
+    }
+    if (prn) studentPayload.prn = prn
+    if (division) studentPayload.division = division
 
-    if (studentError || !student) {
-      return new Response(
-        JSON.stringify({ error: studentError?.message || 'Failed to upsert student', code: 'STUDENT_ERROR' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    const { data: sData, error: sErr } = await supabase
+      .from('students')
+      .upsert(studentPayload, { onConflict: 'email' })
+      .select('id')
+      .maybeSingle()
+
+    if (sData) {
+      student = sData
+    } else {
+      // Fallback: strip extra columns (prn, division) if DB schema does not have them yet
+      delete studentPayload.prn
+      delete studentPayload.division
+
+      const { data: sFallback, error: sFallbackErr } = await supabase
+        .from('students')
+        .upsert(studentPayload, { onConflict: 'email' })
+        .select('id')
+        .single()
+
+      if (sFallbackErr || !sFallback) {
+        return new Response(
+          JSON.stringify({ error: sFallbackErr?.message || sErr?.message || 'Failed to create student record', code: 'STUDENT_ERROR' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      student = sFallback
     }
 
     // 5. Check for duplicate registration
