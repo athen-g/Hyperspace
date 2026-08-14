@@ -75,11 +75,25 @@ export default function EventDetailPage() {
       {/* Event details */}
       <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
         <div style={fieldStyle}><p style={labelStyle}>Slug</p><p style={{ ...valueStyle, fontFamily: 'monospace' }}>{event.slug}</p></div>
-        <div style={fieldStyle}><p style={labelStyle}>Date</p><p style={valueStyle}>{format(new Date(event.event_date), 'dd MMMM yyyy, HH:mm')}</p></div>
+        <div style={fieldStyle}><p style={labelStyle}>Start Date & Time</p><p style={valueStyle}>{format(new Date(event.event_start || event.event_date), 'dd MMMM yyyy, HH:mm')}</p></div>
+        <div style={fieldStyle}><p style={labelStyle}>End Date & Time</p><p style={valueStyle}>{event.event_end ? format(new Date(event.event_end), 'dd MMMM yyyy, HH:mm') : '—'}</p></div>
         <div style={fieldStyle}><p style={labelStyle}>Venue</p><p style={valueStyle}>{event.venue ?? '—'}</p></div>
         <div style={fieldStyle}><p style={labelStyle}>Capacity</p><p style={valueStyle}>{event.capacity ?? 'Unlimited'}</p></div>
         <div style={fieldStyle}><p style={labelStyle}>Registration Deadline</p><p style={valueStyle}>{event.registration_deadline ? format(new Date(event.registration_deadline), 'dd MMM yyyy, HH:mm') : '—'}</p></div>
-        <div style={fieldStyle}><p style={labelStyle}>Status</p><p style={valueStyle}>{event.is_published ? '✅ Published' : '⏳ Draft'}</p></div>
+        <div style={fieldStyle}>
+          <p style={labelStyle}>Lifecycle Status</p>
+          <p style={valueStyle}>
+            {(() => {
+              const now = new Date().getTime()
+              const startTime = new Date(event.event_start || event.event_date).getTime()
+              const endTime = event.event_end ? new Date(event.event_end).getTime() : startTime + 4 * 3600 * 1000
+              if (now > endTime) return '🏁 Completed'
+              if (now >= startTime && now <= endTime) return '⚡ Ongoing / Active'
+              return '📅 Upcoming'
+            })()}
+          </p>
+        </div>
+        <div style={fieldStyle}><p style={labelStyle}>Publish Status</p><p style={valueStyle}>{event.is_published ? '✅ Published' : '⏳ Draft'}</p></div>
         {event.description && <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}><p style={labelStyle}>Description</p><p style={{ ...valueStyle, color: '#aaa', lineHeight: 1.6 }}>{event.description}</p></div>}
       </div>
 

@@ -12,9 +12,10 @@ export function useEvents(publishedOnly = false) {
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true)
-      let query = supabase.from('events').select('*').order('event_date', { ascending: true })
+      const nowIso = new Date().toISOString()
+      let query = supabase.from('events').select('*').order('event_start', { ascending: true })
       if (publishedOnly) {
-        query = query.eq('is_published', true).gte('event_date', new Date().toISOString())
+        query = query.eq('is_published', true).or(`event_end.gte.${nowIso},and(event_end.is.null,event_date.gte.${nowIso})`)
       }
       const { data, error } = await query
       if (error) setError(error.message)
