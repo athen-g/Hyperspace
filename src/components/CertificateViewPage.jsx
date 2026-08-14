@@ -64,7 +64,7 @@ export default function CertificateViewPage() {
 
         const textWidth = fontBold.widthOfTextAtSize(cleanName, fontSize)
         const nameX = (pageWidth - textWidth) / 2
-        const nameY = 285
+        const nameY = 250
 
         page.drawText(cleanName, {
           x: nameX,
