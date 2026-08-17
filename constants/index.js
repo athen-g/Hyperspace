@@ -57,7 +57,7 @@ const EVENTS_CONDUCTED = [
     id: 1,
     name: 'INITIATE CALIBRATION',
     thumbnail: initiateCalibration,
-    bthumbnail: backActiveImmersion,
+    bthumbnail: e1_image_1,
     slug: 'initiate-calibration',
     tags: [
       'INTRODUCTORY EVENT',

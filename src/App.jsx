@@ -17,6 +17,8 @@ import NewsPage from "./components/NewsPage";
 import EventRouter from "./components/EventRouter";
 import RegistrationsPage from "./components/RegistrationsPage";
 import UnsubscribePage from "./components/UnsubscribePage";
+import CertificatePage from "./components/CertificatePage";
+import CertificateViewPage from "./components/CertificateViewPage";
 import TeamPage from "./components/TeamPage";
 import PageTransition from "./components/ui/PageTransition";
 import CustomCursor from "./components/ui/CustomCursor";
@@ -106,6 +108,8 @@ function App() {
 
           <Route path="/register/:slug" element={<PageTransition><RegistrationsPage /></PageTransition>} />
           <Route path="/unsubscribe" element={<UnsubscribePage />} />
+          <Route path="/certificate" element={<CertificatePage />} />
+          <Route path="/certificate/:certId" element={<CertificateViewPage />} />
 
           {/* QR Deep Link */}
           <Route path="/scan" element={<ScanRedirect />} />

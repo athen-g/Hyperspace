@@ -69,28 +69,62 @@ export default function AttendancePage() {
               <th style={thStyle}>Reg No.</th>
               <th style={thStyle}>Name</th>
               <th style={thStyle}>Email</th>
+              <th style={thStyle}>Day 1</th>
+              <th style={thStyle}>Day 2</th>
               <th style={thStyle}>Type</th>
               <th style={thStyle}>Scanned At</th>
               <th style={thStyle}>Scanned By</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && attendance.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
-            {attendance.map(a => (
-              <tr key={a.id}>
-                <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{a.registration_no}</td>
-                <td style={{ ...tdStyle, color: '#e5e5e5' }}>{a.student_name}</td>
-                <td style={tdStyle}>{a.student_email}</td>
-                <td style={tdStyle}>
-                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: a.registered_by ? '#1a1a0a' : '#0a0a1a', color: a.registered_by ? '#facc15' : '#818cf8', border: `1px solid ${a.registered_by ? '#713f12' : '#3730a3'}` }}>
-                    {a.registered_by ? `Walk-in` : 'Online'}
-                  </span>
-                </td>
-                <td style={tdStyle}>{format(new Date(a.scanned_at), 'dd MMM yyyy, HH:mm:ss')}</td>
-                <td style={tdStyle}>{a.scanned_by_name}</td>
-              </tr>
-            ))}
+            {loading && <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && attendance.length === 0 && <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No attendance recorded yet</td></tr>}
+            {attendance.map(a => {
+              const d1 = (a as any).day1_attended || (a as any).notes?.includes('Day 1') || new Date(a.scanned_at).getDate() === 13
+              const d2 = (a as any).day2_attended || (a as any).notes?.includes('Day 2') || new Date(a.scanned_at).getDate() === 14
+
+              return (
+                <tr key={a.id}>
+                  <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '12px', color: '#888' }}>{a.registration_no}</td>
+                  <td style={{ ...tdStyle, color: '#e5e5e5' }}>{a.student_name}</td>
+                  <td style={tdStyle}>{a.student_email}</td>
+
+                  {/* Day 1 Status */}
+                  <td style={tdStyle}>
+                    {d1 ? (
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid #166534', fontWeight: 600 }}>
+                        ✓ Present
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid #991b1b' }}>
+                        ❌ Absent
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Day 2 Status */}
+                  <td style={tdStyle}>
+                    {d2 ? (
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid #166534', fontWeight: 600 }}>
+                        ✓ Present
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid #991b1b' }}>
+                        ❌ Absent
+                      </span>
+                    )}
+                  </td>
+
+                  <td style={tdStyle}>
+                    <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: a.registered_by ? '#1a1a0a' : '#0a0a1a', color: a.registered_by ? '#facc15' : '#818cf8', border: `1px solid ${a.registered_by ? '#713f12' : '#3730a3'}` }}>
+                      {a.registered_by ? `Walk-in` : 'Online'}
+                    </span>
+                  </td>
+                  <td style={tdStyle}>{format(new Date(a.scanned_at), 'dd MMM yyyy, HH:mm:ss')}</td>
+                  <td style={tdStyle}>{a.scanned_by_name}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

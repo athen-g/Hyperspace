@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { parseEdgeFunctionError } from '../lib/functions';
 import toast from 'react-hot-toast';
 import { eventsOngoing } from '../../constants/events';
+import { useAuth } from '../hooks/useAuth';
 
 /* ─── Reusable animated field wrapper ─── */
 function Field({ children, className = '' }) {
@@ -67,19 +68,32 @@ export default function RegistrationsPage() {
                     .from('events')
                     .select('*')
                     .eq('slug', slug)
-                    .single();
+                    .maybeSingle();
 
-                if (error) throw error;
-                setEvent(data);
-
-                // Prefer constants (slug-matched) for title/tagline, fall back to DB
-                const eventName = constantsEvent?.name ?? data.name;
-                const eventTagline = constantsEvent?.tagline ?? data.tagline;
-                document.title = `${eventName} — Hyperspace XR SIG`;
-                const metaDesc = document.querySelector('meta[name="description"]');
-                if (metaDesc && eventTagline) metaDesc.setAttribute('content', eventTagline);
+                if (!error && data) {
+                    setEvent(data);
+                } else if (constantsEvent) {
+                    setEvent({
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
+                        slug: constantsEvent.slug,
+                        name: constantsEvent.name,
+                        title: constantsEvent.name,
+                        tagline: constantsEvent.tagline,
+                        rulebook_url: constantsEvent.rulebook_url
+                    });
+                }
             } catch (err) {
                 console.error('Error fetching event:', err);
+                if (constantsEvent) {
+                    setEvent({
+                        id: 'e46a335a-4ad3-4569-a549-791e944e3b6b',
+                        slug: constantsEvent.slug,
+                        name: constantsEvent.name,
+                        title: constantsEvent.name,
+                        tagline: constantsEvent.tagline,
+                        rulebook_url: constantsEvent.rulebook_url
+                    });
+                }
             } finally {
                 setLoadingEvent(false);
             }
@@ -614,4 +628,4 @@ export default function RegistrationsPage() {
             <Footer />
         </section>
     );
-}
+}

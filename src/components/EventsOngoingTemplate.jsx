@@ -173,9 +173,13 @@ export default function EventOngoingTemplate() {
                 </div>
 
                 <div className={isMobile768 ? 'py-1 flex justify-start text-left' : 'px-5 py-5 flex justify-end text-right'}>
-                  {<span className="font-host text-[14px] uppercase tracking-[0.05em] leading-[1.2] text-white">
-                    {value ? value || "—" : ''}
-                  </span>}
+                  {React.isValidElement(value) ? (
+                    value
+                  ) : (
+                    <span className="font-host text-[14px] uppercase tracking-[0.05em] leading-[1.2] text-white">
+                      {value ? value || "—" : ''}
+                    </span>
+                  )}
                 </div>
 
               </div>
@@ -184,6 +188,19 @@ export default function EventOngoingTemplate() {
           </div>
 
         </div>
+
+        {/* Get Certificate Button (Matching View Album & View All Events Button Styling) */}
+        {event.has_certificate && (
+          <Button
+            label="GET CERTIFICATE"
+            onClick={() => navigate('/certificate')}
+            className={
+              isMobile768
+                ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
+                : '!relative !left-[74.35%] !w-[22.25%] mt-8 mb-16'
+            }
+          />
+        )}
 
         {/* Section: Schedule OR The Plan */}
         {hasSchedule ? (() => {

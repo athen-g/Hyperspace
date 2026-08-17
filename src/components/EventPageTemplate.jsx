@@ -158,9 +158,13 @@ const EventPageTemplate = () => {
                 </div>
 
                 <div className={isMobile768 ? 'py-1 flex justify-start text-left' : 'px-5 py-5 flex justify-end text-right'}>
-                  {<span className="font-host text-[14px] uppercase tracking-[0.05em] leading-[1.2] text-white">
-                    {value ? value || "—" : ''}
-                  </span>}
+                  {React.isValidElement(value) ? (
+                    value
+                  ) : (
+                    <span className="font-host text-[14px] uppercase tracking-[0.05em] leading-[1.2] text-white">
+                      {value ? value || "—" : ''}
+                    </span>
+                  )}
                 </div>
 
               </div>
