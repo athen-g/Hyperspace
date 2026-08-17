@@ -101,8 +101,13 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 6. Generate registration number
-    const { data: regNo } = await supabase.rpc('generate_registration_no', { p_event_id: event_id })
+    // 6. Generate registration number (derived dynamically from event slug)
+    let { data: regNo } = await supabase.rpc('generate_registration_no', { p_event_id: event_id })
+    if (!regNo) {
+      const slugClean = (event.slug || 'EVENT').replace(/-/g, '').toUpperCase().slice(0, 8)
+      const randomHex = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0').toUpperCase()
+      regNo = `HXR-${slugClean}-${randomHex}`
+    }
 
     // 7. Insert registration
     const { data: registration, error: regError } = await supabase
