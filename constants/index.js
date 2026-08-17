@@ -27,6 +27,10 @@ import e4_image_1 from '../src/assets/images/event-images/commence-synchronisati
 import e4_image_2 from '../src/assets/images/event-images/commence-synchronisation/IMG_9200.jpg'
 import e4_image_3 from '../src/assets/images/event-images/commence-synchronisation/IMG_9173.jpg'
 import e4_image_4 from '../src/assets/images/event-images/commence-synchronisation/IMG_9227.jpg'
+import e5_image_1 from '../src/assets/images/event-images/texture-distortion/e5_image_1.jpg'
+import e5_image_2 from '../src/assets/images/event-images/texture-distortion/e5_image_2.jpg'
+import e5_image_3 from '../src/assets/images/event-images/texture-distortion/e5_image_3.jpg'
+import e5_image_4 from '../src/assets/images/event-images/texture-distortion/e5_image_4.jpg'
 import coming_soon_1 from '../src/assets/images/coming-soon/1.png'
 import coming_soon_2 from '../src/assets/images/coming-soon/2.png'
 import coming_soon_3 from '../src/assets/images/coming-soon/3.png'
@@ -207,7 +211,12 @@ const EVENTS_CONDUCTED = [
     audience: '80',
     type: 'HANDS-ON WORKSHOP',
     sponsors: 'NONE',
-    images: [],
+    images: [
+      e5_image_1,
+      e5_image_2,
+      e5_image_3,
+      e5_image_4,
+    ],
     plan: `Day 01 - Thursday, 13th August
 Phase 01 - Setup & Orientation: Laptop and Blender environment configuration ensuring all participants were equipped and ready.
 Phase 02 - Interface, Navigation & First Mesh: Comprehensive introduction to the Blender viewport, shortcut workflows, and core mesh manipulation tools.
