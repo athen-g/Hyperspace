@@ -14,7 +14,19 @@ export default function EventOngoingTemplate() {
   const { slug } = useParams();
   const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
-  const event = eventsOngoing.find(e => e.slug === slug);
+  const [dbEvent, setDbEvent] = useState(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    supabase
+      .from('events')
+      .select('venue, capacity')
+      .eq('slug', slug)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setDbEvent(data);
+      });
+  }, [slug]);
 
   if (!event) return <h1 className="text-white text-center py-20 font-host text-3xl">404 - Event Not Found</h1>;
 
@@ -23,6 +35,13 @@ export default function EventOngoingTemplate() {
     : (event.schedule ? Object.values(event.schedule) : []);
 
   const hasSchedule = schedule && schedule.length > 0;
+
+  const rawVenue = dbEvent?.venue ?? event.venue;
+  const displayVenue = rawVenue
+    ? (rawVenue.toString().toLowerCase().startsWith('lab') || rawVenue.toString().toLowerCase().startsWith('room') ? rawVenue : `Room ${rawVenue}`)
+    : '';
+
+  const displayAudience = dbEvent?.capacity ?? event.audience ?? event.total_seats;
 
   return (
     <>
@@ -117,8 +136,8 @@ export default function EventOngoingTemplate() {
             {[
               ["DATE:", event.date],
               ...(event.time ? [["TIME:", event.time]] : []),
-              ...(event.venue ? [["VENUE:", `Room ${event.venue}`]] : []),
-              ["AUDIENCE:", event.audience || event.total_seats],
+              ...(displayVenue ? [["VENUE:", displayVenue]] : []),
+              ["AUDIENCE:", displayAudience],
               ["TYPE:", event.type],
               [
                 "TAGS:",
