@@ -9,12 +9,16 @@ import { eventsOngoing } from '../../constants/events';
 import { useMediaQuery } from 'react-responsive';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { supabase } from '../lib/supabase';
+
 export default function EventOngoingTemplate() {
   const navigate = useNavigate();
   const { slug } = useParams();
   const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
 
   const [dbEvent, setDbEvent] = useState(null);
+
+  const event = eventsOngoing.find(e => e.slug === slug);
 
   useEffect(() => {
     if (!slug) return;
