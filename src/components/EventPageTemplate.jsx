@@ -168,22 +168,20 @@ const EventPageTemplate = () => {
 
           </div>
 
-          {/* Certificate Button below details table */}
-          {event.has_certificate && (
-            <div className={`flex justify-end ${isMobile768 ? 'mt-4 mb-8' : 'mt-6 mb-12'}`}>
-              <Button
-                label="GET YOUR CERTIFICATE"
-                onClick={() => navigate('/certificate')}
-                className={
-                  isMobile768
-                    ? '!relative !z-10 !w-full'
-                    : '!relative !w-[46.528%]'
-                }
-              />
-            </div>
-          )}
-
         </div>
+
+        {/* Certificate Button below details table */}
+        {event.has_certificate && (
+          <Button
+            label="GET YOUR CERTIFICATE"
+            onClick={() => navigate('/certificate')}
+            className={
+              isMobile768
+                ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
+                : '!relative !left-[74.35%] !w-[22.25%] mt-12 mb-20'
+            }
+          />
+        )}
 
         {/* Photo Gallery Grid */}
         <div className={
