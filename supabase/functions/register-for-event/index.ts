@@ -149,11 +149,13 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 6. Generate registration number: HYPER-YYYY-EVT-XXXX
-    const yearStr = new Date().getFullYear()
-    const slugAbbr = (event.slug || 'EVT').split('-').map((s: string) => s[0]).join('').toUpperCase().slice(0, 4)
-    const randomHex = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0').toUpperCase()
-    const registrationNo = `HYPER-${yearStr}-${slugAbbr}-${randomHex}`
+    // 6. Generate registration number (derived dynamically from event slug)
+    let { data: regNo } = await supabase.rpc('generate_registration_no', { p_event_id: event_id })
+    if (!regNo) {
+      const slugClean = (event.slug || 'EVENT').replace(/-/g, '').toUpperCase().slice(0, 8)
+      const randomHex = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0').toUpperCase()
+      regNo = `HXR-${slugClean}-${randomHex}`
+    }
 
     // 7. Create registration
     const { data: reg, error: regError } = await supabase

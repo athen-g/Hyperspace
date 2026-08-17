@@ -8,16 +8,39 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Button from './Button'
 import { useMediaQuery } from 'react-responsive'
 
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+
 const EventPageTemplate = () => {
   const navigate = useNavigate();
   const { slug } = useParams();
   const isMobile768 = useMediaQuery({ query: '(max-width: 768px)' });
+
+  const [dbEvent, setDbEvent] = useState(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    supabase
+      .from('events')
+      .select('venue, capacity')
+      .eq('slug', slug)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setDbEvent(data);
+      });
+  }, [slug]);
 
   const event = EVENTS.find((e) => e.slug === slug);
 
   if (!event) {
     return <h1>404 - Event Not Found</h1>;
   }
+
+  const rawVenue = dbEvent?.venue ?? event.venue;
+  const displayVenue = rawVenue
+    ? (rawVenue.toString().toLowerCase().startsWith('lab') || rawVenue.toString().toLowerCase().startsWith('room') ? rawVenue : `Room ${rawVenue}`)
+    : '';
+  const displayAudience = dbEvent?.capacity ?? event.audience;
 
   return (
     <>
@@ -109,7 +132,8 @@ const EventPageTemplate = () => {
 
             {[
               ["DATE:", event.date],
-              ["AUDIENCE:", event.audience],
+              ...(displayVenue ? [["VENUE:", displayVenue]] : []),
+              ["AUDIENCE:", displayAudience],
               ["TYPE:", event.type],
               [
                 "TAGS:",
@@ -150,15 +174,15 @@ const EventPageTemplate = () => {
 
         </div>
 
-        {/* Get Certificate Button (Matching View Album & View All Events Button Styling) */}
+        {/* Certificate Button below details table */}
         {event.has_certificate && (
           <Button
-            label="GET CERTIFICATE"
+            label="GET YOUR CERTIFICATE"
             onClick={() => navigate('/certificate')}
             className={
               isMobile768
                 ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
-                : '!relative !left-[74.35%] !w-[22.25%] mt-8 mb-16'
+                : '!relative !left-[74.35%] !w-[22.25%] mt-12 mb-20'
             }
           />
         )}
@@ -207,20 +231,22 @@ const EventPageTemplate = () => {
 
         </div>
 
-        {/* View Album Button */}
-        <Button
-          label="View the album"
-          onClick={() => window.open(
-            `${event.albumLink}`,
-            "_blank",
-            "noopener,noreferrer"
-          )}
-          className={
-            isMobile768
-              ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
-              : '!relative !left-[74.35%] !w-[22.25%] mt-12 mb-20'
-          }
-        />
+        {/* View Album Button below picture grid */}
+        {event.albumLink && (
+          <Button
+            label="View the album"
+            onClick={() => window.open(
+              `${event.albumLink}`,
+              "_blank",
+              "noopener,noreferrer"
+            )}
+            className={
+              isMobile768
+                ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
+                : '!relative !left-[74.35%] !w-[22.25%] mt-12 mb-20'
+            }
+          />
+        )}
 
         {/* The Plan Section */}
         <div className={

@@ -20,10 +20,21 @@ function CreateEventModal({ onClose, onCreated }: { onClose: () => void; onCreat
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.slug || !form.title || !form.event_date) return
+    const startDate = form.event_start || form.event_date
+    if (!form.slug || !form.title || !startDate) return
     setLoading(true)
+
+    const payload: EventInsert = {
+      ...form,
+      slug: form.slug,
+      title: form.title,
+      event_date: startDate,
+      event_start: startDate,
+      event_end: form.event_end || startDate,
+    } as EventInsert
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('events') as any).insert(form as EventInsert)
+    const { error } = await (supabase.from('events') as any).insert(payload)
     if (error) { toast.error(error.message); setLoading(false); return }
     toast.success('Event created!')
     onCreated()
@@ -36,12 +47,33 @@ function CreateEventModal({ onClose, onCreated }: { onClose: () => void; onCreat
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
-      <div style={{ background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: '#111', border: '1px solid #222', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto' }}>
         <h2 style={{ margin: '0 0 24px', fontSize: '20px', fontWeight: 700, color: '#fff' }}>New Event</h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div><label style={labelStyle}>Title *</label><input style={inputStyle} required value={form.title ?? ''} onChange={f('title')} /></div>
           <div><label style={labelStyle}>Slug * (URL-safe)</label><input style={inputStyle} required value={form.slug ?? ''} onChange={f('slug')} placeholder="my-event-2026" /></div>
-          <div><label style={labelStyle}>Event Date *</label><input type="datetime-local" style={inputStyle} required value={form.event_date?.toString().slice(0, 16) ?? ''} onChange={f('event_date')} /></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={labelStyle}>Event Start Date & Time *</label>
+              <input
+                type="datetime-local"
+                style={inputStyle}
+                required
+                value={form.event_start?.toString().slice(0, 16) ?? form.event_date?.toString().slice(0, 16) ?? ''}
+                onChange={e => setForm(p => ({ ...p, event_start: e.target.value, event_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Event End Date & Time *</label>
+              <input
+                type="datetime-local"
+                style={inputStyle}
+                required
+                value={form.event_end?.toString().slice(0, 16) ?? ''}
+                onChange={f('event_end')}
+              />
+            </div>
+          </div>
           <div><label style={labelStyle}>Registration Deadline</label><input type="datetime-local" style={inputStyle} value={form.registration_deadline?.toString().slice(0, 16) ?? ''} onChange={f('registration_deadline')} /></div>
           <div><label style={labelStyle}>Venue</label><input style={inputStyle} value={form.venue ?? ''} onChange={f('venue')} /></div>
           <div><label style={labelStyle}>Capacity (blank = unlimited)</label><input type="number" style={inputStyle} value={form.capacity?.toString() ?? ''} onChange={e => setForm(p => ({ ...p, capacity: e.target.value ? parseInt(e.target.value) : undefined }))} /></div>
@@ -68,6 +100,17 @@ export default function EventsPage() {
   const thStyle: React.CSSProperties = { padding: '12px 16px', textAlign: 'left', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', fontWeight: 500, borderBottom: '1px solid #1a1a1a' }
   const tdStyle: React.CSSProperties = { padding: '12px 16px', fontSize: '13px', color: '#aaa', borderBottom: '1px solid #111' }
 
+  // Helper to determine event lifecycle status based on event_start and event_end
+  const getEventLifecycle = (ev: any) => {
+    const now = new Date().getTime()
+    const startTime = new Date(ev.event_start || ev.event_date).getTime()
+    const endTime = ev.event_end ? new Date(ev.event_end).getTime() : startTime + 4 * 3600 * 1000
+
+    if (now > endTime) return { label: 'Completed', bg: '#1a1a1a', color: '#888', border: '#333' }
+    if (now >= startTime && now <= endTime) return { label: 'Ongoing / Active', bg: '#0a2a0a', color: '#4ade80', border: '#166534' }
+    return { label: 'Upcoming', bg: '#1a1a0a', color: '#facc15', border: '#713f12' }
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -85,34 +128,42 @@ export default function EventsPage() {
       </div>
 
       <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
           <thead>
             <tr>
               <th style={thStyle}>Title</th>
-              <th style={thStyle}>Date</th>
+              <th style={thStyle}>Start Date / Time</th>
+              <th style={thStyle}>End Date / Time</th>
               <th style={thStyle}>Status</th>
               <th style={thStyle}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
-            {!loading && events.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No events yet</td></tr>}
-            {events.map(ev => (
-              <tr key={ev.id}>
-                <td style={{ ...tdStyle, color: '#e5e5e5', fontWeight: 500 }}>{ev.title}</td>
-                <td style={tdStyle}>{format(new Date(ev.event_date), 'dd MMM yyyy, HH:mm')}</td>
-                <td style={tdStyle}>
-                  <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', background: ev.is_published ? '#0a2a0a' : '#1a1a0a', color: ev.is_published ? '#4ade80' : '#facc15', border: `1px solid ${ev.is_published ? '#166534' : '#713f12'}` }}>
-                    {ev.is_published ? 'Published' : 'Draft'}
-                  </span>
-                </td>
-                <td style={{ ...tdStyle, display: 'flex', gap: '16px' }}>
-                  <Link to={`/admin/events/${ev.id}`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Detail</Link>
-                  <Link to={`/admin/events/${ev.id}/registrations`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Registrations</Link>
-                  <Link to={`/admin/events/${ev.id}/attendance`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Attendance</Link>
-                </td>
-              </tr>
-            ))}
+            {loading && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>Loading...</td></tr>}
+            {!loading && events.length === 0 && <tr><td colSpan={5} style={{ ...tdStyle, textAlign: 'center', padding: '32px', color: '#444' }}>No events yet</td></tr>}
+            {events.map(ev => {
+              const status = getEventLifecycle(ev)
+              const startDate = ev.event_start || ev.event_date
+              const endDate = ev.event_end
+
+              return (
+                <tr key={ev.id}>
+                  <td style={{ ...tdStyle, color: '#e5e5e5', fontWeight: 500 }}>{ev.title}</td>
+                  <td style={tdStyle}>{format(new Date(startDate), 'dd MMM yyyy, HH:mm')}</td>
+                  <td style={tdStyle}>{endDate ? format(new Date(endDate), 'dd MMM yyyy, HH:mm') : '—'}</td>
+                  <td style={tdStyle}>
+                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', background: status.bg, color: status.color, border: `1px solid ${status.border}` }}>
+                      {status.label}
+                    </span>
+                  </td>
+                  <td style={{ ...tdStyle, display: 'flex', gap: '16px' }}>
+                    <Link to={`/admin/events/${ev.id}`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Detail</Link>
+                    <Link to={`/admin/events/${ev.id}/registrations`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Registrations</Link>
+                    <Link to={`/admin/events/${ev.id}/attendance`} style={{ color: '#888', fontSize: '12px', textDecoration: 'none' }}>Attendance</Link>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

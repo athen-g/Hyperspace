@@ -37,12 +37,12 @@ export default function DashboardPage() {
   useEffect(() => {
     const nowIso = new Date().toISOString()
 
-    // Upcoming events & upcoming registrations count
+    // Active/Upcoming events (an event completes ONLY after event_end has passed)
     supabase
       .from('events')
       .select('*')
-      .gte('event_date', nowIso)
-      .order('event_date')
+      .or(`event_end.gte.${nowIso},and(event_end.is.null,event_date.gte.${nowIso})`)
+      .order('event_start', { ascending: true })
       .then(async ({ data }) => {
         const events = data ?? []
         setUpcomingEvents(events.slice(0, 5))
@@ -63,12 +63,14 @@ export default function DashboardPage() {
     supabase.from('registration_details').select('*').order('registered_at', { ascending: false })
       .limit(10).then(({ data }) => setRecentRegs(data ?? []))
 
-    // Today's event
+    // Today's event (overlaps today)
     const today = new Date()
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString()
-    supabase.from('events').select('*').gte('event_date', startOfDay).lt('event_date', endOfDay)
-      .limit(1).single().then(({ data }) => setTodayEvent(data))
+    supabase.from('events').select('*')
+      .or(`event_end.gte.${startOfDay},and(event_end.is.null,event_date.gte.${startOfDay})`)
+      .lte('event_start', endOfDay)
+      .limit(1).maybeSingle().then(({ data }) => setTodayEvent(data))
   }, [])
 
   const thStyle: React.CSSProperties = { padding: '12px 16px', textAlign: 'left', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', fontWeight: 500, borderBottom: '1px solid #1a1a1a' }

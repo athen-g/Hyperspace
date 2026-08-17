@@ -8,6 +8,7 @@ import initiateCalibration from '../src/assets/images/event-backdrops/initiate-c
 import activateImmersion from '../src/assets/images/event-backdrops/activate-immersion.png'
 import renderCreation from '../src/assets/images/event-backdrops/render-creation-workshop-backdrop.jpg'
 import commenceSynchronization from '../src/assets/images/event-backdrops/commence-synchronisation.png'
+import textureDistortion from '../src/assets/images/event-backdrops/texture-distortion-backdrop.png'
 import backActiveImmersion from '../src/assets/images/event-backdrops/activate-immersion2.png'
 import backRenderCreation from '../src/assets/images/event-backdrops/render-creation2.jpg'
 import e1_image_1 from '../src/assets/images/event-images/initiate-calibration/initiate_calibration_image_1.png'
@@ -26,6 +27,10 @@ import e4_image_1 from '../src/assets/images/event-images/commence-synchronisati
 import e4_image_2 from '../src/assets/images/event-images/commence-synchronisation/IMG_9200.jpg'
 import e4_image_3 from '../src/assets/images/event-images/commence-synchronisation/IMG_9173.jpg'
 import e4_image_4 from '../src/assets/images/event-images/commence-synchronisation/IMG_9227.jpg'
+import e5_image_1 from '../src/assets/images/event-images/texture-distortion/e5_image_1.jpg'
+import e5_image_2 from '../src/assets/images/event-images/texture-distortion/e5_image_2.jpg'
+import e5_image_3 from '../src/assets/images/event-images/texture-distortion/e5_image_3.jpg'
+import e5_image_4 from '../src/assets/images/event-images/texture-distortion/e5_image_4.jpg'
 import coming_soon_1 from '../src/assets/images/coming-soon/1.png'
 import coming_soon_2 from '../src/assets/images/coming-soon/2.png'
 import coming_soon_3 from '../src/assets/images/coming-soon/3.png'
@@ -187,6 +192,46 @@ const EVENTS_CONDUCTED = [
     albumLink: '',
     rulebook_url: '',
     brochure_url: 'https://drive.google.com/file/d/17gSMwSkK3G054wFU_6dqkw5TgjBWVetm/view?usp=sharing'
+  },
+  {
+    id: 5,
+    name: 'TEXTURE DISTORTION',
+    thumbnail: textureDistortion,
+    bthumbnail: textureDistortion,
+    slug: 'texture-distortion',
+    tags: [
+      'SHADERS AND TEXTURES',
+      'XR CREATIVE DESIGN',
+      'CERTIFIED WORKSHOP',
+    ],
+    tagline: 'ONE BLANK CANVAS. ONE VISION. ENDLESS POSSIBILITIES.',
+    pagesubtitle: 'ONE BLANK CANVAS. ONE VISION. ENDLESS POSSIBILITIES.',
+    overview: 'Texture Distortion was the fifth official event of Hyperspace XR SIG and the first hands-on technical workshop of the 2026-27 academic year, inviting students of all skill levels to experience 3D creation from the inside out. Spanning two focused sessions, the workshop guided participants through the complete Blender pipeline, from navigating a blank viewport to delivering a fully modelled, textured, lit, and rendered scene, placing real creative tools in their hands from the very first hour. Rather than teaching in theory alone, every concept unfolded through practice, with each new skill building directly on the last until participants walked away not just with knowledge, but with something they made themselves. All participants who completed the workshop received a certificate of completion.',
+    date: '13-14TH AUGUST 2026',
+    audience: '80',
+    type: 'HANDS-ON WORKSHOP',
+    sponsors: 'NONE',
+    images: [
+      e5_image_1,
+      e5_image_2,
+      e5_image_3,
+      e5_image_4,
+    ],
+    plan: `Day 01 - Thursday, 13th August
+Phase 01 - Setup & Orientation: Laptop and Blender environment configuration ensuring all participants were equipped and ready.
+Phase 02 - Interface, Navigation & First Mesh: Comprehensive introduction to the Blender viewport, shortcut workflows, and core mesh manipulation tools.
+Phase 03 - Foundation of 3D Modelling: Hands-on project creation modeling a donut base, coffee mug, plate, and applying organic deformation to icing elements.
+Phase 04 - Day 1 Assessment & Quiz: Interactive evaluation reinforcing core modelling concepts with live leaderboards.
+Phase 05 - Scene Layout & Camera Setup: Establishing composition, camera angles, and initial lighting passes.
+
+Day 02 - Friday, 14th August
+Phase 06 - PBR Materials & UV Texturing: Connecting procedural node networks, UV unwrapping, and applying physically-based material maps in the Shader Editor.
+Phase 07 - Scatter Systems & Final Render: Utilizing particle scatter geometry for detail placement, building a three-point studio lighting setup, and executing final renders.
+Phase 08 - Final Showcase & Certification: Participant project exhibition, social media challenge, and issuance of verified certificates of completion.`,
+    albumLink: 'https://drive.google.com/drive/folders/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53?usp=sharing',
+    has_certificate: true,
+    rulebook_url: 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing',
+    brochure_url: 'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing',
   },
 ]
 const EVENTS_COMING_SOON = [

@@ -39,6 +39,8 @@ export interface Database {
           description: string | null
           venue: string | null
           event_date: string
+          event_start: string | null
+          event_end: string | null
           registration_deadline: string | null
           capacity: number | null
           is_published: boolean
@@ -54,6 +56,8 @@ export interface Database {
           description?: string | null
           venue?: string | null
           event_date: string
+          event_start?: string | null
+          event_end?: string | null
           registration_deadline?: string | null
           capacity?: number | null
           is_published?: boolean
@@ -69,6 +73,8 @@ export interface Database {
           description?: string | null
           venue?: string | null
           event_date?: string
+          event_start?: string | null
+          event_end?: string | null
           registration_deadline?: string | null
           capacity?: number | null
           is_published?: boolean
