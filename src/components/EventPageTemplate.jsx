@@ -214,20 +214,30 @@ const EventPageTemplate = () => {
 
         </div>
 
-        {/* View Album Button */}
-        <Button
-          label="View the album"
-          onClick={() => window.open(
-            `${event.albumLink}`,
-            "_blank",
-            "noopener,noreferrer"
+        {/* Action Buttons: Album & Certificate */}
+        <div className={`flex flex-col md:flex-row gap-4 justify-end ${
+          isMobile768 ? 'w-[93.056%] mx-auto mt-8 mb-12 relative z-10' : 'w-[93.056%] mx-auto mt-12 mb-20 relative z-10'
+        }`}>
+          {event.albumLink && (
+            <Button
+              label="View the album"
+              onClick={() => window.open(
+                `${event.albumLink}`,
+                "_blank",
+                "noopener,noreferrer"
+              )}
+              className={isMobile768 ? '!w-full' : '!w-[22.25%]'}
+            />
           )}
-          className={
-            isMobile768
-              ? '!relative !z-10 !left-[3.472%] !w-[93.056%] mt-8 mb-12'
-              : '!relative !left-[74.35%] !w-[22.25%] mt-12 mb-20'
-          }
-        />
+
+          {event.has_certificate && (
+            <Button
+              label="GET YOUR CERTIFICATE"
+              onClick={() => navigate('/certificate')}
+              className={isMobile768 ? '!w-full' : '!w-[22.25%]'}
+            />
+          )}
+        </div>
 
         {/* The Plan Section */}
         <div className={

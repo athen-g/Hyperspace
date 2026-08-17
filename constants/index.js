@@ -203,7 +203,7 @@ const EVENTS_CONDUCTED = [
     tagline: 'ONE BLANK CANVAS. ONE VISION. ENDLESS POSSIBILITIES.',
     pagesubtitle: 'ONE BLANK CANVAS. ONE VISION. ENDLESS POSSIBILITIES.',
     overview: 'Texture Distortion was the fifth official event of Hyperspace XR SIG and the first hands-on technical workshop of the 2026-27 academic year, inviting students of all skill levels to experience 3D creation from the inside out. Spanning two focused sessions, the workshop guided participants through the complete Blender pipeline, from navigating a blank viewport to delivering a fully modelled, textured, lit, and rendered scene, placing real creative tools in their hands from the very first hour. Rather than teaching in theory alone, every concept unfolded through practice, with each new skill building directly on the last until participants walked away not just with knowledge, but with something they made themselves. All participants who completed the workshop received a certificate of completion.',
-    date: '13-14TH OF AUGUST 2026',
+    date: '13-14TH AUGUST 2026',
     audience: '80',
     type: 'HANDS-ON WORKSHOP',
     sponsors: 'NONE',
@@ -220,6 +220,7 @@ Phase 06 - PBR Materials & UV Texturing: Connecting procedural node networks, UV
 Phase 07 - Scatter Systems & Final Render: Utilizing particle scatter geometry for detail placement, building a three-point studio lighting setup, and executing final renders.
 Phase 08 - Final Showcase & Certification: Participant project exhibition, social media challenge, and issuance of verified certificates of completion.`,
     albumLink: '',
+    has_certificate: true,
     rulebook_url: 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing',
     brochure_url: 'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing',
   },
