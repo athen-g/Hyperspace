@@ -140,7 +140,6 @@ export default function RegistrationsPage() {
   const handleExportXLSX = () => {
     exportToXLSX(filtered.map(r => ({
       'Reg No.': r.registration_no,
-      'Cert ID': r.certificate_id ?? '',
       'Name': r.student_name,
       'Email': r.student_email,
       'Phone': r.student_phone ?? '',
@@ -155,8 +154,8 @@ export default function RegistrationsPage() {
 
   const handleExportPDF = () => {
     exportToPDF(
-      ['Reg No.', 'Cert ID', 'Name', 'Email', 'College', 'Branch', 'Year', 'Registered At'],
-      filtered.map(r => [r.registration_no, r.certificate_id ?? '—', r.student_name, r.student_email, r.student_college ?? '', r.student_branch ?? '', r.student_year ?? 0, format(new Date(r.registered_at), 'dd MMM HH:mm')]) as (string | number | null)[][],
+      ['Reg No.', 'Name', 'Email', 'College', 'Branch', 'Year', 'Registered At'],
+      filtered.map(r => [r.registration_no, r.student_name, r.student_email, r.student_college ?? '', r.student_branch ?? '', r.student_year ?? 0, format(new Date(r.registered_at), 'dd MMM HH:mm')]) as (string | number | null)[][],
       `Registrations — ${filtered[0]?.event_title ?? ''}`,
       `registrations-${eventId}`
     )
