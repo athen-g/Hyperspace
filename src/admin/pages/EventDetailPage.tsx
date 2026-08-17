@@ -16,11 +16,61 @@ export default function EventDetailPage() {
   const regCount = useRealtimeCount(eventId ?? '', 'registrations')
   const attCount = useRealtimeCount(eventId ?? '', 'attendance')
 
+  // Multi-Day Attendance Breakdown State
+  const [day1Count, setDay1Count] = useState(0)
+  const [day2Count, setDay2Count] = useState(0)
+  const [bothDaysCount, setBothDaysCount] = useState(0)
+
   useEffect(() => {
     if (!eventId) return
     supabase.from('events').select('*').eq('id', eventId).single()
       .then(({ data }) => { setEvent(data); setLoading(false) })
   }, [eventId])
+
+  const isMultiDay = event?.slug === 'texture-distortion' || (
+    event?.event_start && event?.event_end &&
+    new Date(event.event_start).toDateString() !== new Date(event.event_end).toDateString()
+  )
+
+  useEffect(() => {
+    if (!eventId || !isMultiDay) return
+
+    const fetchMultiDayAttendance = async () => {
+      const { data: regList } = await supabase
+        .from('registrations')
+        .select('id')
+        .eq('event_id', eventId)
+
+      if (!regList || regList.length === 0) return
+
+      const regIds = regList.map(r => r.id)
+      const { data: attList } = await supabase
+        .from('attendance')
+        .select('*')
+        .in('registration_id', regIds)
+
+      if (attList) {
+        let d1 = 0
+        let d2 = 0
+        let both = 0
+
+        attList.forEach((a: any) => {
+          const hasDay1 = !!a.day1_attended || a.notes?.includes('Day 1') || (a.scanned_at && new Date(a.scanned_at).getDate() === 13)
+          const hasDay2 = !!a.day2_attended || a.notes?.includes('Day 2') || (a.scanned_at && new Date(a.scanned_at).getDate() === 14)
+
+          if (hasDay1) d1++
+          if (hasDay2) d2++
+          if (hasDay1 && hasDay2) both++
+        })
+
+        setDay1Count(d1)
+        setDay2Count(d2)
+        setBothDaysCount(both)
+      }
+    }
+
+    fetchMultiDayAttendance()
+  }, [eventId, isMultiDay, attCount])
 
   const togglePublish = async () => {
     if (!event) return
@@ -41,6 +91,19 @@ export default function EventDetailPage() {
   const labelStyle: React.CSSProperties = { fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase', marginBottom: '4px' }
   const valueStyle: React.CSSProperties = { fontSize: '15px', color: '#e5e5e5' }
 
+  // Stats cards configuration
+  const statsList = [
+    { label: 'Registrations', value: regCount, link: `/admin/events/${eventId}/registrations` },
+    ...(isMultiDay
+      ? [
+          { label: 'Day 1 Attendance', value: day1Count, link: `/admin/events/${eventId}/attendance` },
+          { label: 'Day 2 Attendance', value: day2Count, link: `/admin/events/${eventId}/attendance` },
+          { label: 'Both Days (2/2)', value: bothDaysCount, link: `/admin/events/${eventId}/attendance` },
+        ]
+      : [{ label: 'Attendance', value: attCount, link: `/admin/events/${eventId}/attendance` }]),
+    { label: 'Capacity Remaining', value: event.capacity ? Math.max(0, event.capacity - regCount) : '∞' },
+  ]
+
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
@@ -59,12 +122,8 @@ export default function EventDetailPage() {
 
       {/* Stats */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
-        {[
-          { label: 'Registrations', value: regCount, link: `/admin/events/${eventId}/registrations` },
-          { label: 'Attendance', value: attCount, link: `/admin/events/${eventId}/attendance` },
-          { label: 'Capacity Remaining', value: event.capacity ? Math.max(0, event.capacity - regCount) : '∞' },
-        ].map(stat => (
-          <div key={stat.label} style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', padding: '24px', flex: 1, minWidth: '140px' }}>
+        {statsList.map(stat => (
+          <div key={stat.label} style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: '12px', padding: '24px', flex: 1, minWidth: '160px' }}>
             <p style={{ margin: '0 0 8px', fontSize: '11px', letterSpacing: '2px', color: '#555', textTransform: 'uppercase' }}>{stat.label}</p>
             <p style={{ margin: 0, fontSize: '36px', fontWeight: 700, color: '#fff', lineHeight: 1 }}>{stat.value}</p>
             {stat.link && <Link to={stat.link} style={{ display: 'block', marginTop: '8px', fontSize: '11px', color: '#555', textDecoration: 'none' }}>View →</Link>}
