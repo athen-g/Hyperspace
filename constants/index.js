@@ -228,7 +228,7 @@ Day 02 - Friday, 14th August
 Phase 06 - PBR Materials & UV Texturing: Connecting procedural node networks, UV unwrapping, and applying physically-based material maps in the Shader Editor.
 Phase 07 - Scatter Systems & Final Render: Utilizing particle scatter geometry for detail placement, building a three-point studio lighting setup, and executing final renders.
 Phase 08 - Final Showcase & Certification: Participant project exhibition, social media challenge, and issuance of verified certificates of completion.`,
-    albumLink: '',
+    albumLink: 'https://drive.google.com/drive/folders/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53?usp=sharing',
     has_certificate: true,
     rulebook_url: 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing',
     brochure_url: 'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing',
