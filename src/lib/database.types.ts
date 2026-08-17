@@ -218,6 +218,7 @@ export interface Database {
         Row: {
           id: string
           registration_no: string
+          certificate_id: string | null
           registered_at: string
           is_waitlisted: boolean
           custom_field_data: Json
