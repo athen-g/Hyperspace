@@ -587,6 +587,11 @@ export default function RegistrationsPage() {
                 <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace', marginTop: '4px' }}>{selectedReg.registration_no}</div>
               </div>
               <div>
+                <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Certificate ID</label>
+                <div style={{ color: selectedReg.certificate_id ? '#38bdf8' : '#888', fontSize: '14px', fontFamily: 'monospace', marginTop: '4px' }}>{selectedReg.certificate_id ?? '—'}</div>
+              </div>
+
+              <div>
                 <label style={{ fontSize: '10px', color: '#555', letterSpacing: '1px', textTransform: 'uppercase' }}>Registered At</label>
                 <div style={{ color: '#aaa', fontSize: '14px', marginTop: '4px' }}>{format(new Date(selectedReg.registered_at), 'dd MMM yyyy, HH:mm')}</div>
               </div>

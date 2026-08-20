@@ -217,18 +217,34 @@ const EVENTS_CONDUCTED = [
       e5_image_3,
       e5_image_4,
     ],
-    plan: `Day 01 - Thursday, 13th August
-Phase 01 - Setup & Orientation: Laptop and Blender environment configuration ensuring all participants were equipped and ready.
-Phase 02 - Interface, Navigation & First Mesh: Comprehensive introduction to the Blender viewport, shortcut workflows, and core mesh manipulation tools.
-Phase 03 - Foundation of 3D Modelling: Hands-on project creation modeling a donut base, coffee mug, plate, and applying organic deformation to icing elements.
-Phase 04 - Day 1 Assessment & Quiz: Interactive evaluation reinforcing core modelling concepts with live leaderboards.
-Phase 05 - Scene Layout & Camera Setup: Establishing composition, camera angles, and initial lighting passes.
+    plan: `Day 1:
 
-Day 02 - Friday, 14th August
-Phase 06 - PBR Materials & UV Texturing: Connecting procedural node networks, UV unwrapping, and applying physically-based material maps in the Shader Editor.
-Phase 07 - Scatter Systems & Final Render: Utilizing particle scatter geometry for detail placement, building a three-point studio lighting setup, and executing final renders.
-Phase 08 - Final Showcase & Certification: Participant project exhibition, social media challenge, and issuance of verified certificates of completion.`,
-    albumLink: 'https://drive.google.com/drive/folders/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53?usp=sharing',
+The students are invited to the lab where they set up their computers. The management team go around the lab helping the attendees download all the necessary blender files such as assets and reference images.
+
+After setup is complete, presentation begins with the Design Team head teaching Blender basics. What is a bevel, what are edges, how to use lattices and many more questions are answered here. The students are also shown shortcut keys to make the designing process much easier. Frequent QnAs are held to maintain audience attention.
+
+While this is happening, several team members walk around the hall and check on the students to help them if they are stuck or have a doubt. This makes sure that no one is left behind and everyone is on the same page.
+
+The first object made is a cup. A cylinder is taken and made hollow to simulate an empty cup, with this shape and loop manipulation a handle for the cup is produced.
+
+The Tech Team takes over as the next presenters to teach how to make a saucer for the cup with a circular plate.
+
+In the end of the 1st day, a short 20 question quiz is taken to test the students on what they learnt with the winners recieving a small prize.
+
+Day 2:
+
+The students are welcomed back into the event hall where their attendance is marked. A small speech thanking them for returning for the second day is taken. After this it's back to work!
+
+The first object made on the second day is a doughnut. A torus shape is taken with radius and subdivisions changed to mimic a real pastry. The icing and sprikles on the doughnut are also made using cubes and cylinders.
+
+As a break another quiz is taken to test the students on what they learnt with the winners again recieving a prize.
+
+Afterwards, everyone feels refreshed and hence the presenters continue to the next part - Lighting. The audience members are taught how to manipulate light to give your image a dynamic and cinematic feel and just like that, your models are ready for whatever purpose you need be it for game assets, picture taking, animation or so much more!
+
+The event then concludes with everyone feeling satisfied with their efforts and their hard work allowing everyone to head home with content spirits.
+
+As a reward for everyone's hard work, the participants recieved a certificate signed by the coordinators and the principal showing that they were now well versed in the world of Blender.`,
+    albumLink: 'https://drive.google.com/drive/folders/1AIga1Xw2r9L3PdT2eielYZv_NOdyri7C?usp=sharing',
     has_certificate: true,
     rulebook_url: 'https://drive.google.com/file/d/1s_Zbe7DRIBg6IFnCTTLWX_j7m_rfLs53/view?usp=sharing',
     brochure_url: 'https://drive.google.com/file/d/1bjIw2g77GeV4w_Z05zi3vTmajYL-txOu/view?usp=sharing',
